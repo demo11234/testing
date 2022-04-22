@@ -23,7 +23,8 @@ import { ApiBearerAuth,
   ApiResponse, 
   ApiTags 
 } from '@nestjs/swagger'
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { JwtAuthGuard } from 'src/auth/user-auth.guard';
+import { SignedUrlDto } from './dto/signed-url.dto';
 
 @Controller('user')
 export class UserController {
@@ -163,5 +164,24 @@ export class UserController {
     } catch (error) {
       return this.responseModel.response(error, ResponseStatusCode.INTERNAL_SERVER_ERROR, false, response);      
     }
+  }
+
+  /**
+   * @description it will genrate singed url for s3 bucket
+   * @param SignedUrlDto
+   * @returns it will return signed url
+   * @author Vipin
+  */
+  @ApiTags('User Module')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary : "Get pre-signed url with given filename and filetype" })
+  @ApiResponse({ status: ResponseStatusCode.BAD_REQUEST, description: ResponseMessage.BAD_REQUEST })
+  @ApiResponse({ status: ResponseStatusCode.OK, description: "Pre-Signed Url" })
+  @ApiBearerAuth()
+  @Post('/getPresignedURL')
+  async getPresignedURL( @Body() signedUrlDto: SignedUrlDto):Promise<any> {
+    const {fileName, fileType} = signedUrlDto
+    let url = await this.userService.getPresignedURL(fileName, fileType)
+    return url;
   }
 }
