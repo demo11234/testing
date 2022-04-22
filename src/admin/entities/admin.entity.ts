@@ -23,9 +23,14 @@ export class Admin {
   @ApiProperty()
   lastName: string;
 
-  @Column({ length: 100, nullable: true })
+  @Column({ length: 100, nullable: true, unique: true })
   @ApiProperty()
-  email: string;
+  username: string;
+
+  @Column({ nullable: true })
+  @ApiProperty()
+  @Exclude({ toPlainOnly: true })
+  password: string;
 
   @Column({ type: 'boolean', default: false })
   @ApiProperty({ default: false })
