@@ -1,7 +1,9 @@
 import { Controller, Get } from '@nestjs/common';
+import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { AppService } from './app.service';
 
 @Controller()
+@ApiTags('app')
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
@@ -12,6 +14,7 @@ export class AppController {
    * @author Mohan Chaudhari
    */
   @Get()
+  @ApiOkResponse({ description: 'checks health of app' })
   healthCheck(): Promise<any> {
     return this.appService.healthCheck();
   }
