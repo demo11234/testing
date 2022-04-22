@@ -16,6 +16,7 @@ import { UserModule } from './user/user.module';
 import { AdminModule } from './admin/admin.module';
 import * as redisStore from 'cache-manager-redis-store';
 import { ResponseModel } from './responseModel';
+import { CollectionsModule } from './collections/collections.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { ResponseModel } from './responseModel';
     DatabaseModule,
     UserModule,
     AdminModule,
+    CollectionsModule,
   ],
   controllers: [AppController],
   providers: [
