@@ -1,8 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { User } from 'src/user/entities/user.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToMany,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -20,6 +23,13 @@ export class Collection {
   @Column({ length: 50 })
   @ApiProperty()
   featureImage: string;
+
+  // @ManyToMany((_type) => User, (user) => user.id, {
+  //   eager: false,
+  // })
+  @Column()
+  @ApiProperty()
+  wishlistOwner: User[];
 
   @Column({ length: 50 })
   @ApiProperty()
@@ -61,6 +71,10 @@ export class Collection {
   @ApiProperty()
   earningFee: number;
 
+  @Column()
+  @ApiProperty()
+  earningWalletAddress: string;
+
   @Column({ length: 100 })
   @ApiProperty()
   displayTheme: string;
@@ -68,6 +82,13 @@ export class Collection {
   @Column()
   @ApiProperty()
   contentSensitive: boolean;
+
+  // @ManyToOne((_type) => User, (user) => user.collections, {
+  // eager: false,
+  // })
+  @Column()
+  @ApiProperty()
+  owner: User;
 
   @Column()
   @ApiProperty()

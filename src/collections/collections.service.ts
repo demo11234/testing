@@ -1,20 +1,17 @@
-import {
-  BadRequestException,
-  HttpStatus,
-  Injectable,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateCollectionsDto } from './dto/create-collections.dto';
 import { UpdateCollectionsDto } from './dto/update-collection.dto';
 import { Collection } from './entities/collection.entity';
+import { ResponseModel } from 'src/responseModel';
 
 @Injectable()
 export class CollectionsService {
   constructor(
     @InjectRepository(Collection)
     private readonly collectionRepository: Repository<Collection>,
+    private readonly responseModel: ResponseModel,
   ) {}
 
   async create(createCollectionDto: CreateCollectionsDto) {
@@ -33,18 +30,26 @@ export class CollectionsService {
       collection.displayTheme = createCollectionDto.displayTheme;
 
       collection = await this.collectionRepository.save(collection);
-      return { status: HttpStatus.CREATED, collection };
+      return collection;
     } catch (error) {
-      throw new InternalServerErrorException();
+      throw new Error(error);
     }
   }
 
-  async findAll() {
+  async findAll(
+    take: number = 10,
+    skip: number = 0,
+  ): Promise<[Collection[], number]> {
     try {
-      const collections = await this.collectionRepository.find();
-      if (collections) return collections;
+      const collections = await this.collectionRepository.findAndCount({
+        take,
+        skip,
+      });
+      if (collections) {
+        return collections;
+      }
     } catch (error) {
-      throw new BadRequestException('No collections in database');
+      throw new Error(error);
     }
   }
 
@@ -53,7 +58,18 @@ export class CollectionsService {
       const collection = await this.collectionRepository.findOne({ id });
       if (collection) return collection;
     } catch (error) {
-      throw new BadRequestException('No such collection found');
+      throw new Error(error);
+    }
+  }
+
+  async findByUser(id: string): Promise<Collection[]> {
+    try {
+      return await this.collectionRepository
+        .createQueryBuilder('collection')
+        .where('collection.owner = :id', { id })
+        .getMany();
+    } catch (error) {
+      throw new Error(error);
     }
   }
 
@@ -66,7 +82,7 @@ export class CollectionsService {
       if (isUpdated)
         return { status: 200, msg: 'Collection updated succesfully' };
     } catch (error) {
-      throw new BadRequestException('Bad Request for updating Collection');
+      throw new Error(error);
     }
   }
 }

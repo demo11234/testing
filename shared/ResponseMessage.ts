@@ -1,3 +1,18 @@
 export const ResponseMessage = {
-    USER_DOSE_NOT_EXISTS_WITH_GIVEN_WALLET_ADDRESS : "User with given wallet Address doesn't exis"
-}
+  USER_DOES_NOT_EXISTS_WITH_GIVEN_WALLET_ADDRESS:
+    "User with given wallet Address doesn't exists",
+  USER_DOES_NOT_EXISTS_WITH_GIVEN_USERNAME:
+    "User with given username doesn't exists",
+  USER_EXISTS_WITH_GIVEN_EMAIL_ADDRESS:
+    'User with given email address already exists',
+  USER_EXISTS_WITH_GIVEN_USER_NAME: 'User with given user name already exists',
+
+  USER_CREATED: 'User has been created',
+  USER_LOGGED_IN: 'User has been Logged In',
+
+  INTERNAL_SERVER_ERROR: 'Internal Server Error',
+  COLLECTION_CREATED: 'Collection Created',
+  USER_DOES_NOT_OWN_COLLECTION: 'User does not own the collection',
+  COLLECTION_DOES_NOT_EXIST: 'Collection does not exist',
+  COLLECTIONS_DO_NOT_EXIST: 'Collections/ does not exist',
+};

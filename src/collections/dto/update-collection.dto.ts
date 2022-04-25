@@ -3,7 +3,6 @@ import { IsString } from 'class-validator';
 
 export class UpdateCollectionsDto {
   @ApiProperty({
-    required: true,
     description: 'Logo for the collection',
     maxLength: 50,
     nullable: false,
@@ -61,6 +60,9 @@ export class UpdateCollectionsDto {
 
   @ApiProperty({ description: 'Earning fee for Creator' })
   earningFee?: number;
+
+  @ApiProperty({ description: 'Earning wallet Address' })
+  earningWalletAddress?: string;
 
   @ApiProperty({ description: 'Display Theme for collection', maxLength: 100 })
   displayTheme?: string;
