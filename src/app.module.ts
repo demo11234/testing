@@ -31,16 +31,16 @@ import { AuthModule } from './auth/auth.module';
         limit: config.get('THROTTLE_LIMIT'),
       }),
     }),
-    CacheModule.register({
-      isGlobal: true,
-      ttl: 60,
-      max: 1000,
-      store: redisStore,
-      socket: {
-        host: '127.0.0.1',
-        port: 6379,
-      },
-    }),
+    // CacheModule.register({
+    //   isGlobal: true,
+    //   ttl: 60,
+    //   max: 1000,
+    //   store: redisStore,
+    //   socket: {
+    //     host: '127.0.0.1',
+    //     port: 6379,
+    //   },
+    // }),
     DatabaseModule,
     UserModule,
     AdminModule,
