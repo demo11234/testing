@@ -16,3 +16,4 @@ export const ResponseMessage = {
   COLLECTION_DOES_NOT_EXIST: 'Collection does not exist',
   COLLECTIONS_DO_NOT_EXIST: 'Collections/ does not exist',
 };
+

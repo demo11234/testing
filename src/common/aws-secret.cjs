@@ -9,7 +9,7 @@ if (process.env.NODE_ENV == 'uat') {
   secretName = 'secret_arn'; // use string
 } else {
   secretName =
-    'arn:aws:secretsmanager:us-east-1:294810812352:secret:dev/jungle-16b4AP'; // use string
+    'arn:aws:secretsmanager:us-east-1:009775557189:secret:dev/jungle-nft-vqwdSb'; // use string
 }
 
 client.getSecretValue({ SecretId: secretName }, function (err, data) {

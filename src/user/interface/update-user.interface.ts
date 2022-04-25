@@ -1,8 +1,7 @@
-export interface UserInterface {
+export interface UpdateUserInterface {
     firstName?: string;
     lastName?: string;
     userName?: string;
-    walletAddress: string;
     email?: string;
     imageUrl?: string;
 }

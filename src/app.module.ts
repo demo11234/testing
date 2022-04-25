@@ -17,6 +17,7 @@ import { AdminModule } from './admin/admin.module';
 import * as redisStore from 'cache-manager-redis-store';
 import { ResponseModel } from './responseModel';
 import { CollectionsModule } from './collections/collections.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -31,20 +32,21 @@ import { CollectionsModule } from './collections/collections.module';
         limit: config.get('THROTTLE_LIMIT'),
       }),
     }),
-    CacheModule.register({
-      isGlobal: true,
-      ttl: 60,
-      max: 1000,
-      store: redisStore,
-      socket: {
-        host: '127.0.0.1',
-        port: 6379,
-      },
-    }),
+    // CacheModule.register({
+    //   isGlobal: true,
+    //   ttl: 60,
+    //   max: 1000,
+    //   store: redisStore,
+    //   socket: {
+    //     host: '127.0.0.1',
+    //     port: 6379,
+    //   },
+    // }),
     DatabaseModule,
     UserModule,
     AdminModule,
     CollectionsModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [
