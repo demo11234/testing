@@ -5,7 +5,6 @@ import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt.strategy';
 import { Constants } from 'shared/Constants';
 
-
 @Module({
   imports: [
     JwtModule.register({
@@ -15,7 +14,7 @@ import { Constants } from 'shared/Constants';
   ],
   providers: [
     AuthService,
-    JwtStrategy
+    JwtStrategy,
   ]
 })
 export class AuthModule {}

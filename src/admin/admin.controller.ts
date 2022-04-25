@@ -9,6 +9,7 @@ import {
   Req,
   ClassSerializerInterceptor,
   UseInterceptors,
+  Request
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -25,14 +26,18 @@ import { LoginAdminDto } from './dto/login-admin.dto';
 
 import { UpdateAdminDto } from './dto/update-admin.dto';
 import { Admin } from './entities/admin.entity';
-import { JwtAuthGuard } from './gaurds/jwt-auth.guard';
-import { LocalAuthGuard } from './gaurds/local-auth.gaurd';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { LocalAuthGuard } from '../auth/local-auth.gaurd';
+import { AuthService } from 'src/auth/auth.service';
 
 @Controller('admin')
 @UseInterceptors(ClassSerializerInterceptor)
 @ApiTags('admin')
 export class AdminController {
-  constructor(private readonly adminService: AdminService) {}
+  constructor(
+    private readonly adminService: AdminService,
+    private readonly authService: AuthService
+  ) {}
   /**
    * @description login admin
    * @param req Data coming from user wrapped in Req
@@ -78,7 +83,8 @@ export class AdminController {
   @ApiOkResponse({ description: 'get all Admins' })
   @ApiUnauthorizedResponse({ description: 'In case admin is not logged in' })
   @ApiBearerAuth()
-  async findAll() {
+  async findAll(@Req() req) {
+    await this.authService.checkAdmin(req.user.data);
     return this.adminService.findAll();
   }
   /**
@@ -96,7 +102,9 @@ export class AdminController {
   async update(
     @Param('id') id: string,
     @Body() updateAdminDto: UpdateAdminDto,
+    @Req() req
   ): Promise<any> {
+    await this.authService.checkAdmin(req.user.data);
     return await this.adminService.updateAdmin(id, updateAdminDto);
   }
 
@@ -113,7 +121,8 @@ export class AdminController {
   })
   @ApiUnauthorizedResponse({ description: 'In case admin is not logged in' })
   @ApiBearerAuth()
-  async getUser(@GetAdmin() admin: Admin): Promise<Admin> {
+  async getUser(@GetAdmin() admin: Admin, @Req() req): Promise<Admin> {
+    await this.authService.checkAdmin(req.user.data);
     return admin;
   }
 }

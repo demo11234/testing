@@ -1,10 +1,8 @@
-import { ExtractJwt, Strategy } from 'passport-jwt';
-import { PassportStrategy } from '@nestjs/passport';
 import { Injectable } from '@nestjs/common';
+import { PassportStrategy } from '@nestjs/passport';
+import { ExtractJwt, Strategy } from 'passport-jwt';
 
 import { Constants } from 'shared/Constants';
-
-import 'dotenv/config';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -16,7 +14,28 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: any) {
-    return { walletAddress : payload.walletAddress };
+  /**
+   * Validating payload
+   * @param payload
+   * @returns admin
+   * @author Mohan Chaudhari
+   */
+  async validate(payload: any): Promise<any> {
+
+    let bufferObj = Buffer.from(payload.data, "base64");
+    let decodedString = bufferObj.toString("utf8");
+
+    if(decodedString === Constants.USER) {
+      return { 
+        walletAddress : payload.walletAddress,
+        data : decodedString
+      };
+    }
+    else if(decodedString === Constants.ADMIN) {
+      return { 
+        username : payload.sub,
+        data : decodedString
+      };
+    }
   }
 }

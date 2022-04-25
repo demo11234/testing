@@ -13,6 +13,7 @@ import { CreateAdminDto } from './dto/create-admin.dto';
 import { UpdateAdminDto } from './dto/update-admin.dto';
 import { Admin } from './entities/admin.entity';
 import { argon2hash, argon2verify } from './argon2/argon2';
+import { Constants } from 'shared/Constants';
 
 @Injectable()
 export class AdminService {
@@ -53,7 +54,13 @@ export class AdminService {
    * @author Mohan Chaudhari
    */
   async login(admin: any) {
-    const payload = { sub: admin.username };
+    let bufferObj = Buffer.from(Constants.ADMIN, "utf8");
+    let base64String = bufferObj.toString("base64");        
+
+    const payload = { 
+      sub: admin.username,
+      data : base64String
+    };
     return { token: this.jwtService.sign(payload) };
   }
   /**

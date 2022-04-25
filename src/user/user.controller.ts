@@ -5,7 +5,7 @@ import {
   Patch,
   Response,
   Request,
-  UseGuards
+  UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 
@@ -44,7 +44,6 @@ export class UserController {
   @ApiResponse({ status: ResponseStatusCode.OK, description: ResponseMessage.USER_LOGGED_IN })
   @ApiResponse({ status: ResponseStatusCode.CREATED, description: ResponseMessage.USER_CREATED })
   @ApiResponse({ status: ResponseStatusCode.INTERNAL_SERVER_ERROR, description: ResponseMessage.INTERNAL_SERVER_ERROR })
-  @ApiBearerAuth()
   @Post()
   async createUser(@Body() createUserDto: CreateUserDto, @Response() response): Promise<any> {
     try {
@@ -82,6 +81,8 @@ export class UserController {
   async updateUser(@Body() updateUserDto: UpdateUserDto, @Response() response, @Request() request): Promise<any> {
     try {
 
+      await this.authService.checkUser(request.user.data);
+
       const { email, userName } = updateUserDto;
 
       if(email) {
@@ -106,6 +107,7 @@ export class UserController {
         return this.responseModel.response(user, ResponseStatusCode.OK, true, response);
       }
     } catch (error) {
+      console.log(error);
       return this.responseModel.response(error, ResponseStatusCode.INTERNAL_SERVER_ERROR, false, response);
     }
   }
@@ -121,7 +123,6 @@ export class UserController {
   @ApiResponse({ status: ResponseStatusCode.NOT_FOUND, description: ResponseMessage.USER_DOES_NOT_EXISTS_WITH_GIVEN_USERNAME })
   @ApiResponse({ status: ResponseStatusCode.OK, description: "User Details" })
   @ApiResponse({ status: ResponseStatusCode.INTERNAL_SERVER_ERROR, description: ResponseMessage.INTERNAL_SERVER_ERROR })
-  @ApiBearerAuth()
   @Post('/userdetails/username')
   async getUserDetailsByUserName(@Body() userNameDto : UserNameDto, @Response() response): Promise<any> {
     try {
@@ -149,7 +150,6 @@ export class UserController {
   @ApiResponse({ status: ResponseStatusCode.NOT_FOUND, description: ResponseMessage.USER_DOES_NOT_EXISTS_WITH_GIVEN_WALLET_ADDRESS })
   @ApiResponse({ status: ResponseStatusCode.OK, description: "User Details" })
   @ApiResponse({ status: ResponseStatusCode.INTERNAL_SERVER_ERROR, description: ResponseMessage.INTERNAL_SERVER_ERROR })
-  @ApiBearerAuth() 
   @Post('/userdetails/walletaddress')
   async getUserDetailsByWalletAddress(@Body() walletAddressDto: WalletAddressDto, @Response() response): Promise<any> {
     try {
