@@ -10,6 +10,7 @@ import { AuthService } from 'src/auth/auth.service';
 import { Constants } from 'shared/Constants';
 
 import 'dotenv/config';
+import { FileUpload } from './utils/s3.upload';
 
 @Module({
   imports: [
@@ -23,7 +24,8 @@ import 'dotenv/config';
   providers: [
     UserService,
     ResponseModel,
-    AuthService
+    AuthService,
+    FileUpload
   ],
 })
 export class UserModule {}
