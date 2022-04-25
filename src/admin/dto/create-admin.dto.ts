@@ -11,6 +11,9 @@ import {
 export class CreateAdminDto {
   @ApiProperty({ required: true, description: 'firstname of user' })
   @IsString()
+  @MinLength(4, {
+    message: 'firstname is too short',
+  })
   @IsNotEmpty()
   firstName: string;
 
@@ -26,7 +29,7 @@ export class CreateAdminDto {
   username: string;
 
   @IsNotEmpty()
-  @MinLength(6, { message: 'password must contain minimum of 6 characters' })
+  @MinLength(6, { message: 'password must contain minimum of 8 characters' })
   @MaxLength(32, { message: 'password must contain maximum of 32 characters' })
   @Matches(/(?:(?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
     message: 'Weak Password',
