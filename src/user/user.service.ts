@@ -5,11 +5,13 @@ import { User } from './entities/user.entity';
 import { UserRepository } from './repositories/user.repository';
 import { Cache } from 'cache-manager';
 import { WalletAddressDto } from './dto/get-user.dto';
+import { FileUpload } from './utils/s3.upload';
 
 @Injectable()
 export class UserService {
   constructor(
-    private readonly userRepository: UserRepository, //  @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
+    private readonly userRepository: UserRepository,
+    private readonly fileUpload: FileUpload, //  @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
   ) {}
 
   /**
@@ -122,4 +124,22 @@ export class UserService {
       throw new Error(error);
     }
   }
+
+
+  /**
+   * @description it will genrate preSinged url for s3 bucket
+   * @param signedUrlDto
+   * @returns it will return preSigned url
+   * @author Vipin
+   */
+  async getPresignedURL(signedUrlDto): Promise<any> {
+    try {
+      const {fileName, fileType, filePath} = signedUrlDto
+      const url = await this.fileUpload.signedUrl(fileName , fileType, filePath);
+      return url;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
 }
+
