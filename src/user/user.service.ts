@@ -128,14 +128,14 @@ export class UserService {
 
   /**
    * @description it will genrate preSinged url for s3 bucket
-   * @param fileName
-   * @param fileType
+   * @param signedUrlDto
    * @returns it will return preSigned url
    * @author Vipin
    */
-  async getPresignedURL(fileName: string , fileType: string): Promise<any> {
+  async getPresignedURL(signedUrlDto): Promise<any> {
     try {
-      const url = await this.fileUpload.signedUrl(fileName , fileType);
+      const {fileName, fileType, filePath} = signedUrlDto
+      const url = await this.fileUpload.signedUrl(fileName , fileType, filePath);
       return url;
     } catch (error) {
       throw new Error(error);

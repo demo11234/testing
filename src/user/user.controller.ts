@@ -5,7 +5,8 @@ import {
   Patch,
   Response,
   Request,
-  UseGuards
+  UseGuards,
+  UploadedFile
 } from '@nestjs/common';
 import { UserService } from './user.service';
 
@@ -23,8 +24,9 @@ import { ApiBearerAuth,
   ApiResponse, 
   ApiTags 
 } from '@nestjs/swagger'
-import { JwtAuthGuard } from 'src/auth/user-auth.guard';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { SignedUrlDto } from './dto/signed-url.dto';
+
 
 @Controller('user')
 export class UserController {
@@ -180,8 +182,8 @@ export class UserController {
   @ApiBearerAuth()
   @Post('/getPresignedURL')
   async getPresignedURL( @Body() signedUrlDto: SignedUrlDto):Promise<any> {
-    const {fileName, fileType} = signedUrlDto
-    let url = await this.userService.getPresignedURL(fileName, fileType)
+    let url = await this.userService.getPresignedURL(signedUrlDto)
     return url;
   }
+
 }
