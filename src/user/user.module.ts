@@ -11,6 +11,7 @@ import { Constants } from 'shared/Constants';
 
 import 'dotenv/config';
 import { FileUpload } from './utils/s3.upload';
+import { NotificationService } from 'src/notification/notification.service';
 
 @Module({
   imports: [
@@ -25,7 +26,8 @@ import { FileUpload } from './utils/s3.upload';
     UserService,
     ResponseModel,
     AuthService,
-    FileUpload
+    FileUpload,
+    NotificationService,
   ],
 })
 export class UserModule {}

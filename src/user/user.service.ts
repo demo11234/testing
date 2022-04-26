@@ -7,11 +7,12 @@ import { Cache } from 'cache-manager';
 import { WalletAddressDto } from './dto/get-user.dto';
 import { Constants } from 'shared/Constants';
 import { FileUpload } from './utils/s3.upload';
-
+import {NotificationService} from '../notification/notification.service'
 @Injectable()
 export class UserService {
   constructor(
     private readonly userRepository: UserRepository,
+    private readonly notificationService: NotificationService,
     private readonly fileUpload: FileUpload, //  @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
   ) {}
 
@@ -24,6 +25,7 @@ export class UserService {
   async createUser(createUserDto: CreateUserDto): Promise<User> {
     try {
       const user = this.userRepository.createUser(createUserDto);
+      this.notificationService.createNotification(WalletAddressDto, user)
       return user;
     } catch (error) {
       throw new Error(error);
