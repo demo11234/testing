@@ -135,6 +135,8 @@ export class UserController {
     @Request() request,
   ): Promise<any> {
     try {
+      await this.authService.checkUser(request.user.data);
+
       const { email, userName } = updateUserDto;
 
       if (email) {

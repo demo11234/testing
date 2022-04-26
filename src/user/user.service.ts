@@ -5,6 +5,7 @@ import { User } from './entities/user.entity';
 import { UserRepository } from './repositories/user.repository';
 import { Cache } from 'cache-manager';
 import { WalletAddressDto } from './dto/get-user.dto';
+import { Constants } from 'shared/Constants';
 import { FileUpload } from './utils/s3.upload';
 
 @Injectable()
