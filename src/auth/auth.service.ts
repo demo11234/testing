@@ -58,7 +58,7 @@ export class AuthService {
             if(userType != Constants.USER) {
                 throw new UnauthorizedException('Unauthorized');
             }
-            const user = await this.userRepository.isUserBlocked(walletAddress);
+            const user = await this.userRepository.isUserValid(walletAddress);
             if(!user) {
                 throw new UnauthorizedException("Unauthorized");
             }
