@@ -7,5 +7,9 @@ export const ResponseMessage = {
     USER_CREATED : "User has been created",
     USER_LOGGED_IN : "User has been Logged In",
 
-    INTERNAL_SERVER_ERROR : "Internal Server Error"
+    INTERNAL_SERVER_ERROR : "Internal Server Error",
+
+    UNAUTHORIZED : "Unauthorized",
+
+    CHAIN_DETAILS : "Chain Details"
 }

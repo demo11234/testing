@@ -25,7 +25,7 @@ import { FileUpload } from './utils/s3.upload';
     UserService,
     ResponseModel,
     AuthService,
-    FileUpload
+    FileUpload,
   ],
 })
 export class UserModule {}

@@ -6,6 +6,7 @@ import { Constants } from 'shared/Constants';
 import { JwtService } from '@nestjs/jwt';
 import { User } from 'src/user/entities/user.entity';
 import { UserRepository } from 'src/user/repositories/user.repository';
+import { ResponseMessage } from 'shared/ResponseMessage';
 
 @Injectable()
 export class AuthService {
@@ -56,12 +57,12 @@ export class AuthService {
     async checkUser(userType: string, walletAddress: string): Promise<any> {
         try {
             if(userType != Constants.USER) {
-                throw new UnauthorizedException('Unauthorized');
+                throw new UnauthorizedException(ResponseMessage.UNAUTHORIZED);
             }
-            const user = await this.userRepository.isUserValid(walletAddress);
-            if(!user) {
-                throw new UnauthorizedException("Unauthorized");
-            }
+            // const user = await this.userRepository.isUserValid(walletAddress);
+            // if(!user) {
+            //     throw new UnauthorizedException(ResponseMessage.UNAUTHORIZED);
+            // }
         } catch (error) {
             throw new Error(error);
         }
@@ -76,7 +77,7 @@ export class AuthService {
     async checkAdmin(userType: string): Promise<any> {
         try {
             if(userType != Constants.ADMIN) {
-                throw new UnauthorizedException('Unauthorized');
+                throw new UnauthorizedException(ResponseMessage.UNAUTHORIZED);
             }
         } catch (error) {
             throw new Error(error);

@@ -22,7 +22,7 @@ export class UserService {
    */
   async createUser(createUserDto: CreateUserDto): Promise<User> {
     try {
-      const user = this.userRepository.createUser(createUserDto);
+      const user = await this.userRepository.createUser(createUserDto);
       return user;
     } catch (error) {
       throw new Error(error);
@@ -124,7 +124,6 @@ export class UserService {
       throw new Error(error);
     }
   }
-
 
   /**
    * @description it will genrate preSinged url for s3 bucket
