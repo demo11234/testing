@@ -1,6 +1,8 @@
 import { Controller, Get } from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { AppService } from './app.service';
+import { top } from './top';
+import { topCollection } from './topCollection';
 
 @Controller()
 @ApiTags('app')
@@ -17,5 +19,17 @@ export class AppController {
   @ApiOkResponse({ description: 'checks health of app' })
   healthCheck(): Promise<any> {
     return this.appService.healthCheck();
+  }
+
+  @Get('topCategory')
+  @ApiOkResponse({ description: 'top  category' })
+  async topCategory(): Promise<any> {
+    return top();
+  }
+
+  @Get('topCollection')
+  @ApiOkResponse({ description: 'topTrending' })
+  async topTrending(): Promise<any> {
+    return topCollection();
   }
 }
