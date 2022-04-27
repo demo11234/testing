@@ -126,10 +126,10 @@ export class AdminController {
   })
   @ApiUnauthorizedResponse({ description: ResponseMessage.ADMIN_NOT_LOGGED_IN })
   @ApiBearerAuth()
-  async getUser(@GetAdmin() admin: Admin, @Req() req): Promise<Admin> {
+  async getAdminProfile(@GetAdmin() admin: Admin, @Req() req): Promise<Admin> {
     await this.authService.checkAdmin(req.user.data);
 
-    return this.adminService.getUser(admin.username);
+    return this.adminService.getAdminProfile(admin.username);
   }
 
   /**

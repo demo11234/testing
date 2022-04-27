@@ -15,11 +15,11 @@ export class Category {
   @ApiProperty()
   id: string;
 
-  @Column({ length: 50, nullable: true, unique: true })
+  @Column({ length: 100, nullable: true, unique: true })
   @ApiProperty()
   categoryName: string;
 
-  @Column({ type: 'boolean', default: false })
+  @Column({ type: 'boolean', default: true })
   @ApiProperty({ default: false })
   categoryStatus: boolean;
 

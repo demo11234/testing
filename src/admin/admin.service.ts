@@ -185,6 +185,7 @@ export class AdminService {
           status: HttpStatus.OK,
           msg: ResponseMessage.UPDATE_SUCCESS_CATEGORY,
         };
+      else throw new NotFoundException();
     } catch (error) {
       throw new BadRequestException(
         ResponseMessage.BAD_REQUEST_UPDATE_CATEGORY,
@@ -224,7 +225,7 @@ export class AdminService {
    * @param username
    * @returns data of logged in admin
    */
-  async getUser(username: string): Promise<Admin> {
+  async getAdminProfile(username: string): Promise<Admin> {
     try {
       const admin = this.adminRepository.findOne({ username });
       if (!admin) throw new NotFoundException(ResponseMessage.NOT_FOUND);
