@@ -3,6 +3,7 @@ import { Constants } from 'shared/Constants';
 import { JwtService } from '@nestjs/jwt';
 import { User } from 'src/user/entities/user.entity';
 import { UserRepository } from 'src/user/repositories/user.repository';
+import { ResponseMessage } from 'shared/ResponseMessage';
 
 @Injectable()
 export class AuthService {

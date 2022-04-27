@@ -23,6 +23,11 @@ import { Category } from 'src/admin/entities/categories.entity';
     TypeOrmModule.forFeature([UserRepository, Category]),
   ],
   controllers: [UserController],
-  providers: [UserService, ResponseModel, AuthService, FileUpload],
+  providers: [
+    UserService,
+    ResponseModel,
+    AuthService,
+    FileUpload,
+  ],
 })
 export class UserModule {}

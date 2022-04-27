@@ -101,7 +101,7 @@ export class UserRepository extends Repository<User> {
     }
   }
 
-    /**
+  /**
    * @description isUserBlocked returns Boolean value depending whether user is blocked or not
    * @param walletAddress
    * @returns it will return Boolean or null

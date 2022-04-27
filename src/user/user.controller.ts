@@ -60,7 +60,6 @@ export class UserController {
     status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
     description: ResponseMessage.INTERNAL_SERVER_ERROR,
   })
-  @ApiBearerAuth()
   @Post()
   async createUser(
     @Body() createUserDto: CreateUserDto,
