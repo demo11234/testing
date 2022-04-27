@@ -135,11 +135,13 @@ export class UserController {
     @Request() request,
   ): Promise<any> {
     try {
-      await this.authService.checkUser(request.user.data);
+      await this.authService.checkUser(request.user.data, request.user.walletAddress);
+
+      const userDetails = await this.userService.findUser({ walletAddress : request.user.walletAddress});
 
       const { email, userName } = updateUserDto;
 
-      if (email) {
+      if (email && (userDetails.email != email)) {
         const user = await this.userService.findUserByEmail(email);
         if (user) {
           return this.responseModel.response(
@@ -151,7 +153,7 @@ export class UserController {
         }
       }
 
-      if (userName) {
+      if (userName && (userDetails.userName != userName)) {
         const user = await this.userService.findUserByUserName(userName);
         if (user) {
           return this.responseModel.response(
@@ -183,6 +185,7 @@ export class UserController {
         );
       }
     } catch (error) {
+      console.log(error);
       return this.responseModel.response(
         error,
         ResponseStatusCode.INTERNAL_SERVER_ERROR,
