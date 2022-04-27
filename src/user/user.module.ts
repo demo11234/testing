@@ -12,6 +12,7 @@ import { Constants } from 'shared/Constants';
 import 'dotenv/config';
 import { FileUpload } from './utils/s3.upload';
 import { NotificationService } from 'src/notification/notification.service';
+import { Notification } from 'src/notification/entity/notification.entity';
 
 @Module({
   imports: [
@@ -19,7 +20,7 @@ import { NotificationService } from 'src/notification/notification.service';
       secret: Constants.JWT_SECRET_KEY,
       signOptions: { expiresIn: Constants.USER_TOKEN_VALIDITY }
     }),
-    TypeOrmModule.forFeature([UserRepository]),
+    TypeOrmModule.forFeature([UserRepository, Notification]),
   ],
   controllers: [UserController],
   providers: [

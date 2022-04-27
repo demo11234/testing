@@ -1,8 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { User } from 'src/user/entities/user.entity';
 import { Repository } from 'typeorm';
 import { NotificationDto } from './dto/notification.dto';
 import { Notification } from './entity/notification.entity'
+import { UpdateNotificationInterface } from './update-notification.interface';
 
 @Injectable()
 export class NotificationService {
@@ -12,10 +14,10 @@ export class NotificationService {
     ){}
 
     /**
-   * @description update will update motification 
+   * @description update will create motification settings when user is created
    * @param user
    * @param walletAddress
-   * @returns it will return updated notifiction
+   * @returns it will return default notifiction of new user
    * @author Vipin
    */
     async createNotification (walletAddress, user): Promise<any>{
@@ -28,18 +30,23 @@ export class NotificationService {
     }
 
     /**
-   * @description update will update motification 
+   * @description update will update notification settings of login user
+   * @param User
    * @param notificationDto
-   * @param walletAddress
-   * @returns it will return updated notifiction
+   * @returns it will return updated notifiction settings
    * @author Vipin
    */
-    async updateNotification(walletAddress: string, notificationDto: NotificationDto) {
+    async updateNotification(user: User, notificationDto: NotificationDto): Promise<any> {
         try {
-          const updated = await this.notificationRepository.update(
-            walletAddress,
-            notificationDto,
-          );
+          const walletAddress = user.walletAddress
+          const data = await this.notificationRepository.findOne({walletAddress})
+
+          const keys = Object.keys(notificationDto)
+          keys.forEach((key) => {
+          data[key] = notificationDto[key];
+          });
+          const updated = await this.notificationRepository.save(data);
+          
           if (updated)
             return { status: 200, msg: 'notification updated succesfully' };
         } catch (error) {
@@ -48,15 +55,16 @@ export class NotificationService {
     }
 
     /**
-   * @description it will show notifiction of user
-   * @param walletAddress
-   * @returns it will return notification of user
+   * @description it will show notifiction settings of login user
+   * @param user
+   * @returns it will return notification settings
    * @author Vipin
    */
-    async getNotification(walletAddress: string) {
+    async getNotification(user: User): Promise<any> {
+      const walletAddress = user.walletAddress
         try {
           const data = await this.notificationRepository.findOne({walletAddress});
-          if (data) return data;
+          return data;
         } catch (error) {
           throw new Error(error);
         }

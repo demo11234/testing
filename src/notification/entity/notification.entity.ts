@@ -13,9 +13,9 @@ export class Notification {
   @PrimaryGeneratedColumn('uuid')
   id: string
 
-  // @OneToOne(()=>User)
-  // @JoinColumn()
-  // user: User;
+  @OneToOne(()=>User)
+  @JoinColumn()
+  user: User;
 
   @Column()
   walletAddress: string;

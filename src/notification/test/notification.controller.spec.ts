@@ -1,34 +1,34 @@
 import { Test } from '@nestjs/testing';
-// import { ResponseHandlerService } from '../../helpers/response.handler.service';
 import { NotificationController } from '../notification.controller';
 import { NotificationService } from '../notification.service';
+import { notificationStub, userStub } from './stub/notification.stub';
 
 jest.mock('../notification.service');
 
-describe('UsersController', () => {
-    let notificationController: NotificationController
-    let notificationService: NotificationService
+describe('AdminController', () => {
+  let notificationController: NotificationController
+  let notificationService: NotificationService
+  beforeEach(async () => {
+    const moduleRef = await Test.createTestingModule({
+      imports: [],
+      controllers: [NotificationController],
+      providers: [NotificationService],
+    }).compile();
+    notificationController = moduleRef.get<NotificationController>(NotificationController);
 
-    beforeEach(async () => {
-        const moduleRef = await Test.createTestingModule({
-            imports: [],
-            controllers: [NotificationController],
-            providers: [NotificationService]
-        }).compile();
-        
-        notificationController = moduleRef.get<NotificationController>(NotificationController);
-        notificationService = moduleRef.get<NotificationService>(NotificationService);
-        jest.clearAllMocks();
-    });
+    notificationService = moduleRef.get<NotificationService>(NotificationService);
+
+    jest.clearAllMocks();
+  });
 
     describe('update', () => {
         describe('when update is called', () => {
           let result;
           beforeEach(async () => {
-            result = await notificationController.update('1', {});
+            result = await notificationController.update(userStub(), notificationStub());
           });
           test('it should call notificationService', () => {
-            expect(notificationService.updateNotification).toBeCalledWith('1', {});
+            expect(notificationService.updateNotification).toBeCalledWith(userStub(), notificationStub());
           });
           test('then it should return an object', () => {
             expect(result).toEqual({success: true});
@@ -40,10 +40,10 @@ describe('UsersController', () => {
         describe('when getNotification is called', () => {
           let result;
           beforeEach(async () => {
-            result = await notificationController.getNotification('1');
+            result = await notificationController.getNotification(userStub());
           });
           test('it should call notificationService', () => {
-            expect(notificationService.getNotification).toBeCalledWith('1');
+            expect(notificationService.getNotification).toBeCalledWith(userStub());
           });
           test('then it should return an object', () => {
             expect(result).toEqual({success: true});

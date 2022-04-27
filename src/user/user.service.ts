@@ -25,7 +25,7 @@ export class UserService {
   async createUser(createUserDto: CreateUserDto): Promise<User> {
     try {
       const user = this.userRepository.createUser(createUserDto);
-      this.notificationService.createNotification(WalletAddressDto, user)
+      this.notificationService.createNotification(createUserDto, user)
       return user;
     } catch (error) {
       throw new Error(error);
