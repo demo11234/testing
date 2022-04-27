@@ -10,16 +10,10 @@ import { UserRepository } from 'src/user/repositories/user.repository';
   imports: [
     JwtModule.register({
       secret: Constants.JWT_SECRET_KEY,
-      signOptions: { expiresIn: Constants.USER_TOKEN_VALIDITY }
-    })
+      signOptions: { expiresIn: Constants.USER_TOKEN_VALIDITY },
+    }),
   ],
-  providers: [
-    AuthService,
-    JwtStrategy,
-    UserRepository
-  ],
-  exports: [
-    UserRepository
-  ]
+  providers: [AuthService, JwtStrategy, UserRepository],
+  exports: [UserRepository],
 })
 export class AuthModule {}

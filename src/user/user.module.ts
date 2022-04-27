@@ -12,13 +12,15 @@ import { Constants } from 'shared/Constants';
 import 'dotenv/config';
 import { FileUpload } from './utils/s3.upload';
 
+import { Category } from 'src/admin/entities/categories.entity';
+
 @Module({
   imports: [
     JwtModule.register({
       secret: Constants.JWT_SECRET_KEY,
-      signOptions: { expiresIn: Constants.USER_TOKEN_VALIDITY }
+      signOptions: { expiresIn: Constants.USER_TOKEN_VALIDITY },
     }),
-    TypeOrmModule.forFeature([UserRepository]),
+    TypeOrmModule.forFeature([UserRepository, Category]),
   ],
   controllers: [UserController],
   providers: [

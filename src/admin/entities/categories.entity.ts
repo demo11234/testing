@@ -20,7 +20,7 @@ export class Category {
   categoryName: string;
 
   @Column({ type: 'boolean', default: true })
-  @ApiProperty({ default: false })
+  @ApiProperty({ default: true })
   categoryStatus: boolean;
 
   @Column({ length: 50 })
