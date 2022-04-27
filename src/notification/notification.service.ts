@@ -4,7 +4,6 @@ import { User } from 'src/user/entities/user.entity';
 import { Repository } from 'typeorm';
 import { NotificationDto } from './dto/notification.dto';
 import { Notification } from './entity/notification.entity'
-import { UpdateNotificationInterface } from './update-notification.interface';
 
 @Injectable()
 export class NotificationService {
@@ -39,16 +38,9 @@ export class NotificationService {
     async updateNotification(user: User, notificationDto: NotificationDto): Promise<any> {
         try {
           const walletAddress = user.walletAddress
-          const data = await this.notificationRepository.findOne({walletAddress})
 
-          const keys = Object.keys(notificationDto)
-          keys.forEach((key) => {
-          data[key] = notificationDto[key];
-          });
-          const updated = await this.notificationRepository.save(data);
-          
-          if (updated)
-            return { status: 200, msg: 'notification updated succesfully' };
+          const updated = await this.notificationRepository.update({walletAddress},notificationDto);
+          return updated
         } catch (error) {
           throw new Error(error);
         }

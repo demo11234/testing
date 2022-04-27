@@ -7,5 +7,7 @@ export const ResponseMessage = {
     USER_CREATED : "User has been created",
     USER_LOGGED_IN : "User has been Logged In",
 
-    INTERNAL_SERVER_ERROR : "Internal Server Error"
+    INTERNAL_SERVER_ERROR : "Internal Server Error",
+    NOTIFICATION_SETTING_UPDATED: "notification setting of current user updated",
+    GET_NOTIFICATION: "Returns all notification settings of user"
 }

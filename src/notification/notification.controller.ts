@@ -1,4 +1,4 @@
-import { Get, Controller, UseGuards, Body, Patch } from '@nestjs/common';
+import { Get, Controller, UseGuards, Body, Patch, Response } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ResponseStatusCode } from '../../shared/ResponseStatusCode';
@@ -7,11 +7,14 @@ import { NotificationService } from './notification.service';
 import { ResponseMessage } from '../../shared/ResponseMessage';
 import { GetUser } from './decorator/decorator';
 import { User } from '../user/entities/user.entity';
+import { ResponseModel } from 'src/responseModel';
+
 
 @Controller('notification')
 export class NotificationController {
     constructor(
         private readonly notificationService: NotificationService,
+        private readonly responseModel: ResponseModel,
     ) {}
 
     /**
@@ -26,7 +29,7 @@ export class NotificationController {
     @ApiOperation({summary:'update user notification settings' })
     @ApiResponse({
         status: ResponseStatusCode.OK,
-        description: 'notification settings is updated',
+        description: ResponseMessage.NOTIFICATION_SETTING_UPDATED,
     })
     @ApiResponse({
         status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
@@ -34,9 +37,27 @@ export class NotificationController {
     })
     @ApiBearerAuth()
     @Patch('me')
-    async update(@GetUser() user: User, @Body() notificationDto: NotificationDto): Promise<any> {
-        let data = await this.notificationService.updateNotification(user, notificationDto);
-        return data;
+    async update(
+        @GetUser() user: User,
+        @Body() notificationDto: NotificationDto,
+        @Response() response): Promise<any> {
+        try {
+            await this.notificationService.updateNotification(user, notificationDto);
+            return this.responseModel.response(
+                ResponseMessage.NOTIFICATION_SETTING_UPDATED,
+                ResponseStatusCode.OK,
+                true,
+                response
+                )
+            } catch (error) {
+            return this.responseModel.response(
+                error,
+                ResponseStatusCode.INTERNAL_SERVER_ERROR,
+                false,
+                response,
+            )
+        }
+        
     }
 
     /**
@@ -50,7 +71,7 @@ export class NotificationController {
     @ApiOperation({summary:'get all notification settings of login user',})
     @ApiResponse({
         status: ResponseStatusCode.OK,
-        description: 'Returns all notification settings of user',
+        description: ResponseMessage.GET_NOTIFICATION,
     })
     @ApiResponse({
         status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
@@ -58,7 +79,22 @@ export class NotificationController {
     })
     @ApiBearerAuth()
     @Get('me')
-    async getNotification(@GetUser() user: User): Promise<any> {
-        return await this.notificationService.getNotification(user);
+    async getNotification(@GetUser() user: User, @Response() response): Promise<any> {
+        try {
+            const data =  await this.notificationService.getNotification(user);
+            return this.responseModel.response(
+                data,
+                ResponseStatusCode.OK,
+                true,
+                response,
+            );
+        } catch (error) {
+            return this.responseModel.response(
+                error,
+                ResponseStatusCode.INTERNAL_SERVER_ERROR,
+                false,
+                response,
+            );
+        } 
     }
 }

@@ -20,28 +20,28 @@ export class Notification {
   @Column()
   walletAddress: string;
   
-  @Column({ default: false })
+  @Column({ default: true })
   itemSold: boolean;
 
-  @Column({ default: false })
+  @Column({ default: true })
   bidActivity: boolean;
 
-  @Column({ default: false })
+  @Column({ default: true })
   priceChange: boolean;
 
-  @Column({ default: false })
+  @Column({ default: true })
   auctionExpiration: boolean;
 
-  @Column({ default: false })
+  @Column({ default: true })
   outBid: boolean;
 
-  @Column({ default: false })
+  @Column({ default: true })
   ownedItemUpdates: boolean;
 
-  @Column({ default: false })
+  @Column({ default: true })
   successfulPurchase: boolean;
 
-  @Column({ default: false })
+  @Column({ default: true })
   jungleNewsletter: boolean;
 
   @Column({ type: 'decimal',default: 0.005 })
