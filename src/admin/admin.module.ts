@@ -12,6 +12,7 @@ import { ConfigModule } from '@nestjs/config';
 import { Constants } from 'shared/Constants';
 import { AuthService } from 'src/auth/auth.service';
 import { UserRepository } from 'src/user/repositories/user.repository';
+import { Category } from './entities/categories.entity';
 
 @Module({
   controllers: [AdminController],
@@ -20,11 +21,11 @@ import { UserRepository } from 'src/user/repositories/user.repository';
     LocalStrategy,
     JwtStrategy,
     AuthService,
-    UserRepository
+    UserRepository,
   ],
   imports: [
     ConfigModule,
-    TypeOrmModule.forFeature([Admin]),
+    TypeOrmModule.forFeature([Admin, Category]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.register({
       secret: Constants.JWT_SECRET_KEY,
