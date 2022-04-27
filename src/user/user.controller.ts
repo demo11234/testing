@@ -15,10 +15,10 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { WalletAddressDto, UserNameDto } from './dto/get-user.dto';
 
-import { ResponseModel } from 'src/responseModel';
-import { ResponseStatusCode } from 'shared/ResponseStatusCode';
-import { ResponseMessage } from 'shared/ResponseMessage';
-import { AuthService } from 'src/auth/auth.service';
+import { ResponseModel } from '../../src/responseModel';
+import { ResponseStatusCode } from '../../shared/ResponseStatusCode';
+import { ResponseMessage } from '../../shared/ResponseMessage';
+import { AuthService } from '../../src/auth/auth.service';
 
 import {
   ApiBearerAuth,
@@ -26,7 +26,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { JwtAuthGuard } from '../../src/auth/jwt-auth.guard';
 import { SignedUrlDto } from './dto/signed-url.dto';
 
 @Controller('user')
