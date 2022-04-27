@@ -6,6 +6,7 @@ import { UserRepository } from './repositories/user.repository';
 import { Cache } from 'cache-manager';
 import { WalletAddressDto } from './dto/get-user.dto';
 import { FileUpload } from './utils/s3.upload';
+import {NotificationService} from '../notification/notification.service'
 import { Category } from 'src/admin/entities/categories.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -16,6 +17,7 @@ export class UserService {
     @InjectRepository(Category)
     private readonly categoryRepository: Repository<Category>,
     private readonly userRepository: UserRepository,
+    private readonly notificationService: NotificationService,
     private readonly fileUpload: FileUpload, //  @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
   ) {}
 
@@ -27,7 +29,8 @@ export class UserService {
    */
   async createUser(createUserDto: CreateUserDto): Promise<User> {
     try {
-      const user = await this.userRepository.createUser(createUserDto);
+      const user = this.userRepository.createUser(createUserDto);
+      this.notificationService.createNotification(createUserDto, user)
       return user;
     } catch (error) {
       throw new Error(error);
