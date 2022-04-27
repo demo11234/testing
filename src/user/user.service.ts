@@ -6,10 +6,15 @@ import { UserRepository } from './repositories/user.repository';
 import { Cache } from 'cache-manager';
 import { WalletAddressDto } from './dto/get-user.dto';
 import { FileUpload } from './utils/s3.upload';
+import { Category } from 'src/admin/entities/categories.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class UserService {
   constructor(
+    @InjectRepository(Category)
+    private readonly categoryRepository: Repository<Category>,
     private readonly userRepository: UserRepository,
     private readonly fileUpload: FileUpload, //  @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
   ) {}
@@ -125,7 +130,6 @@ export class UserService {
     }
   }
 
-
   /**
    * @description it will genrate preSinged url for s3 bucket
    * @param signedUrlDto
@@ -134,12 +138,22 @@ export class UserService {
    */
   async getPresignedURL(signedUrlDto): Promise<any> {
     try {
-      const {fileName, fileType, filePath} = signedUrlDto
-      const url = await this.fileUpload.signedUrl(fileName , fileType, filePath);
+      const { fileName, fileType, filePath } = signedUrlDto;
+      const url = await this.fileUpload.signedUrl(fileName, fileType, filePath);
       return url;
     } catch (error) {
       throw new Error(error);
     }
   }
+  /**
+   * @description gets all categories
+   * @returns All categories
+   */
+  async findAllCategories(): Promise<Category[]> {
+    try {
+      return this.categoryRepository.find({});
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
 }
-
