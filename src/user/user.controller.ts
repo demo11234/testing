@@ -135,13 +135,18 @@ export class UserController {
     @Request() request,
   ): Promise<any> {
     try {
-      await this.authService.checkUser(request.user.data, request.user.walletAddress);
+      await this.authService.checkUser(
+        request.user.data,
+        request.user.walletAddress,
+      );
 
-      const userDetails = await this.userService.findUser({ walletAddress : request.user.walletAddress});
+      const userDetails = await this.userService.findUser({
+        walletAddress: request.user.walletAddress,
+      });
 
       const { email, userName } = updateUserDto;
 
-      if (email && (userDetails.email != email)) {
+      if (email && userDetails.email != email) {
         const user = await this.userService.findUserByEmail(email);
         if (user) {
           return this.responseModel.response(
@@ -153,7 +158,7 @@ export class UserController {
         }
       }
 
-      if (userName && (userDetails.userName != userName)) {
+      if (userName && userDetails.userName != userName) {
         const user = await this.userService.findUserByUserName(userName);
         if (user) {
           return this.responseModel.response(
@@ -311,7 +316,7 @@ export class UserController {
   @ApiBearerAuth()
   @Post('/getPresignedURL')
   async getPresignedURL(@Body() signedUrlDto: SignedUrlDto): Promise<any> {
-    let url = await this.userService.getPresignedURL(signedUrlDto);
+    const url = await this.userService.getPresignedURL(signedUrlDto);
     return url;
   }
 }
