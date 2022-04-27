@@ -5,11 +5,13 @@ import {
 import { Constants } from 'shared/Constants';
 import { JwtService } from '@nestjs/jwt';
 import { User } from 'src/user/entities/user.entity';
+import { UserRepository } from 'src/user/repositories/user.repository';
 
 @Injectable()
 export class AuthService {
     constructor(
         private readonly jwtService: JwtService,
+        private readonly userRepository: UserRepository
     ) {}
 
     /**
@@ -51,10 +53,14 @@ export class AuthService {
      * @returns it will return false if userType is not USER
      * @author Jeetanshu Srivastava
      */
-    async checkUser(userType: string): Promise<any> {
+    async checkUser(userType: string, walletAddress: string): Promise<any> {
         try {
             if(userType != Constants.USER) {
                 throw new UnauthorizedException('Unauthorized');
+            }
+            const user = await this.userRepository.isUserValid(walletAddress);
+            if(!user) {
+                throw new UnauthorizedException("Unauthorized");
             }
         } catch (error) {
             throw new Error(error);
