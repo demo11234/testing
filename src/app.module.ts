@@ -17,6 +17,7 @@ import { AdminModule } from './admin/admin.module';
 import * as redisStore from 'cache-manager-redis-store';
 import { ResponseModel } from './responseModel';
 import { AuthModule } from './auth/auth.module';
+import { ChainsModule } from './chains/chains.module';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { AuthModule } from './auth/auth.module';
     UserModule,
     AdminModule,
     AuthModule,
+    ChainsModule,
   ],
   controllers: [AppController],
   providers: [

@@ -7,6 +7,7 @@ import {
   Request,
   UseGuards,
   UploadedFile,
+  Get,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 
@@ -59,7 +60,6 @@ export class UserController {
     status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
     description: ResponseMessage.INTERNAL_SERVER_ERROR,
   })
-  @ApiBearerAuth()
   @Post()
   async createUser(
     @Body() createUserDto: CreateUserDto,
@@ -318,5 +318,15 @@ export class UserController {
   async getPresignedURL(@Body() signedUrlDto: SignedUrlDto): Promise<any> {
     const url = await this.userService.getPresignedURL(signedUrlDto);
     return url;
+  }
+  /**
+   * @description gets all categories
+   * @returns all categories
+   */
+  @ApiTags('User Module')
+  @Get('getAllCategories')
+  @ApiResponse({ description: 'Array of all categories' })
+  async getAllCategories() {
+    return this.userService.findAllCategories();
   }
 }
