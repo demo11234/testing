@@ -33,6 +33,7 @@ export class AppController {
   /**
    *
    * @returns notable drops mock data
+   * @author Mohan
    */
   @Get('notableDrops')
   @ApiOkResponse({ description: 'notable drops' })
@@ -41,16 +42,27 @@ export class AppController {
   }
   /**
    *
+   * @param filerTime
    * @returns top trending
+   * @author Mohan
    */
   @Get('toptrending/:filterTime')
   @ApiOkResponse({ description: 'top trending' })
-  async toptrending(@Param('filerTime') filerTime: string): Promise<any> {
+  async toptrending(@Param('filterTime') filterTime: string): Promise<any> {
+    console.log(filterTime);
     return notableDrops();
   }
+  /**
+   *
+   * @param filerTime
+   * @returns top collections
+   * @author Mohan
+   */
   @Get('topCollections/:filterTime')
   @ApiOkResponse({ description: 'top collections' })
-  async topCollections(@Param('filerTime') filerTime: string): Promise<any> {
+  async topCollections(@Param('filterTime') filterTime: string): Promise<any> {
+    console.log(filterTime);
+
     return notableDrops();
   }
 }
