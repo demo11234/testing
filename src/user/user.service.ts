@@ -1,4 +1,4 @@
-import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
+import { CACHE_MANAGER, Inject, Injectable, InternalServerErrorException, OnModuleInit } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
@@ -13,7 +13,7 @@ import { Repository } from 'typeorm';
 import { SignedUrlDto } from './dto/signed-url.dto';
 
 @Injectable()
-export class UserService {
+export class UserService implements OnModuleInit() {
   constructor(
     @InjectRepository(Category)
     private readonly categoryRepository: Repository<Category>,
@@ -21,6 +21,23 @@ export class UserService {
     private readonly notificationService: NotificationService,
     private readonly fileUpload: FileUpload, //  @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
   ) {}
+
+  async onModuleInit() {
+    try {
+      const nftAccount = await this.userRepository.findOne({
+        walletAddress: process.env.MINTING_ACCOUNT_ADDRESS,
+      });
+      if (nftAccount) {
+        throw new Error('Already exists');
+      }
+      const user = new User();
+      user.userName = process.env.MINTING_ACCOUNT_USERNAME;
+      user.walletAddress = process.env.MINTING_ACCOUNT_ADDRESS;
+      await this.userRepository.save(user);
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
 
   /**
    * @description createUser will create User if user with given wallet address
@@ -31,7 +48,7 @@ export class UserService {
   async createUser(createUserDto: CreateUserDto): Promise<User> {
     try {
       const user = await this.userRepository.createUser(createUserDto);
-      await this.notificationService.createNotification(createUserDto, user)
+      await this.notificationService.createNotification(createUserDto, user);
       return user;
     } catch (error) {
       throw new Error(error);
