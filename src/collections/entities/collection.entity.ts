@@ -31,7 +31,7 @@ export class Collection {
   // })
   @Column()
   @ApiProperty()
-  wishlistOwner: User[];
+  watchlist: User[];
 
   @Column({ length: 50 })
   @ApiProperty()

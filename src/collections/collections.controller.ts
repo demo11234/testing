@@ -87,7 +87,6 @@ export class CollectionsController {
    * @author: Ansh Arora
    */
   @Get()
-  @UseGuards(JwtAuthGuard)
   @ApiTags('Collection Module')
   @ApiOperation({
     summary: 'Find All Collections',
@@ -100,17 +99,13 @@ export class CollectionsController {
     status: ResponseStatusCode.NOT_FOUND,
     description: ResponseMessage.COLLECTIONS_DO_NOT_EXIST,
   })
-  async findAll(@Query() filterDto: FilterDto, @Request() req) {
+  async findAll(@Query() filterDto: FilterDto) {
     try {
-      const owner = req.user;
-      filterDto.take = filterDto.take > 20 ? 20 : filterDto.take;
+      filterDto.take = filterDto.take <= 20 ? 20 : filterDto.take;
       if (!filterDto.skip) {
         filterDto.skip === 0;
       }
-      const collections = await this.collectionService.findAll(
-        filterDto,
-        owner,
-      );
+      const collections = await this.collectionService.findAll(filterDto);
       if (collections) {
         return this.responseModel.response(
           collections,

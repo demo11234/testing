@@ -45,12 +45,17 @@ export class CollectionsService {
     }
   }
 
-  async findAll(
-    filterDto: FilterDto,
-    owner: string,
-  ): Promise<[Collection[], number]> {
+  async findAll(filterDto: FilterDto): Promise<[Collection[], number]> {
     try {
-      const { take, skip, name, status, isVerified, search } = filterDto;
+      const {
+        take,
+        skip,
+        earningWalletAddress,
+        name,
+        status,
+        isVerified,
+        search,
+      } = filterDto;
       const collections = await this.collectionRepository.findAndCount({
         take,
         skip,
@@ -59,9 +64,11 @@ export class CollectionsService {
         collections[0] = collections[0].filter((collection) => {
           collection.isDeleted === false;
         });
-        collections[0] = collections[0].filter((collection) => {
-          collection.owner.id === owner;
-        });
+        if (earningWalletAddress) {
+          collections[0] = collections[0].filter((collection) => {
+            collection.earningWalletAddress === earningWalletAddress;
+          });
+        }
         if (name) {
           collections[0] = collections[0].filter((collection) => {
             collection.name === name;

@@ -86,6 +86,10 @@ export class CreateCollectionsDto {
   @IsOptional()
   earningFee: number;
 
+  @ApiProperty({ description: 'Earning wallet address for the collection' })
+  @IsOptional()
+  earningWalletAddress: string;
+
   @ApiProperty({ description: 'blockchain being used for this collection' })
   @IsOptional()
   blockchain: string;

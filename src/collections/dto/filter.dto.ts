@@ -14,6 +14,11 @@ export class FilterDto {
   @IsNotEmpty()
   skip: number;
 
+  @ApiProperty({ description: 'Earning Wallet id of the collection' })
+  @IsOptional()
+  @IsNotEmpty()
+  earningWalletAddress: string;
+
   @ApiProperty({ description: 'name of the collection' })
   @IsString()
   @IsNotEmpty()
