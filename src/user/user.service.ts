@@ -6,7 +6,7 @@ import { UserRepository } from './repositories/user.repository';
 import { Cache } from 'cache-manager';
 import { WalletAddressDto } from './dto/get-user.dto';
 import { FileUpload } from './utils/s3.upload';
-import {NotificationService} from '../notification/notification.service'
+import { NotificationService } from '../notification/notification.service';
 import { Category } from 'src/admin/entities/categories.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
