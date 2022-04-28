@@ -9,4 +9,5 @@ export const ResponseStatusCode = {
 
 
   INTERNAL_SERVER_ERROR: 500,
+  UNIQUE_CONSTRAINTS: '23505',
 };

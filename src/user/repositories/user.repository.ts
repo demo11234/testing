@@ -5,7 +5,6 @@ import { CreateUserInterface } from '../interface/create-user.interface';
 
 @EntityRepository(User)
 export class UserRepository extends Repository<User> {
-
   /**
    * @description createUser will create User if user with given wallet address
    * @param UserInterface
@@ -33,7 +32,7 @@ export class UserRepository extends Repository<User> {
   async findUser(walletAddress: string): Promise<User> {
     try {
       const user = await this.findOne({
-        where: { walletAddress }
+        where: { walletAddress },
       });
       return user;
     } catch (error) {
@@ -50,7 +49,7 @@ export class UserRepository extends Repository<User> {
   async findUserByUserName(userName: string): Promise<User> {
     try {
       const user = await this.findOne({
-        where: { userName }
+        where: { userName },
       });
       return user;
     } catch (error) {
@@ -67,7 +66,7 @@ export class UserRepository extends Repository<User> {
   async findUserByEmail(email: string): Promise<User> {
     try {
       const user = await this.findOne({
-        where: { email }
+        where: { email },
       });
       return user;
     } catch (error) {
@@ -81,16 +80,18 @@ export class UserRepository extends Repository<User> {
    * @returns it will return user details
    * @author Jeetanshu Srivastava
    */
-    async updateUserDetails(walletAddress: string, updateUserInterface: UpdateUserInterface): Promise<any> {
+  async updateUserDetails(
+    walletAddress: string,
+    updateUserInterface: UpdateUserInterface,
+  ): Promise<any> {
     try {
-
-      const user = await this.findOne({ 
-        where : { walletAddress }
+      const user = await this.findOne({
+        where: { walletAddress },
       });
 
-      if(!user) return null;
+      if (!user) return null;
 
-      const keys = Object.keys(updateUserInterface)
+      const keys = Object.keys(updateUserInterface);
       keys.forEach((key) => {
         user[key] = updateUserInterface[key];
       });
@@ -101,4 +102,24 @@ export class UserRepository extends Repository<User> {
     }
   }
 
+  /**
+   * @description isUserBlocked returns Boolean value depending whether user is blocked or not
+   * @param walletAddress
+   * @returns it will return Boolean or null
+   * @author Jeetanshu Srivastava
+   */
+  async isUserValid(walletAddress: string): Promise<Boolean> {
+    try {
+      const user = await this.findOne({
+        where: { walletAddress },
+      });
+
+      if (!user) return null;
+      if (user.isBlocked || !user.isActive) return null;
+
+      return true;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
 }

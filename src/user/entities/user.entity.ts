@@ -32,6 +32,12 @@ export class User {
   @Column({ default: false })
   isEmailVerified: boolean;
 
+  @Column({ default: false })
+  isBlocked: boolean;
+
+  @Column({ default: true })
+  isActive: boolean;
+
   @Column({ default: '' })
   imageUrl: string;
 

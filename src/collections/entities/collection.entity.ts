@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { IsEnum } from 'class-validator';
 import { User } from 'src/user/entities/user.entity';
 import {
   Column,
@@ -9,6 +10,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { displayTheme } from '../enums/display-themes.enum';
 
 @Entity()
 export class Collection {
@@ -35,9 +37,25 @@ export class Collection {
   @ApiProperty()
   banner: string;
 
-  @Column({ length: 50, nullable: false })
+  @Column({ unique: true, length: 50, nullable: false })
   @ApiProperty()
   name: string;
+
+  @Column()
+  @ApiProperty()
+  categoryID: string;
+
+  @Column()
+  @ApiProperty()
+  blockchain: string;
+
+  @Column()
+  @ApiProperty()
+  paymentToken: string;
+
+  @Column()
+  @ApiProperty()
+  explicitOrSensitiveContent: boolean;
 
   @Column()
   @ApiProperty()
@@ -46,6 +64,10 @@ export class Collection {
   @Column({ length: 1000 })
   @ApiProperty()
   description: string;
+
+  @Column({ default: false })
+  @ApiProperty()
+  isDeleted: boolean;
 
   @Column({ length: 1000 })
   @ApiProperty()
@@ -75,13 +97,17 @@ export class Collection {
   @ApiProperty()
   earningWalletAddress: string;
 
-  @Column({ length: 100 })
-  @ApiProperty()
-  displayTheme: string;
-
   @Column()
   @ApiProperty()
-  contentSensitive: boolean;
+  collaborators: User[];
+
+  @Column({ length: 100, default: displayTheme.CONTAINED })
+  @ApiProperty()
+  @IsEnum(displayTheme)
+  displayTheme:
+    | displayTheme.CONTAINED
+    | displayTheme.COVERED
+    | displayTheme.PADDED;
 
   // @ManyToOne((_type) => User, (user) => user.collections, {
   // eager: false,
@@ -90,20 +116,20 @@ export class Collection {
   @ApiProperty()
   owner: User;
 
-  @Column()
+  @Column({ default: false })
   @ApiProperty()
   isVerified: boolean;
 
-  @Column()
+  @Column({ default: true })
   @ApiProperty()
   isEditable: boolean;
 
-  @Column()
+  @Column({ default: true })
   @ApiProperty()
   isMintable: boolean;
 
   @Column()
-  @ApiProperty()
+  @ApiProperty({ default: false })
   isSafelisted: boolean;
 
   @Column({ length: 250 })

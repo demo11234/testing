@@ -9,6 +9,7 @@ import {
   Req,
   ClassSerializerInterceptor,
   UseInterceptors,
+  Delete,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -18,21 +19,29 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+import { ResponseMessage } from 'shared/ResponseMessage';
+import { AuthService } from 'src/auth/auth.service';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { LocalAuthGuard } from 'src/auth/local-auth.gaurd';
 import { AdminService } from './admin.service';
 import { GetAdmin } from './decorators/get-user.decorator';
 import { CreateAdminDto } from './dto/create-admin.dto';
+import { CreateCategoryDto } from './dto/create-categoty.dto';
 import { LoginAdminDto } from './dto/login-admin.dto';
 
 import { UpdateAdminDto } from './dto/update-admin.dto';
+import { UpdateCategoryDto } from './dto/update-category.dto';
 import { Admin } from './entities/admin.entity';
-import { JwtAuthGuard } from './gaurds/jwt-auth.guard';
-import { LocalAuthGuard } from './gaurds/local-auth.gaurd';
+import { Category } from './entities/categories.entity';
 
 @Controller('admin')
 @UseInterceptors(ClassSerializerInterceptor)
 @ApiTags('admin')
 export class AdminController {
-  constructor(private readonly adminService: AdminService) {}
+  constructor(
+    private readonly adminService: AdminService,
+    private readonly authService: AuthService,
+  ) {}
   /**
    * @description login admin
    * @param req Data coming from user wrapped in Req
@@ -41,8 +50,8 @@ export class AdminController {
    */
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  @ApiOkResponse({ description: 'login as admin' })
-  @ApiUnauthorizedResponse({ description: 'Invalid credentials' })
+  @ApiOkResponse({ description: ResponseMessage.LOGIN_ADMIN })
+  @ApiUnauthorizedResponse({ description: ResponseMessage.INVALID_CRED })
   @ApiBody({ required: true, type: LoginAdminDto })
   async login(@Req() req): Promise<any> {
     return await this.adminService.login(req.user);
@@ -55,13 +64,13 @@ export class AdminController {
    */
   @Post()
   @ApiOkResponse({
-    description: 'creates the account and returns created admin',
+    description: ResponseMessage.CREATE_DESC_ADMIN,
   })
   @ApiUnauthorizedResponse({
-    description: 'In case admin is not logged in',
+    description: ResponseMessage.ADMIN_NOT_LOGGED_IN,
   })
   @ApiConflictResponse({
-    description: 'In case of email already exists in the database',
+    description: ResponseMessage.UNIQUE_CONSTRAINTS_EMAIL,
   })
   @ApiBearerAuth()
   async create(@Body() createAdminDto: CreateAdminDto): Promise<any> {
@@ -75,10 +84,11 @@ export class AdminController {
    */
   @Get()
   @UseGuards(JwtAuthGuard)
-  @ApiOkResponse({ description: 'get all Admins' })
-  @ApiUnauthorizedResponse({ description: 'In case admin is not logged in' })
+  @ApiOkResponse({ description: ResponseMessage.ALL_ADMINS })
+  @ApiUnauthorizedResponse({ description: ResponseMessage.ADMIN_NOT_LOGGED_IN })
   @ApiBearerAuth()
-  async findAll() {
+  async findAll(@Req() req) {
+    await this.authService.checkAdmin(req.user.data);
     return this.adminService.findAll();
   }
   /**
@@ -90,13 +100,15 @@ export class AdminController {
    */
   @Patch(':id')
   @UseGuards(JwtAuthGuard)
-  @ApiOkResponse({ description: 'Update Admin Data' })
-  @ApiUnauthorizedResponse({ description: 'In case admin is not logged in' })
+  @ApiOkResponse({ description: ResponseMessage.UPDATE_ADMIN })
+  @ApiUnauthorizedResponse({ description: ResponseMessage.ADMIN_NOT_LOGGED_IN })
   @ApiBearerAuth()
   async update(
     @Param('id') id: string,
     @Body() updateAdminDto: UpdateAdminDto,
+    @Req() req,
   ): Promise<any> {
+    await this.authService.checkAdmin(req.user.data);
     return await this.adminService.updateAdmin(id, updateAdminDto);
   }
 
@@ -104,16 +116,116 @@ export class AdminController {
    * @description get profile data of currently logged in admin
    * @param admin
    * @returns admin who is logged in
+   * @author Mohan
    */
   @Get('me')
   @UseGuards(JwtAuthGuard)
   @ApiOkResponse({
-    description: 'Get data about current logged in admin',
+    description: ResponseMessage.LOGGED_IN_ADMIN,
     type: Admin,
   })
-  @ApiUnauthorizedResponse({ description: 'In case admin is not logged in' })
+  @ApiUnauthorizedResponse({ description: ResponseMessage.ADMIN_NOT_LOGGED_IN })
   @ApiBearerAuth()
-  async getUser(@GetAdmin() admin: Admin): Promise<Admin> {
-    return admin;
+  async getAdminProfile(@GetAdmin() admin: Admin, @Req() req): Promise<Admin> {
+    await this.authService.checkAdmin(req.user.data);
+
+    return this.adminService.getAdminProfile(admin.username);
+  }
+
+  /**
+   * @description create category
+   * @param createCategoryDto
+   * @returns status and created category
+   * @author Mohan
+   */
+  @Post('createCategory')
+  @UseGuards(JwtAuthGuard)
+  @ApiOkResponse({
+    description: ResponseMessage.DESC_CREATE_CATEGORY,
+  })
+  @ApiUnauthorizedResponse({
+    description: ResponseMessage.ADMIN_NOT_LOGGED_IN,
+  })
+  @ApiConflictResponse({
+    description: ResponseMessage.UNIQUE_CONSTRAINTS_CATEGORY,
+  })
+  @ApiBearerAuth()
+  async createCategory(
+    @Body() createCategoryDto: CreateCategoryDto,
+    @GetAdmin() admin: Admin,
+    @Req() req,
+  ): Promise<any> {
+    await this.authService.checkAdmin(req.user.data);
+    return this.adminService.createCategory(createCategoryDto, admin);
+  }
+  /**
+   * @description delete category
+   * @param categoryId
+   * @returns status for deleting category
+   * @author Mohan
+   */
+  @Delete('deleteCategory/:categoryId')
+  @UseGuards(JwtAuthGuard)
+  @ApiOkResponse({ description: ResponseMessage.DELETE_CATEGORY })
+  @ApiUnauthorizedResponse({ description: ResponseMessage.ADMIN_NOT_LOGGED_IN })
+  @ApiBearerAuth()
+  async deleteCategory(@Param('categoryId') categoryId: string, @Req() req) {
+    await this.authService.checkAdmin(req.user.data);
+    return this.adminService.deleteCategory(categoryId);
+  }
+  /**
+   * @description update category
+   * @param categoryId
+   * @param updateCategoryDto
+   * @returns status and msg for updation
+   * @author Mohan
+   */
+  @Patch('updateCategory/:categoryId')
+  @UseGuards(JwtAuthGuard)
+  @ApiOkResponse({ description: ResponseMessage.UPDATE_CATEGORY })
+  @ApiUnauthorizedResponse({ description: ResponseMessage.ADMIN_NOT_LOGGED_IN })
+  @ApiBearerAuth()
+  async updateCategory(
+    @Param('categoryId') categoryId: string,
+    @Body() updateCategoryDto: UpdateCategoryDto,
+    @Req() req,
+  ): Promise<any> {
+    await this.authService.checkAdmin(req.user.data);
+    return this.adminService.updateCategory(categoryId, updateCategoryDto);
+  }
+
+  /**
+   * @description GET all categories
+   * @returns Array of all categories
+   * @author Mohan
+   */
+
+  @Get('allCategories')
+  @ApiOkResponse({ description: ResponseMessage.ALL_CATEGORIES })
+  @ApiUnauthorizedResponse({ description: ResponseMessage.ADMIN_NOT_LOGGED_IN })
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  async findAllCategories(@Req() req) {
+    await this.authService.checkAdmin(req.user.data);
+    return this.adminService.findAllCategories();
+  }
+  /**
+   * @description get category by Id
+   * @param categoryId
+   * @returns category
+   */
+  @Get('category/:categoryId')
+  @UseGuards(JwtAuthGuard)
+  @ApiOkResponse({
+    description: ResponseMessage.CATEGORY_BY_ID,
+  })
+  @ApiUnauthorizedResponse({ description: ResponseMessage.ADMIN_NOT_LOGGED_IN })
+  @ApiBearerAuth()
+  async getCategoryById(
+    @Param('categoryId') categoryId: string,
+    @Req() req,
+  ): Promise<Category> {
+    await this.authService.checkAdmin(req.user.data);
+    return this.adminService.getCategoryById(categoryId);
   }
 }

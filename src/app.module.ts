@@ -16,8 +16,11 @@ import { UserModule } from './user/user.module';
 import { AdminModule } from './admin/admin.module';
 import * as redisStore from 'cache-manager-redis-store';
 import { ResponseModel } from './responseModel';
-import { CollectionsModule } from './collections/collections.module';
 import { AuthModule } from './auth/auth.module';
+import { ChainsModule } from './chains/chains.module';
+import { CollectionsModule } from './collections/collections.module';
+import { UtilsModule } from './utils/utils.module';
+import { NotificationModule } from './notification/notification.module';
 
 @Module({
   imports: [
@@ -45,8 +48,11 @@ import { AuthModule } from './auth/auth.module';
     DatabaseModule,
     UserModule,
     AdminModule,
-    CollectionsModule,
     AuthModule,
+    ChainsModule,
+    NotificationModule,
+    CollectionsModule,
+    UtilsModule
   ],
   controllers: [AppController],
   providers: [

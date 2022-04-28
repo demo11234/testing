@@ -13,12 +13,20 @@ import { CreateAdminDto } from './dto/create-admin.dto';
 import { UpdateAdminDto } from './dto/update-admin.dto';
 import { Admin } from './entities/admin.entity';
 import { argon2hash, argon2verify } from './argon2/argon2';
+import { Constants } from 'shared/Constants';
+import { CreateCategoryDto } from './dto/create-categoty.dto';
+import { Category } from './entities/categories.entity';
+import { UpdateCategoryDto } from './dto/update-category.dto';
+import { ResponseMessage } from 'shared/ResponseMessage';
+import { ResponseStatusCode } from 'shared/ResponseStatusCode';
 
 @Injectable()
 export class AdminService {
   constructor(
     @InjectRepository(Admin)
     private adminRepository: Repository<Admin>,
+    @InjectRepository(Category)
+    private categoryRepository: Repository<Category>,
     private jwtService: JwtService,
   ) {}
 
@@ -40,8 +48,8 @@ export class AdminService {
       admin = await this.adminRepository.save(admin);
       return { status: HttpStatus.CREATED, admin };
     } catch (error) {
-      if (error.code === '23505')
-        throw new ConflictException('Email already exists');
+      if (error.code === ResponseStatusCode.UNIQUE_CONSTRAINTS)
+        throw new ConflictException(ResponseMessage.UNIQUE_CONSTRAINTS_EMAIL);
       else throw new InternalServerErrorException();
     }
   }
@@ -53,7 +61,13 @@ export class AdminService {
    * @author Mohan Chaudhari
    */
   async login(admin: any) {
-    const payload = { sub: admin.username };
+    const bufferObj = Buffer.from(Constants.ADMIN, 'utf8');
+    const base64String = bufferObj.toString('base64');
+
+    const payload = {
+      sub: admin.username,
+      data: base64String,
+    };
     return { token: this.jwtService.sign(payload) };
   }
   /**
@@ -68,9 +82,68 @@ export class AdminService {
         { id },
         updateAdminDto,
       );
-      if (isUpdated) return { status: 200, msg: 'Admin updated succesfully' };
+      if (isUpdated)
+        return {
+          status: HttpStatus.OK,
+          msg: ResponseMessage.MSG_UPDATE_SUCCESS,
+        };
     } catch (error) {
-      throw new BadRequestException('Bad request for updating Admin');
+      throw new BadRequestException(ResponseMessage.BAD_REQUEST_UPDATE_ADMIN);
+    }
+  }
+  /**
+   *
+   * @param username
+   * @param password
+   * @returns admin
+   * @author Mohan Chaudhari
+   */
+  async validateCustomer(username, password): Promise<Admin> {
+    try {
+      const admin = await this.adminRepository.findOne({ username });
+
+      if (!admin) throw new NotFoundException(ResponseMessage.ADMIN_NOT_FOUND);
+
+      if (admin && argon2verify(admin.password, password)) return admin;
+    } catch (error) {
+      throw new BadRequestException(ResponseMessage.BAD_REQUEST_VALIDATE);
+    }
+  }
+  /**
+   *
+   * @returns array of admins
+   */
+  async findAll(): Promise<Admin[]> {
+    try {
+      return await this.adminRepository.find({});
+    } catch (error) {
+      throw new InternalServerErrorException(ResponseMessage.FETCH_ERROR);
+    }
+  }
+  /**
+   *
+   * @param createCategoryDto
+   * @returns status and created category
+   */
+  async createCategory(createCategoryDto: CreateCategoryDto, { username }) {
+    try {
+      let category = new Category();
+
+      category.categoryName = createCategoryDto.categoryName;
+      category.categoryImageUrl = createCategoryDto.categoryImageUrl;
+      category.categorySlug = createCategoryDto.categoryName.replace(/ /g, '-'); //string.replace(/ /g, "")
+      category.categoryStatus = true;
+      category.createdBy = username;
+      category = await this.categoryRepository.save(category);
+      return { status: HttpStatus.CREATED, category };
+    } catch (error) {
+      console.log(error);
+
+      if (error.code === ResponseStatusCode.UNIQUE_CONSTRAINTS)
+        throw new ConflictException(
+          ResponseMessage.UNIQUE_CONSTRAINTS_CATEGORY,
+        );
+      else throw new InternalServerErrorException();
     }
   }
   /**
@@ -86,18 +159,91 @@ export class AdminService {
       console.log('rdhdrhd', admin);
       console.log('%%%', admin.password, password);
 
-      if (!admin) throw new NotFoundException('Admin not found**');
+  /**
+   *
+   * @param id category id to delete
+   * @returns status, msg
+   * @author Mohan
+   */
+  async deleteCategory(id) {
+    try {
+      const deleted = await this.categoryRepository.delete({ id });
 
-      if (admin && argon2verify(admin.password, password)) return admin;
+      if (deleted.affected === 1)
+        return { status: HttpStatus.OK, msg: ResponseMessage.DELETE_SUCCESS };
+      else throw new NotFoundException(ResponseMessage.NOT_FOUND_CATEGORY);
     } catch (error) {
-      throw new BadRequestException('Bad request in ValidateCustomer');
+      throw new BadRequestException(
+        ResponseMessage.BAD_REQUEST_DELETE_CATEGORY,
+      );
     }
   }
-  async findAll(): Promise<Admin[]> {
+
+  /**
+   *
+   * @param id
+   * @param updateCategoryDto
+   * @returns status 200 if successful updation
+   * @author Mohan
+   */
+  async updateCategory(id, updateCategoryDto: UpdateCategoryDto) {
     try {
-      return await this.adminRepository.find({});
+      const isUpdated = await this.categoryRepository.update(
+        { id },
+        updateCategoryDto,
+      );
+      if (isUpdated)
+        return {
+          status: HttpStatus.OK,
+          msg: ResponseMessage.UPDATE_SUCCESS_CATEGORY,
+        };
+      else throw new NotFoundException();
     } catch (error) {
-      throw new InternalServerErrorException('Error in fetching the records');
+      throw new BadRequestException(
+        ResponseMessage.BAD_REQUEST_UPDATE_CATEGORY,
+      );
+    }
+  }
+  /**
+   *
+   * @returns array of admins
+   * @author Mohan
+   */
+  async findAllCategories(): Promise<Category[]> {
+    try {
+      return await this.categoryRepository.find({});
+    } catch (error) {
+      throw new InternalServerErrorException(ResponseMessage.FETCH_ERROR);
+    }
+  }
+  /**
+   * @description getting category by Id
+   * @param id
+   * @returns category from database
+   * @author Mohan
+   */
+  async getCategoryById(id: string): Promise<Category> {
+    try {
+      const category = await this.categoryRepository.findOne({ id });
+      if (!category)
+        throw new NotFoundException(ResponseMessage.NOT_FOUND_CATEGORY);
+      return category;
+    } catch (error) {
+      throw new InternalServerErrorException(ResponseMessage.FETCH_ERROR);
+    }
+  }
+  /**
+   * @description get details of currently logged in admin
+   * @param username
+   * @returns data of logged in admin
+   */
+  async getAdminProfile(username: string): Promise<Admin> {
+    try {
+      const admin = this.adminRepository.findOne({ username });
+      if (!admin) throw new NotFoundException(ResponseMessage.NOT_FOUND);
+      return admin;
+    } catch (error) {
+      throw new InternalServerErrorException(ResponseMessage.FETCH_ERROR);
     }
   }
 }
