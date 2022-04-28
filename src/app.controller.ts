@@ -1,8 +1,8 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Param } from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { AppService } from './app.service';
-import { top } from './top';
-import { topCollection } from './topCollection';
+import { categoryMockdata } from './categoryMockdata';
+import { notableDrops } from './notabledrops';
 
 @Controller()
 @ApiTags('app')
@@ -21,15 +21,36 @@ export class AppController {
     return this.appService.healthCheck();
   }
 
-  @Get('topCategory')
-  @ApiOkResponse({ description: 'top  category' })
-  async topCategory(): Promise<any> {
-    return top();
+  /**
+   *
+   * @returns mock data for categories
+   */
+  @Get('category')
+  @ApiOkResponse({ description: 'category' })
+  async categoryMockdata(): Promise<any> {
+    return categoryMockdata();
   }
-
-  @Get('topCollection')
-  @ApiOkResponse({ description: 'topTrending' })
-  async topTrending(): Promise<any> {
-    return topCollection();
+  /**
+   *
+   * @returns notable drops mock data
+   */
+  @Get('notableDrops')
+  @ApiOkResponse({ description: 'notable drops' })
+  async notableDrops(): Promise<any> {
+    return notableDrops();
+  }
+  /**
+   *
+   * @returns top trending
+   */
+  @Get('toptrending/:filterTime')
+  @ApiOkResponse({ description: 'top trending' })
+  async toptrending(@Param('filerTime') filerTime: string): Promise<any> {
+    return notableDrops();
+  }
+  @Get('topCollections/:filterTime')
+  @ApiOkResponse({ description: 'top collections' })
+  async topCollections(@Param('filerTime') filerTime: string): Promise<any> {
+    return notableDrops();
   }
 }
