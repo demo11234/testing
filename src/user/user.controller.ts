@@ -7,10 +7,7 @@ import {
   Request,
   UseGuards,
   UploadedFile,
-<<<<<<< HEAD
   Get,
-=======
->>>>>>> bc581a155ad8043c2d4d1e01541f3e875431a2a2
 } from '@nestjs/common';
 import { UserService } from './user.service';
 
