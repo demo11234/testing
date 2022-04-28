@@ -10,6 +10,7 @@ import {NotificationService} from '../notification/notification.service'
 import { Category } from 'src/admin/entities/categories.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { SignedUrlDto } from './dto/signed-url.dto';
 
 @Injectable()
 export class UserService {
@@ -139,7 +140,7 @@ export class UserService {
    * @returns it will return preSigned url
    * @author Vipin
    */
-  async getPresignedURL(signedUrlDto): Promise<any> {
+  async getPresignedURL(signedUrlDto : SignedUrlDto): Promise<any> {
     try {
       const { fileName, fileType, filePath } = signedUrlDto;
       const url = await this.fileUpload.signedUrl(fileName, fileType, filePath);
