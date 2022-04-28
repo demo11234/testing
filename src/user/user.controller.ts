@@ -322,6 +322,7 @@ export class UserController {
   /**
    * @description gets all categories
    * @returns all categories
+   * @author Mohan
    */
   @ApiTags('User Module')
   @Get('getAllCategories')
