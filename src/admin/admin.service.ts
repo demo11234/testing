@@ -146,18 +146,6 @@ export class AdminService {
       else throw new InternalServerErrorException();
     }
   }
-  /**
-   *
-   * @param username
-   * @param password
-   * @returns admin
-   * @author Mohan Chaudhari
-   */
-  async validateCustomer(username, password): Promise<Admin> {
-    try {
-      const admin = await this.adminRepository.findOne({ username });
-      console.log('rdhdrhd', admin);
-      console.log('%%%', admin.password, password);
 
   /**
    *
