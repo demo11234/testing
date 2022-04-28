@@ -84,7 +84,7 @@ export class UpdateCollectionsDto {
 
   @ApiProperty({ description: 'Collaborators on  the collection' })
   @IsOptional()
-  collaborators: User[];
+  collaborators: string;
 
   @ApiProperty({ description: 'Blockchain to be used in the collection' })
   @IsOptional()
