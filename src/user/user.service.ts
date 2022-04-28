@@ -10,6 +10,7 @@ import {NotificationService} from '../notification/notification.service'
 import { Category } from 'src/admin/entities/categories.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { SignedUrlDto } from './dto/signed-url.dto';
 
 @Injectable()
 export class UserService {
@@ -29,8 +30,8 @@ export class UserService {
    */
   async createUser(createUserDto: CreateUserDto): Promise<User> {
     try {
-      const user = this.userRepository.createUser(createUserDto);
-      this.notificationService.createNotification(createUserDto, user)
+      const user = await this.userRepository.createUser(createUserDto);
+      await this.notificationService.createNotification(createUserDto, user)
       return user;
     } catch (error) {
       throw new Error(error);
@@ -139,7 +140,7 @@ export class UserService {
    * @returns it will return preSigned url
    * @author Vipin
    */
-  async getPresignedURL(signedUrlDto): Promise<any> {
+  async getPresignedURL(signedUrlDto : SignedUrlDto): Promise<any> {
     try {
       const { fileName, fileType, filePath } = signedUrlDto;
       const url = await this.fileUpload.signedUrl(fileName, fileType, filePath);
