@@ -1,4 +1,5 @@
-export interface CreateChainsInterface {
+export interface UpdateTokensInterface {
+  id: string;
   name: string;
   symbol: string;
   imageUrl?: string;

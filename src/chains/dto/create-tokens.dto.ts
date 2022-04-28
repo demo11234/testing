@@ -1,15 +1,15 @@
-import { ApiProperty } from '@nestjs/swagger'
+import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty } from 'class-validator';
 
-export class UpdateChainsDto {
+export class CreateTokensDto {
   @ApiProperty()
   @IsNotEmpty()
-  id: string;
+  chainId: string;
 
   @ApiProperty()
   @IsNotEmpty()
   name: string;
-  
+
   @ApiProperty()
   @IsNotEmpty()
   symbol: string;

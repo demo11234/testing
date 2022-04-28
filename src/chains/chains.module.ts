@@ -8,22 +8,18 @@ import { JwtModule } from '@nestjs/jwt';
 import { Constants } from 'shared/Constants';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Chains } from './entities/chains.entity';
+import { Tokens } from './entities/tokens.entity';
 
 @Module({
   imports: [
     JwtModule.register({
       secret: Constants.JWT_SECRET_KEY,
-      signOptions: { expiresIn: Constants.USER_TOKEN_VALIDITY }
+      signOptions: { expiresIn: Constants.USER_TOKEN_VALIDITY },
     }),
-    TypeOrmModule.forFeature([Chains]),
+    TypeOrmModule.forFeature([Chains, Tokens]),
   ],
-  providers: [
-    ChainsService,
-    ResponseModel,
-    AuthService,
-    UserRepository
-  ],
+  providers: [ChainsService, ResponseModel, AuthService, UserRepository],
   controllers: [ChainsController],
-  exports: [ChainsService]
+  exports: [ChainsService],
 })
 export class ChainsModule {}
