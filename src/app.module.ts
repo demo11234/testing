@@ -17,6 +17,8 @@ import { AdminModule } from './admin/admin.module';
 import * as redisStore from 'cache-manager-redis-store';
 import { ResponseModel } from './responseModel';
 import { AuthModule } from './auth/auth.module';
+import { NotificationModule } from './notification/notification.module';
+import { NftItemModule } from './nft-item/nft-item.module';
 
 @Module({
   imports: [
@@ -45,6 +47,8 @@ import { AuthModule } from './auth/auth.module';
     UserModule,
     AdminModule,
     AuthModule,
+    NotificationModule,
+    NftItemModule,
   ],
   controllers: [AppController],
   providers: [
