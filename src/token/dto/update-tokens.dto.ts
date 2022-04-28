@@ -35,4 +35,7 @@ export class UpdateTokensDto {
 
   @ApiProperty()
   usdPrice: number;
+
+  @ApiProperty()
+  active: boolean;
 }

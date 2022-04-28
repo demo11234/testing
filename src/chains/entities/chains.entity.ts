@@ -35,6 +35,9 @@ export class Chains {
   @Column()
   usdPrice: number;
 
+  @Column({ default: true })
+  active: boolean;
+
   @CreateDateColumn()
   createdAt: Date;
 

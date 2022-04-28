@@ -9,4 +9,5 @@ export interface UpdateChainsInterface {
   decimals?: number;
   ethPrice?: number;
   usdPrice?: number;
+  active?: boolean;
 }

@@ -8,4 +8,5 @@ export interface UpdateTokensInterface {
   decimals?: number;
   ethPrice?: number;
   usdPrice?: number;
+  active?: boolean;
 }

@@ -8,7 +8,6 @@ import { JwtModule } from '@nestjs/jwt';
 import { Constants } from 'shared/Constants';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Chains } from './entities/chains.entity';
-import { Tokens } from './entities/tokens.entity';
 
 @Module({
   imports: [
@@ -16,7 +15,7 @@ import { Tokens } from './entities/tokens.entity';
       secret: Constants.JWT_SECRET_KEY,
       signOptions: { expiresIn: Constants.USER_TOKEN_VALIDITY },
     }),
-    TypeOrmModule.forFeature([Chains, Tokens]),
+    TypeOrmModule.forFeature([Chains]),
   ],
   providers: [ChainsService, ResponseModel, AuthService, UserRepository],
   controllers: [ChainsController],
