@@ -31,7 +31,7 @@ export class UserService {
   async createUser(createUserDto: CreateUserDto): Promise<User> {
     try {
       const user = await this.userRepository.createUser(createUserDto);
-      await this.notificationService.createNotification(createUserDto, user)
+      await this.notificationService.createNotification(createUserDto, user);
       return user;
     } catch (error) {
       throw new Error(error);
@@ -120,7 +120,7 @@ export class UserService {
     updateUserDto: UpdateUserDto,
   ): Promise<any> {
     try {
-      let user = await this.userRepository.updateUserDetails(
+      const user = await this.userRepository.updateUserDetails(
         walletAddress,
         updateUserDto,
       );
@@ -140,7 +140,7 @@ export class UserService {
    * @returns it will return preSigned url
    * @author Vipin
    */
-  async getPresignedURL(signedUrlDto : SignedUrlDto): Promise<any> {
+  async getPresignedURL(signedUrlDto: SignedUrlDto): Promise<any> {
     try {
       const { fileName, fileType, filePath } = signedUrlDto;
       const url = await this.fileUpload.signedUrl(fileName, fileType, filePath);
@@ -155,7 +155,11 @@ export class UserService {
    */
   async findAllCategories(): Promise<Category[]> {
     try {
-      return this.categoryRepository.find({});
+      return this.categoryRepository.find({
+        where: {
+          categoryStatus: true,
+        },
+      });
     } catch (error) {
       throw new Error(error);
     }

@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger'
+import { ApiProperty } from '@nestjs/swagger';
 import { IsBoolean, IsNumber } from 'class-validator';
 
 export class NotificationDto {
@@ -37,5 +37,4 @@ export class NotificationDto {
   @ApiProperty()
   @IsNumber()
   minimumBidThreshold?: number;
-
 }

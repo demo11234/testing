@@ -137,8 +137,6 @@ export class AdminService {
       category = await this.categoryRepository.save(category);
       return { status: HttpStatus.CREATED, category };
     } catch (error) {
-      console.log(error);
-
       if (error.code === ResponseStatusCode.UNIQUE_CONSTRAINTS)
         throw new ConflictException(
           ResponseMessage.UNIQUE_CONSTRAINTS_CATEGORY,

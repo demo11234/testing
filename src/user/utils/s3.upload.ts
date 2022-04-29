@@ -21,14 +21,14 @@ export class FileUpload {
       signatureVersion: 'v4',
     });
 
-    let params = {
+    const params = {
       Bucket: process.env.AWS_S3_BUCKET_NAME,
       Key: `${filePath}/${Date.now()}-${fileName}`,
       Expires: 60,
       ContentType: fileType,
     };
 
-    let uploadUrl = await s3.getSignedUrlPromise('putObject', params);
+    const uploadUrl = await s3.getSignedUrlPromise('putObject', params);
     return uploadUrl;
   }
 }

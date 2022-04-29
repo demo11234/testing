@@ -3,7 +3,6 @@ import { Constants } from '../../shared/Constants';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '../../src/user/entities/user.entity';
 import { UserRepository } from '../../src/user/repositories/user.repository';
-import { ResponseMessage } from 'shared/ResponseMessage';
 
 @Injectable()
 export class AuthService {
@@ -21,8 +20,8 @@ export class AuthService {
    */
   async createUserToken(walletAddress: string, user: User): Promise<any> {
     try {
-      let bufferObj = Buffer.from(Constants.USER, 'utf8');
-      let base64String = bufferObj.toString('base64');
+      const bufferObj = Buffer.from(Constants.USER, 'utf8');
+      const base64String = bufferObj.toString('base64');
 
       const payload = {
         walletAddress,
