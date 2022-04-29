@@ -8,6 +8,8 @@ import {
   Query,
   Request,
   UseGuards,
+  Response,
+  Put,
 } from '@nestjs/common';
 import { response } from 'express';
 import { ResponseMessage } from 'shared/ResponseMessage';
@@ -16,9 +18,15 @@ import { ResponseModel } from 'src/responseModel';
 import { CollectionsService } from './collections.service';
 import { CreateCollectionsDto } from './dto/create-collections.dto';
 import { UpdateCollectionsDto } from './dto/update-collection.dto';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { FilterDto } from './dto/filter.dto';
+import { UserWatchlistDto } from './dto/user-watchlist.dto';
 
 @Controller('collections')
 export class CollectionsController {
@@ -34,8 +42,8 @@ export class CollectionsController {
    * @author: Ansh Arora
    */
   @Post('create')
-  @UseGuards(JwtAuthGuard)
   @ApiTags('Collection Module')
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({
     summary: 'Creates a new Collection owned by user who is logged in',
   })
@@ -51,9 +59,15 @@ export class CollectionsController {
     status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
     description: ResponseMessage.INTERNAL_SERVER_ERROR,
   })
-  async create(@Body() createCollectionDto: CreateCollectionsDto) {
+  @ApiBearerAuth()
+  async create(
+    @Body() createCollectionDto: CreateCollectionsDto,
+    @Request() request,
+    @Response() response,
+  ) {
     try {
       const collection = await this.collectionService.create(
+        request.user.walletAddress,
         createCollectionDto,
       );
       if (collection) {
@@ -99,7 +113,7 @@ export class CollectionsController {
     status: ResponseStatusCode.NOT_FOUND,
     description: ResponseMessage.COLLECTIONS_DO_NOT_EXIST,
   })
-  async findAll(@Query() filterDto: FilterDto) {
+  async findAll(@Query() filterDto: FilterDto, @Response() response) {
     try {
       filterDto.take = filterDto.take <= 20 ? 20 : filterDto.take;
       if (!filterDto.skip) {
@@ -155,7 +169,7 @@ export class CollectionsController {
     status: ResponseStatusCode.NOT_FOUND,
     description: ResponseMessage.COLLECTION_DOES_NOT_EXIST,
   })
-  async findOne(@Param('id') id: string, @Request() req) {
+  async findOne(@Param('id') id: string, @Request() req, @Response() response) {
     try {
       const owner = req.user;
       const collection = await this.collectionService.findOne(id, owner);
@@ -218,6 +232,7 @@ export class CollectionsController {
     @Request() req,
     @Param('id') id: string,
     @Body() updateCollectionDto: UpdateCollectionsDto,
+    @Response() response,
   ) {
     try {
       const collection = await this.collectionService.findOne(id, req.user.id);
@@ -282,7 +297,7 @@ export class CollectionsController {
     status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
     description: ResponseMessage.INTERNAL_SERVER_ERROR,
   })
-  async delete(@Request() req, @Param('id') id: string) {
+  async delete(@Request() req, @Param('id') id: string, @Response() response) {
     try {
       const owner = req.user.id;
       const collection = await this.collectionService.findOne(id, owner);
@@ -313,4 +328,118 @@ export class CollectionsController {
       );
     }
   }
+
+  /**
+   * @description: watchlist adds or removes user from watchlist depending upon the value of isWatched
+   * @param updateCollectionDto
+   * @returns: Update Staus
+   * @author: Jeetanshu Srivastava
+   */
+  @Put('/watchlist')
+  @UseGuards(JwtAuthGuard)
+  @ApiTags('Collection Module')
+  @ApiOperation({
+    summary:
+      'Add and Removes user wallet address from watchlist of a collection',
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.OK,
+    description: ResponseMessage.WATCHLIST_ADDED,
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.OK,
+    description: ResponseMessage.WATCHLIST_REMOVED,
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
+    description: ResponseMessage.INTERNAL_SERVER_ERROR,
+  })
+  @ApiBearerAuth()
+  async watchlist(
+    @Body() userWatchlistDto: UserWatchlistDto,
+    @Response() response,
+    @Request() request,
+  ): Promise<any> {
+    try {
+      const { isWatched } = userWatchlistDto;
+      if (isWatched) {
+        const result = await this.collectionService.addUserInWatchlist(
+          request.user.walletAddress,
+          userWatchlistDto.collectionId,
+        );
+        return this.responseModel.response(
+          result,
+          ResponseStatusCode.OK,
+          true,
+          response,
+        );
+      } else {
+        const result = await this.collectionService.removeUseFromWatchlist(
+          request.user.walletAddress,
+          userWatchlistDto.collectionId,
+        );
+        return this.responseModel.response(
+          result,
+          ResponseStatusCode.OK,
+          true,
+          response,
+        );
+      }
+    } catch (error) {
+      return this.responseModel.response(
+        error,
+        ResponseStatusCode.INTERNAL_SERVER_ERROR,
+        false,
+        response,
+      );
+    }
+  }
+
+  /**
+   * @description: watchlist adds or removes user from watchlist depending upon the value of isWatched
+   * @param updateCollectionDto
+   * @returns: Update Staus
+   * @author: Jeetanshu Srivastava
+   */
+  // @Get('/getWatchCollections')
+  // @UseGuards(JwtAuthGuard)
+  // @ApiTags('Collection Module')
+  // @ApiOperation({
+  //   summary:
+  //     'Add and Removes user wallet address from watchlist of a collection',
+  // })
+  // @ApiResponse({
+  //   status: ResponseStatusCode.OK,
+  //   description: ResponseMessage.COLLECTION_LIST,
+  // })
+  // @ApiResponse({
+  //   status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
+  //   description: ResponseMessage.INTERNAL_SERVER_ERROR,
+  // })
+  // @ApiBearerAuth()
+  // async getWatchCollections(
+  //   @Response() response,
+  //   @Request() request,
+  // ): Promise<any> {
+  //   console.log('getWatchCollections');
+  //   try {
+  //     const collections = await this.collectionService.getCollectionForUser(
+  //       request.user.walletAddress,
+  //     );
+  //     return this.responseModel.response(
+  //       collections,
+  //       ResponseStatusCode.OK,
+  //       true,
+  //       response,
+  //     );
+  //   } catch (error) {
+  //     console.log(error);
+  //     return this.responseModel.response(
+  //       error,
+  //       ResponseStatusCode.INTERNAL_SERVER_ERROR,
+  //       false,
+  //       response,
+  //     );
+  //   }
+  // }
 }

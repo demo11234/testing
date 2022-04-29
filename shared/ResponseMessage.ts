@@ -45,4 +45,7 @@ export const ResponseMessage = {
   COLLECTION_DOES_NOT_EXIST: 'Collection does not exist',
   USER_DOES_NOT_OWN_COLLECTION: 'User does not own the collection',
   COLLECTION_DELETED: 'Collection deleted',
+  WATCHLIST_ADDED: 'User has been added in Watchlist',
+  WATCHLIST_REMOVED: 'User has been removed from watchlist',
+  COLLECTION_LIST: 'List of Collections',
 };

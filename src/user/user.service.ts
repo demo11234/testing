@@ -143,7 +143,7 @@ export class UserService implements OnModuleInit {
     updateUserDto: UpdateUserDto,
   ): Promise<any> {
     try {
-      let user = await this.userRepository.updateUserDetails(
+      const user = await this.userRepository.updateUserDetails(
         walletAddress,
         updateUserDto,
       );
@@ -178,7 +178,11 @@ export class UserService implements OnModuleInit {
    */
   async findAllCategories(): Promise<Category[]> {
     try {
-      return this.categoryRepository.find({});
+      return this.categoryRepository.find({
+        where: {
+          categoryStatus: true,
+        },
+      });
     } catch (error) {
       throw new Error(error);
     }
