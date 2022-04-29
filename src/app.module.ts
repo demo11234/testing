@@ -52,7 +52,7 @@ import { NotificationModule } from './notification/notification.module';
     ChainsModule,
     NotificationModule,
     CollectionsModule,
-    UtilsModule
+    UtilsModule,
   ],
   controllers: [AppController],
   providers: [

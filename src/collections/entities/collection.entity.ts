@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum } from 'class-validator';
+import { IsArray, IsEnum } from 'class-validator';
 import { User } from 'src/user/entities/user.entity';
 import {
   Column,
@@ -29,9 +29,9 @@ export class Collection {
   // @ManyToMany((_type) => User, (user) => user.id, {
   //   eager: false,
   // })
-  @Column()
+  @Column({ type: 'jsonb', default: [] })
   @ApiProperty()
-  watchlist: User[];
+  watchlist: string[];
 
   @Column({ length: 50 })
   @ApiProperty()
@@ -97,9 +97,9 @@ export class Collection {
   @ApiProperty()
   earningWalletAddress: string;
 
-  @Column()
+  @Column({ type: 'jsonb', default: [] })
   @ApiProperty()
-  collaborators: User[];
+  collaborators: string[];
 
   @Column({ length: 100, default: displayTheme.CONTAINED })
   @ApiProperty()
@@ -114,7 +114,7 @@ export class Collection {
   // })
   @Column()
   @ApiProperty()
-  owner: User;
+  owner: string;
 
   @Column({ default: false })
   @ApiProperty()
