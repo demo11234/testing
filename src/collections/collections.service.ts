@@ -129,6 +129,12 @@ export class CollectionsService {
     }
   }
 
+  /**
+   * @description Function will add current user to the collection watchlist
+   * @param walletAddress , wallet address of the current user
+   * @param collectionId , collecton id to perform the update
+   * @returns Promise
+   */
   async addUserInWatchlist(
     walletAddress: string,
     collectionId: string,
