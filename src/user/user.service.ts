@@ -1,4 +1,10 @@
-import { CACHE_MANAGER, Inject, Injectable, InternalServerErrorException, OnModuleInit } from '@nestjs/common';
+import {
+  CACHE_MANAGER,
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+  OnModuleInit,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
@@ -6,14 +12,14 @@ import { UserRepository } from './repositories/user.repository';
 import { Cache } from 'cache-manager';
 import { WalletAddressDto } from './dto/get-user.dto';
 import { FileUpload } from './utils/s3.upload';
-import {NotificationService} from '../notification/notification.service'
+import { NotificationService } from '../notification/notification.service';
 import { Category } from 'src/admin/entities/categories.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { SignedUrlDto } from './dto/signed-url.dto';
 
 @Injectable()
-export class UserService implements OnModuleInit() {
+export class UserService implements OnModuleInit {
   constructor(
     @InjectRepository(Category)
     private readonly categoryRepository: Repository<Category>,
@@ -157,7 +163,7 @@ export class UserService implements OnModuleInit() {
    * @returns it will return preSigned url
    * @author Vipin
    */
-  async getPresignedURL(signedUrlDto : SignedUrlDto): Promise<any> {
+  async getPresignedURL(signedUrlDto: SignedUrlDto): Promise<any> {
     try {
       const { fileName, fileType, filePath } = signedUrlDto;
       const url = await this.fileUpload.signedUrl(fileName, fileType, filePath);
