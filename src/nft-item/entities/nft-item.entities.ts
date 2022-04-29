@@ -51,30 +51,29 @@ export class NftItem {
   @Column({ default: 1 })
   supply: number;
 
-  @OneToOne(()=> Chains)
-  @JoinColumn()
+  @ManyToOne(()=> Chains, (chains) => chains.nftChainName)
   blockChain: Chains;
+
+  @Column({length: 1000})
+  unlockableContent: string;
+
+  @Column()
+  allowedTokens:string[];
+  
+  @OneToOne(()=> Tokens)
+  paymentToken: Tokens;
+
+  @Column()
+  owner: string;
+
+  @OneToOne(()=> User)
+  originalOwner: User;
 
   @CreateDateColumn()
   createdAt: Date;
 
   @UpdateDateColumn()
   updatedAt: Date;
-
-  @Column({length: 1000})
-  unlockableContent: string;
-
-  @OneToOne(()=> Tokens)
-  allowedTokens:Tokens[];
-  
-  @OneToOne(()=> Tokens)
-  paymentToken: Tokens;
-
-  @OneToOne(()=> User)
-  owner: User;
-
-  @OneToOne(()=> User)
-  originalOwner: User;
 }
 
 export class Properties {
