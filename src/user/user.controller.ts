@@ -7,6 +7,7 @@ import {
   Request,
   UseGuards,
   UploadedFile,
+  Get,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 
@@ -14,10 +15,10 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { WalletAddressDto, UserNameDto } from './dto/get-user.dto';
 
-import { ResponseModel } from 'src/responseModel';
-import { ResponseStatusCode } from 'shared/ResponseStatusCode';
-import { ResponseMessage } from 'shared/ResponseMessage';
-import { AuthService } from 'src/auth/auth.service';
+import { ResponseModel } from '../../src/responseModel';
+import { ResponseStatusCode } from '../../shared/ResponseStatusCode';
+import { ResponseMessage } from '../../shared/ResponseMessage';
+import { AuthService } from '../../src/auth/auth.service';
 
 import {
   ApiBearerAuth,
@@ -25,7 +26,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { JwtAuthGuard } from '../../src/auth/jwt-auth.guard';
 import { SignedUrlDto } from './dto/signed-url.dto';
 
 @Controller('user')
@@ -59,7 +60,6 @@ export class UserController {
     status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
     description: ResponseMessage.INTERNAL_SERVER_ERROR,
   })
-  @ApiBearerAuth()
   @Post()
   async createUser(
     @Body() createUserDto: CreateUserDto,
@@ -135,11 +135,18 @@ export class UserController {
     @Request() request,
   ): Promise<any> {
     try {
-      await this.authService.checkUser(request.user.data);
+      await this.authService.checkUser(
+        request.user.data,
+        request.user.walletAddress,
+      );
+
+      const userDetails = await this.userService.findUser({
+        walletAddress: request.user.walletAddress,
+      });
 
       const { email, userName } = updateUserDto;
 
-      if (email) {
+      if (email && userDetails.email != email) {
         const user = await this.userService.findUserByEmail(email);
         if (user) {
           return this.responseModel.response(
@@ -151,7 +158,7 @@ export class UserController {
         }
       }
 
-      if (userName) {
+      if (userName && userDetails.userName != userName) {
         const user = await this.userService.findUserByUserName(userName);
         if (user) {
           return this.responseModel.response(
@@ -183,6 +190,7 @@ export class UserController {
         );
       }
     } catch (error) {
+      console.log(error);
       return this.responseModel.response(
         error,
         ResponseStatusCode.INTERNAL_SERVER_ERROR,
@@ -308,7 +316,18 @@ export class UserController {
   @ApiBearerAuth()
   @Post('/getPresignedURL')
   async getPresignedURL(@Body() signedUrlDto: SignedUrlDto): Promise<any> {
-    let url = await this.userService.getPresignedURL(signedUrlDto);
+    const url = await this.userService.getPresignedURL(signedUrlDto);
     return url;
+  }
+  /**
+   * @description gets all categories
+   * @returns all categories
+   * @author Mohan
+   */
+  @ApiTags('User Module')
+  @Get('getAllCategories')
+  @ApiResponse({ description: 'Array of all categories' })
+  async getAllCategories() {
+    return this.userService.findAllCategories();
   }
 }

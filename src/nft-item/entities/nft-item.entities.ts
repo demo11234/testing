@@ -1,7 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsUrl } from 'class-validator';
+import { Chains } from 'src/chains/entities/chains.entity';
+import { Collection } from 'src/collections/entities/collection.entity';
+import { Tokens } from 'src/token/entities/tokens.entity';
 import { User } from 'src/user/entities/user.entity';
-import { CreateDateColumn, OneToMany } from 'typeorm';
+import { CreateDateColumn, ManyToOne, OneToMany } from 'typeorm';
+import { UpdateDateColumn } from 'typeorm';
 import { PrimaryGeneratedColumn } from 'typeorm';
 import { OneToOne, JoinColumn } from 'typeorm';
 
@@ -27,10 +31,9 @@ export class NftItem {
   @Column()
   description: string;
 
-  @Column()
-  // @JoinColumn()
-  // @OneToMany(()=> Collection)
-  collection: string;
+  @ManyToOne(() => Collection, (collection) => collection.nftItem, {onDelete: 'SET NULL'})
+  @JoinColumn({name: 'collection_id'})
+  collection: Collection;
 
   @Column({type: 'jsonb',default: []})
   properties: Properties[];
@@ -50,14 +53,30 @@ export class NftItem {
   @Column({ default: 1 })
   supply: number;
 
-  @Column()
-  // @JoinColumn()
-  // @OneToMany(()=> BlockChain)
-  blockChain: string;
+  @OneToOne(()=> Chains)
+  @JoinColumn()
+  blockChain: Chains;
 
   @CreateDateColumn()
   createdAt: Date;
 
+  @UpdateDateColumn()
+  updatedAt: Date;
+
+  @Column({length: 1000})
+  unlockableContent: string;
+
+  @OneToOne(()=> Tokens, (tokens)=> tokens.chainId)
+  allowedTokens:Tokens[];
+  
+  @OneToOne(()=> Tokens, (tokens)=> tokens.chainId)
+  paymentToken: Tokens;
+
+  @OneToOne(()=> User, (user)=> user.walletAddress)
+  owner: User;
+
+  @OneToOne(()=> User, (user)=> user.id)
+  originalOwner: User;
 }
 
 export class Properties {
