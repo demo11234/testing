@@ -1,5 +1,3 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsUrl } from 'class-validator';
 import { Chains } from 'src/chains/entities/chains.entity';
 import { Collection } from 'src/collections/entities/collection.entity';
 import { Tokens } from 'src/token/entities/tokens.entity';
@@ -66,16 +64,16 @@ export class NftItem {
   @Column({length: 1000})
   unlockableContent: string;
 
-  @OneToOne(()=> Tokens, (tokens)=> tokens.chainId)
+  @OneToOne(()=> Tokens)
   allowedTokens:Tokens[];
   
-  @OneToOne(()=> Tokens, (tokens)=> tokens.chainId)
+  @OneToOne(()=> Tokens)
   paymentToken: Tokens;
 
-  @OneToOne(()=> User, (user)=> user.walletAddress)
+  @OneToOne(()=> User)
   owner: User;
 
-  @OneToOne(()=> User, (user)=> user.id)
+  @OneToOne(()=> User)
   originalOwner: User;
 }
 
