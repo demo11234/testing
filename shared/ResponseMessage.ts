@@ -39,4 +39,10 @@ export const ResponseMessage = {
   DESC_CREATE_CATEGORY: 'creates the category and returns created category',
   UPDATE_ADMIN: 'Update Admin Data',
   ADMIN_NOT_FOUND: 'Admin not found**',
+  COLLECTION_CREATED: 'Collection Created',
+  COLLECTION_CREATION_FAILED: 'Collection creation failed',
+  COLLECTIONS_DO_NOT_EXIST: 'Collections do not exist',
+  COLLECTION_DOES_NOT_EXIST: 'Collection does not exist',
+  USER_DOES_NOT_OWN_COLLECTION: 'User does not own the collection',
+  COLLECTION_DELETED: 'Collection deleted',
 };

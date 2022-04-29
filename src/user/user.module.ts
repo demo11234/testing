@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { JwtModule } from '@nestjs/jwt';
+import { JwtModule, JwtService } from '@nestjs/jwt';
 
 import { UserService } from './user.service';
 import { UserController } from './user.controller';
@@ -9,7 +9,6 @@ import { ResponseModel } from 'src/responseModel';
 import { AuthService } from 'src/auth/auth.service';
 import { Constants } from 'shared/Constants';
 
-import 'dotenv/config';
 import { FileUpload } from './utils/s3.upload';
 import { NotificationService } from 'src/notification/notification.service';
 import { Notification } from 'src/notification/entity/notification.entity';

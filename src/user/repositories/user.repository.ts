@@ -117,6 +117,7 @@ export class UserRepository extends Repository<User> {
       if (!user) return null;
       if (user.isBlocked || !user.isActive) return null;
 
+
       return true;
     } catch (error) {
       throw new Error(error);

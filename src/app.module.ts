@@ -19,6 +19,9 @@ import { ResponseModel } from './responseModel';
 import { AuthModule } from './auth/auth.module';
 import { ChainsModule } from './chains/chains.module';
 import { TokenModule } from './token/token.module';
+import { CollectionsModule } from './collections/collections.module';
+import { UtilsModule } from './utils/utils.module';
+import { NotificationModule } from './notification/notification.module';
 
 @Module({
   imports: [
@@ -49,6 +52,9 @@ import { TokenModule } from './token/token.module';
     AuthModule,
     ChainsModule,
     TokenModule,
+    NotificationModule,
+    CollectionsModule,
+    UtilsModule,
   ],
   controllers: [AppController],
   providers: [
