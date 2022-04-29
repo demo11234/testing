@@ -1,10 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty } from 'class-validator';
 
-export class UpdateChainsDto {
+export class CreateTokensDto {
   @ApiProperty()
   @IsNotEmpty()
-  id: string;
+  chainId: string;
 
   @ApiProperty()
   @IsNotEmpty()
@@ -31,7 +31,4 @@ export class UpdateChainsDto {
 
   @ApiProperty()
   usdPrice: number;
-
-  @ApiProperty()
-  active: boolean;
 }

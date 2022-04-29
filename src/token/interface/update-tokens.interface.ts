@@ -1,4 +1,5 @@
-export interface CreateChainsInterface {
+export interface UpdateTokensInterface {
+  id: string;
   name: string;
   symbol: string;
   imageUrl?: string;
@@ -7,4 +8,5 @@ export interface CreateChainsInterface {
   decimals?: number;
   ethPrice?: number;
   usdPrice?: number;
+  active?: boolean;
 }

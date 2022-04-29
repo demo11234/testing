@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Param,
   Patch,
   Post,
   Request,
@@ -19,54 +20,55 @@ import { ResponseStatusCode } from 'shared/ResponseStatusCode';
 import { AuthService } from 'src/auth/auth.service';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { ResponseModel } from 'src/responseModel';
-import { ChainsService } from './chains.service';
-import { CreateChainsDto } from './dto/create-chains.dto';
-import { UpdateChainsDto } from './dto/update-chains.dto';
+import { CreateTokensDto } from '../token/dto/create-tokens.dto';
+import { UpdateTokensDto } from './dto/update-tokens.dto';
+import { TokenService } from './token.service';
 
-@Controller('chains')
-export class ChainsController {
+@Controller('tokens')
+export class TokenController {
   constructor(
-    private readonly chainsService: ChainsService,
     private readonly responseModel: ResponseModel,
     private readonly authService: AuthService,
+    private readonly tokenService: TokenService,
   ) {}
 
   /**
-   * @description createChain will create the chain
-   * @param createChainsDto
-   * @returns it will return created chain details
+   * @description createToken will create the token
+   * @param createTokensDto
+   * @returns it will return created token details
    * @author Jeetanshu Srivastava
    */
-  @Post('/chains')
+  @Post()
   @UseGuards(JwtAuthGuard)
-  @ApiTags('Chains')
+  @ApiTags('Tokens')
   @ApiOperation({
-    summary: 'Create new Chains',
+    summary: 'Create new Tokens',
   })
   @ApiResponse({
     status: ResponseStatusCode.CREATED,
-    description: ResponseMessage.CHAIN_DETAILS,
+    description: ResponseMessage.TOKEN_DETAILS,
   })
   @ApiResponse({
     status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
     description: ResponseMessage.INTERNAL_SERVER_ERROR,
   })
   @ApiBearerAuth()
-  async createChain(
-    @Body() createChainsDto: CreateChainsDto,
+  async createToken(
+    @Body() createTokensDto: CreateTokensDto,
     @Response() response,
     @Request() request,
   ): Promise<any> {
     await this.authService.checkAdmin(request.user.data);
     try {
-      const chains = await this.chainsService.createChain(createChainsDto);
+      const tokens = await this.tokenService.createToken(createTokensDto);
       return this.responseModel.response(
-        chains,
+        tokens,
         ResponseStatusCode.CREATED,
         true,
         response,
       );
     } catch (error) {
+      console.log(error);
       return this.responseModel.response(
         error,
         ResponseStatusCode.INTERNAL_SERVER_ERROR,
@@ -77,36 +79,36 @@ export class ChainsController {
   }
 
   /**
-   * @description updateChain will update a particular chain
-   * @param updateChainsDto
-   * @returns it will return updated chain details
+   * @description updateToken will update a particular token
+   * @param updateTokenDto
+   * @returns it will return updated token details
    * @author Jeetanshu Srivastava
    */
-  @Patch('/chains')
+  @Patch()
   @UseGuards(JwtAuthGuard)
-  @ApiTags('Chains')
+  @ApiTags('Tokens')
   @ApiOperation({
-    summary: 'Update the Existing Chains',
+    summary: 'Update the Existing Tokens',
   })
   @ApiResponse({
     status: ResponseStatusCode.OK,
-    description: ResponseMessage.CHAIN_DETAILS,
+    description: ResponseMessage.TOKEN_DETAILS,
   })
   @ApiResponse({
     status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
     description: ResponseMessage.INTERNAL_SERVER_ERROR,
   })
   @ApiBearerAuth()
-  async updateChain(
-    @Body() updateChainsDto: UpdateChainsDto,
+  async updateToken(
+    @Body() updateTokenDto: UpdateTokensDto,
     @Response() response,
     @Request() request,
   ): Promise<any> {
     await this.authService.checkAdmin(request.user.data);
     try {
-      const chains = await this.chainsService.updateChain(updateChainsDto);
+      const tokens = await this.tokenService.updateToken(updateTokenDto);
       return this.responseModel.response(
-        chains,
+        tokens,
         ResponseStatusCode.OK,
         true,
         response,
@@ -122,34 +124,35 @@ export class ChainsController {
   }
 
   /**
-   * @description getChainsForAdmin will return the details of all chains for admin
-   * @returns it will return details of all chains
+   * @description getTokensForAdmin will return the details of all tokens for admin
+   * @returns it will return details of all tokens
    * @author Jeetanshu Srivastava
    */
-  @Get('/admin')
+  @Get('/admin/:chainId')
   @UseGuards(JwtAuthGuard)
-  @ApiTags('Chains')
+  @ApiTags('Tokens')
   @ApiOperation({
-    summary: 'Get all the Chain and their details',
+    summary: 'Get all the Token and their details',
   })
   @ApiResponse({
     status: ResponseStatusCode.OK,
-    description: ResponseMessage.CHAIN_DETAILS,
+    description: ResponseMessage.TOKEN_DETAILS,
   })
   @ApiResponse({
     status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
     description: ResponseMessage.INTERNAL_SERVER_ERROR,
   })
   @ApiBearerAuth()
-  async getChainsForAdmin(
+  async getTokensForAdmin(
+    @Param('chainId') chainId: string,
     @Response() response,
     @Request() request,
   ): Promise<any> {
     await this.authService.checkAdmin(request.user.data);
     try {
-      const chains = await this.chainsService.getChains();
+      const tokens = await this.tokenService.getTokens(chainId);
       return this.responseModel.response(
-        chains,
+        tokens,
         ResponseStatusCode.OK,
         true,
         response,
@@ -165,28 +168,31 @@ export class ChainsController {
   }
 
   /**
-   * @description getChainsForUser will return the details of all chains for user
-   * @returns it will return details of all chains
+   * @description getTokensForUser will return the details of all chains for user
+   * @returns it will return details of all tokens
    * @author Jeetanshu Srivastava
    */
-  @Get('/user')
-  @ApiTags('Chains')
+  @Post('/user/:chainId')
+  @ApiTags('Tokens')
   @ApiOperation({
-    summary: 'Get all the chains and their details',
+    summary: 'Get all the Tokens and their details',
   })
   @ApiResponse({
     status: ResponseStatusCode.OK,
-    description: ResponseMessage.CHAIN_DETAILS,
+    description: ResponseMessage.TOKEN_DETAILS,
   })
   @ApiResponse({
     status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
     description: ResponseMessage.INTERNAL_SERVER_ERROR,
   })
-  async getChainsForUser(@Response() response): Promise<any> {
+  async getTokensForUser(
+    @Param('chainId') chainId: string,
+    @Response() response,
+  ): Promise<any> {
     try {
-      const chains = await this.chainsService.getChains();
+      const tokens = await this.tokenService.getTokens(chainId);
       return this.responseModel.response(
-        chains,
+        tokens,
         ResponseStatusCode.OK,
         true,
         response,

@@ -6,11 +6,12 @@ export const ResponseMessage = {
   USER_EXISTS_WITH_GIVEN_EMAIL_ADDRESS:
     'User with given email address already exists',
   USER_EXISTS_WITH_GIVEN_USER_NAME: 'User with given user name already exists',
-  NOTIFICATION_SETTING_UPDATED: "notification setting of current user updated",
-  GET_NOTIFICATION: "Returns all notification settings of user",
-  INTERNAL_SERVER_ERROR : "Internal Server Error",
-  UNAUTHORIZED : "Unauthorized",
-  CHAIN_DETAILS : "Chain Details",
+  NOTIFICATION_SETTING_UPDATED: 'notification setting of current user updated',
+  GET_NOTIFICATION: 'Returns all notification settings of user',
+  INTERNAL_SERVER_ERROR: 'Internal Server Error',
+  UNAUTHORIZED: 'Unauthorized',
+  CHAIN_DETAILS: 'Chain Details',
+  TOKEN_DETAILS: 'Token Details',
   USER_CREATED: 'User has been created',
   USER_LOGGED_IN: 'User has been Logged In',
   UNIQUE_CONSTRAINTS_EMAIL: 'Email already exists',
@@ -45,4 +46,3 @@ export const ResponseMessage = {
   USER_DOES_NOT_OWN_COLLECTION: 'User does not own the collection',
   COLLECTION_DELETED: 'Collection deleted',
 };
-

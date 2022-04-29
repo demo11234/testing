@@ -7,9 +7,12 @@ import {
 } from 'typeorm';
 
 @Entity()
-export class Chains {
+export class Tokens {
   @PrimaryGeneratedColumn('uuid')
   id: string;
+
+  @Column({ default: '' })
+  chainId: string;
 
   @Column()
   name: string;
