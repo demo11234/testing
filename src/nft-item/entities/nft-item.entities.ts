@@ -69,6 +69,12 @@ export class NftItem {
   @OneToOne(()=> User)
   originalOwner: User;
 
+  @Column()
+  ownerId: string;
+
+  @Column()
+  walletAddress: string;
+
   @CreateDateColumn()
   createdAt: Date;
 

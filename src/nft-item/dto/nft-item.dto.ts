@@ -44,6 +44,10 @@ export class NftItemDto {
   unlockable: boolean;
 
   @ApiProperty()
+  @IsString()
+  unlockableContent: string;
+
+  @ApiProperty()
   @IsBoolean()
   explicit: boolean;
 
@@ -54,4 +58,8 @@ export class NftItemDto {
   @ApiProperty()
   @IsString()
   blockChain: Chains;
+
+  // @ApiProperty()
+  // @IsString()
+  // ownerId: string; 
 }
