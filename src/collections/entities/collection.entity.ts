@@ -24,7 +24,7 @@ export class Collection {
   @ApiProperty()
   logo: string;
 
-  @Column({ length: 50 })
+  @Column({ length: 50, nullable: true })
   @ApiProperty()
   featureImage: string;
 
@@ -43,27 +43,27 @@ export class Collection {
   @ApiProperty()
   name: string;
 
-  @Column()
+  @Column({ nullable: true })
   @ApiProperty()
   categoryID: string;
 
-  @Column()
+  @Column({ nullable: true })
   @ApiProperty()
   blockchain: string;
 
-  @Column()
+  @Column({ nullable: true })
   @ApiProperty()
   paymentToken: string;
 
-  @Column()
+  @Column({ nullable: true })
   @ApiProperty()
   explicitOrSensitiveContent: boolean;
 
-  @Column()
+  @Column({ nullable: true })
   @ApiProperty()
   url: string;
 
-  @Column({ length: 1000 })
+  @Column({ length: 1000, nullable: true })
   @ApiProperty()
   description: string;
 
@@ -71,31 +71,31 @@ export class Collection {
   @ApiProperty()
   isDeleted: boolean;
 
-  @Column({ length: 1000 })
+  @Column({ length: 1000, nullable: true })
   @ApiProperty()
   websiteLink: string;
 
-  @Column({ length: 1000 })
+  @Column({ length: 1000, nullable: true })
   @ApiProperty()
   discordLink: string;
 
-  @Column({ length: 1000 })
+  @Column({ length: 1000, nullable: true })
   @ApiProperty()
   instagramLink: string;
 
-  @Column({ length: 1000 })
+  @Column({ length: 1000, nullable: true })
   @ApiProperty()
   mediumLink: string;
 
-  @Column({ length: 1000 })
+  @Column({ length: 1000, nullable: true })
   @ApiProperty()
   telegramLink: string;
 
-  @Column()
+  @Column({ nullable: true })
   @ApiProperty()
   earningFee: number;
 
-  @Column()
+  @Column({ nullable: true })
   @ApiProperty()
   earningWalletAddress: string;
 
@@ -114,7 +114,7 @@ export class Collection {
   // @ManyToOne((_type) => User, (user) => user.collections, {
   // eager: false,
   // })
-  @Column()
+  @Column({ nullable: true })
   @ApiProperty()
   owner: string;
 
@@ -130,15 +130,15 @@ export class Collection {
   @ApiProperty()
   isMintable: boolean;
 
-  @Column()
+  @Column({ nullable: true })
   @ApiProperty({ default: false })
   isSafelisted: boolean;
 
-  @Column({ length: 250 })
+  @Column({ length: 250, nullable: true })
   @ApiProperty()
   slug: string;
 
-  @Column()
+  @Column({ nullable: true })
   @ApiProperty()
   status: number;
 

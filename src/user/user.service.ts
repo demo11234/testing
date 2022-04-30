@@ -1,4 +1,10 @@
-import { CACHE_MANAGER, Inject, Injectable, InternalServerErrorException, OnModuleInit } from '@nestjs/common';
+import {
+  CACHE_MANAGER,
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+  OnModuleInit,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
@@ -13,7 +19,7 @@ import { Repository } from 'typeorm';
 import { SignedUrlDto } from './dto/signed-url.dto';
 
 @Injectable()
-export class UserService implements OnModuleInit() {
+export class UserService implements OnModuleInit {
   constructor(
     @InjectRepository(Category)
     private readonly categoryRepository: Repository<Category>,
@@ -137,7 +143,7 @@ export class UserService implements OnModuleInit() {
     updateUserDto: UpdateUserDto,
   ): Promise<any> {
     try {
-      let user = await this.userRepository.updateUserDetails(
+      const user = await this.userRepository.updateUserDetails(
         walletAddress,
         updateUserDto,
       );
@@ -157,7 +163,7 @@ export class UserService implements OnModuleInit() {
    * @returns it will return preSigned url
    * @author Vipin
    */
-  async getPresignedURL(signedUrlDto : SignedUrlDto): Promise<any> {
+  async getPresignedURL(signedUrlDto: SignedUrlDto): Promise<any> {
     try {
       const { fileName, fileType, filePath } = signedUrlDto;
       const url = await this.fileUpload.signedUrl(fileName, fileType, filePath);
@@ -172,7 +178,11 @@ export class UserService implements OnModuleInit() {
    */
   async findAllCategories(): Promise<Category[]> {
     try {
-      return this.categoryRepository.find({});
+      return this.categoryRepository.find({
+        where: {
+          categoryStatus: true,
+        },
+      });
     } catch (error) {
       throw new Error(error);
     }

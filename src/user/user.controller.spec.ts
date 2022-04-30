@@ -8,31 +8,42 @@ import { UserService } from './user.service';
 import { s3Folder } from '../user/enum/s3-filepath.enum';
 import { Request, Response } from '@nestjs/common';
 import { JwtAuthGuard } from '../../src/auth/jwt-auth.guard';
-import { createUserReturnStub, createUserStub, getPresignedURLReturnStub, getPresignedURLStub, getUserByWalletAddressReturnStub, getUserDetailsByUseNameServiceStub, getUserDetailsByUserNameReturnStub, getUserDetailsByUserNameStub, getUserDetailsByWalletAddressStub } from './test/stubs/user.stub';
+import {
+  createUserReturnStub,
+  createUserStub,
+  getPresignedURLReturnStub,
+  getPresignedURLStub,
+  getUserByWalletAddressReturnStub,
+  getUserDetailsByUseNameServiceStub,
+  getUserDetailsByUserNameReturnStub,
+  getUserDetailsByUserNameStub,
+  getUserDetailsByWalletAddressStub,
+} from './test/stubs/user.stub';
 
 jest.mock('./user.service');
 
 describe('UserController', () => {
-  let userController: UserController
-  let userService: UserService
-  let authService: AuthService
-  let jwtService: JwtService
-  let userRepository: UserRepository
+  let userController: UserController;
+  let userService: UserService;
+  let authService: AuthService;
+  let jwtService: JwtService;
+  let userRepository: UserRepository;
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
       imports: [],
       controllers: [UserController],
-      providers: [UserService,
+      providers: [
+        UserService,
         ResponseModel,
         AuthService,
         {
           provide: JwtService,
           useValue: {
-              sign: jest.fn().mockReturnValue('abcdefgh'),
-              verify: jest.fn().mockResolvedValue({ otp: 123 }),
-          }
+            sign: jest.fn().mockReturnValue('abcdefgh'),
+            verify: jest.fn().mockResolvedValue({ otp: 123 }),
+          },
         },
-        UserRepository
+        UserRepository,
       ],
     }).compile();
     userController = moduleRef.get<UserController>(UserController);
@@ -67,10 +78,15 @@ describe('UserController', () => {
     describe('when get user by user name is called', () => {
       let result;
       beforeEach(async () => {
-        result = await userController.getUserDetailsByUserName(getUserDetailsByUserNameStub(), Response());
+        result = await userController.getUserDetailsByUserName(
+          getUserDetailsByUserNameStub(),
+          Response(),
+        );
       });
       test('it should call findUserByUserName', () => {
-        expect(userService.findUserByUserName).toBeCalledWith(getUserDetailsByUseNameServiceStub());
+        expect(userService.findUserByUserName).toBeCalledWith(
+          getUserDetailsByUseNameServiceStub(),
+        );
       });
       test('then it should return an object', () => {
         expect(result).toEqual(getUserDetailsByUserNameReturnStub());
@@ -82,10 +98,15 @@ describe('UserController', () => {
     describe('when get user by wallet address is called', () => {
       let result;
       beforeEach(async () => {
-        result = await userController.getUserDetailsByWalletAddress(getUserDetailsByWalletAddressStub(), Response());
+        result = await userController.getUserDetailsByWalletAddress(
+          getUserDetailsByWalletAddressStub(),
+          Response(),
+        );
       });
       test('it should call findUser', () => {
-        expect(userService.findUser).toBeCalledWith(getUserDetailsByWalletAddressStub());
+        expect(userService.findUser).toBeCalledWith(
+          getUserDetailsByWalletAddressStub(),
+        );
       });
       test('then it should return an object', () => {
         expect(result).toEqual(getUserByWalletAddressReturnStub());
@@ -98,10 +119,11 @@ describe('UserController', () => {
       let result;
       beforeEach(async () => {
         result = await userController.getPresignedURL(getPresignedURLStub());
-        console.log(result);
       });
       test('it should call getPresignedURL', () => {
-        expect(userService.getPresignedURL).toBeCalledWith(getPresignedURLStub());
+        expect(userService.getPresignedURL).toBeCalledWith(
+          getPresignedURLStub(),
+        );
       });
       test('then it should return an object', () => {
         expect(result).toEqual(getPresignedURLReturnStub());

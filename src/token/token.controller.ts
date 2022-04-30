@@ -68,7 +68,6 @@ export class TokenController {
         response,
       );
     } catch (error) {
-      console.log(error);
       return this.responseModel.response(
         error,
         ResponseStatusCode.INTERNAL_SERVER_ERROR,
