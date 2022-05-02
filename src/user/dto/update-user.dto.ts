@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger'
+import { ApiProperty } from '@nestjs/swagger';
 import { PartialType } from '@nestjs/mapped-types';
 import { IsEmail, MaxLength, IsString } from 'class-validator';
 import { CreateUserDto } from './create-user.dto';
@@ -21,4 +21,28 @@ export class UpdateUserDto extends PartialType(CreateUserDto) {
   @ApiProperty()
   @IsEmail()
   email?: string;
+
+  @ApiProperty()
+  @IsString()
+  imageUrl: string;
+
+  @ApiProperty()
+  @IsString()
+  bannerUrl: string;
+
+  @ApiProperty()
+  @IsString()
+  bio: string;
+
+  @ApiProperty()
+  @IsString()
+  twitterHandle: string;
+
+  @ApiProperty()
+  @IsString()
+  instagramHandle: string;
+
+  @ApiProperty()
+  @IsString()
+  website: string;
 }
