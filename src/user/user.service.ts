@@ -15,7 +15,7 @@ import { FileUpload } from './utils/s3.upload';
 import { NotificationService } from '../notification/notification.service';
 import { Category } from 'src/admin/entities/categories.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, UsingJoinColumnIsNotAllowedError } from 'typeorm';
 import { SignedUrlDto } from './dto/signed-url.dto';
 
 @Injectable()
@@ -41,7 +41,7 @@ export class UserService implements OnModuleInit {
       user.walletAddress = process.env.MINTING_ACCOUNT_ADDRESS;
       await this.userRepository.save(user);
     } catch (error) {
-      throw new Error(error);
+      console.error(error.message);
     }
   }
 
