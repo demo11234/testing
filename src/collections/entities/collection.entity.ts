@@ -99,7 +99,7 @@ export class Collection {
 
   @Column()
   @ApiProperty()
-  collaborators: User[];
+  collaborators: string[];
 
   @Column({ length: 100, default: displayTheme.CONTAINED })
   @ApiProperty()
@@ -114,7 +114,7 @@ export class Collection {
   // })
   @Column()
   @ApiProperty()
-  owner: User;
+  owner: string;
 
   @Column({ default: false })
   @ApiProperty()

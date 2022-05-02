@@ -82,10 +82,6 @@ export class UpdateCollectionsDto {
   @IsOptional()
   earningFee: number;
 
-  @ApiProperty({ description: 'Collaborators on  the collection' })
-  @IsOptional()
-  collaborators: User[];
-
   @ApiProperty({ description: 'Blockchain to be used in the collection' })
   @IsOptional()
   blockchain: string;

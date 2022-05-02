@@ -21,6 +21,7 @@ import { ChainsModule } from './chains/chains.module';
 import { CollectionsModule } from './collections/collections.module';
 import { UtilsModule } from './utils/utils.module';
 import { NotificationModule } from './notification/notification.module';
+import { ActivityModule } from './activity/activity.module';
 
 @Module({
   imports: [
@@ -52,7 +53,8 @@ import { NotificationModule } from './notification/notification.module';
     ChainsModule,
     NotificationModule,
     CollectionsModule,
-    UtilsModule
+    UtilsModule,
+    ActivityModule
   ],
   controllers: [AppController],
   providers: [
