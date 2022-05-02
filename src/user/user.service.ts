@@ -15,7 +15,7 @@ import { FileUpload } from './utils/s3.upload';
 import { NotificationService } from '../notification/notification.service';
 import { Category } from 'src/admin/entities/categories.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, UsingJoinColumnIsNotAllowedError } from 'typeorm';
+import { Repository } from 'typeorm';
 import { SignedUrlDto } from './dto/signed-url.dto';
 
 @Injectable()
