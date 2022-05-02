@@ -23,23 +23,25 @@ export class NftItem {
   @Column({nullable: false})
   fileName: string;
 
-  @Column()
+  @Column({default: ''})
   externalUrl: string;
 
-  @Column()
+  @Column({default: ''})
   description: string;
 
-  @ManyToOne(() => Collection, (collection) => collection.nftItem, {onDelete: 'SET NULL'})
-  @JoinColumn({name: 'collection_id'})
-  collection: Collection;
+  @Column({default: ''})
+  collection: string;
+  // @ManyToOne(() => Collection, (collection) => collection.nftItem, {onDelete: 'SET NULL'})
+  // @JoinColumn({name: 'collection_id'})
+  // collection: Collection;
 
-  @Column({type: 'jsonb',default: []})
+  @Column({type: "simple-array",default: []})
   properties: Properties[];
 
-  @Column({type: 'jsonb',default: []})
+  @Column({type: "simple-array",default: []})
   levels: Levels[];
 
-  @Column({type: 'jsonb',default: []})
+  @Column({type: "simple-array",default: []})
   stats: Stats[];
 
   @Column({default: false})
@@ -51,23 +53,24 @@ export class NftItem {
   @Column({ default: 1 })
   supply: number;
 
-  @ManyToOne(()=> Chains, (chains) => chains.nftChainName)
-  blockChain: Chains;
+  // @ManyToOne(()=> Chains, (chains) => chains.nftChainName)
+  @Column({ default: '' })
+  blockChain: string;
 
-  @Column({length: 1000})
+  @Column({length: 1000, default: ''})
   unlockableContent: string;
 
-  @Column()
+  @Column("simple-array", {default: []})
   allowedTokens:string[];
   
-  @OneToOne(()=> Tokens)
-  paymentToken: Tokens;
+  // @OneToOne(()=> Tokens)
+  // paymentToken: Tokens;
 
-  @Column()
+  @Column({default: ''})
   owner: string;
 
-  @OneToOne(()=> User)
-  originalOwner: User;
+  // @OneToOne(()=> User)
+  // originalOwner: User;
 
   @Column()
   ownerId: string;

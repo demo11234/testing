@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Like, Repository } from 'typeorm';
 import { NftItemDto } from './dto/nft-item.dto';
+import { UpdateNftItemDto } from './dto/update.nftItem.dto';
 import { NftItem } from './entities/nft-item.entities';
 
 @Injectable()
@@ -11,12 +12,12 @@ export class NftItemService {
         private readonly nftItemRepository: Repository<NftItem>
     ){}
 
-    async createNftItem (user,nftItemDto: NftItemDto): Promise<any>{
+    async createNftItem (user, nftItemDto: NftItemDto): Promise<any>{
         try {
             let nftItem = new NftItem()
             nftItem.walletAddress = user.walletAddress
-            nftItem.ownerId = user.id
-            nftItem.owner = user.userName
+            nftItem.ownerId = user.walletAddress
+            // nftItem.owner = user.userName
             nftItem.collection = nftItemDto.collection
             nftItem.description = nftItemDto.description
             nftItem.blockChain = nftItemDto.blockChain
@@ -29,12 +30,14 @@ export class NftItemService {
             nftItem.supply = nftItemDto.supply
             nftItem.unlockable = nftItemDto.unlockable
             nftItem.unlockableContent = nftItemDto.unlockableContent
-            // nftItem.collection = nftItemDto.fileName
+            nftItem.fileName = nftItemDto.fileName
             // nftItem.collection = nftItemDto.fileName
 
-
-            const data = this.nftItemRepository.save(nftItem);
-            return data;
+            // console.log(nftItem)
+            console.log(user.userName)
+            const data = await this.nftItemRepository.save(nftItem);
+            console.log(data)
+            if (data) return data;
         } catch (error) {
             throw new Error(error);
         }
@@ -42,13 +45,35 @@ export class NftItemService {
 
     async findNftItems(search: string): Promise<any>{
         try{
-            const data = this.nftItemRepository.find(
-                // {$or:[
-                {walletAddress: Like(`%${search}%`)},
-                // {collection: Like(`%${search}%`)}
-            // ]}
+            const data = await this.nftItemRepository.find(
+                {walletAddress: Like(`%${search}%`)}
             )
+            if (data.length !== 0) return data;
+            // const data2 = await this.nftItemRepository.find({collection: Like(`%${search}%`)})
+            // return data2;
         }catch (error){
+            throw new Error(error);
+        }
+    }
+
+    async updateNftItems(id: string, updateNftItemDto: UpdateNftItemDto): Promise<any>{
+        try{
+            // const item = await this.nftItemRepository.find({id})
+            // if (item.length === 0) return("404")
+            
+            const update = await this.nftItemRepository.update({id}, updateNftItemDto)
+            if (update)
+            return update
+        }catch (error) {
+            throw new Error(error);
+        }
+    }
+
+    async findOne(id: string): Promise<any>{
+        try{
+            const item = await this.nftItemRepository.findOne({id})
+            if (item) return item
+        }catch (error) {
             throw new Error(error);
         }
     }
