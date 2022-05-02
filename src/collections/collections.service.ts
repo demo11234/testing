@@ -1,10 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { CreateCollectionsDto } from './dto/create-collections.dto';
 import { UpdateCollectionsDto } from './dto/update-collection.dto';
 import { Collection } from './entities/collection.entity';
-import { ResponseModel } from 'src/responseModel';
 import { FilterDto } from './dto/filter.dto';
 import { UpdateCollaboratorDto } from './dto/update-collaborator.dto';
 import { collaboratorUpdateType } from './enums/collaborator-update-type.enum';
@@ -14,12 +13,11 @@ export class CollectionsService {
   constructor(
     @InjectRepository(Collection)
     private readonly collectionRepository: Repository<Collection>,
-    private readonly responseModel: ResponseModel,
   ) {}
 
   async create(
+    walletAddress: string,
     createCollectionDto: CreateCollectionsDto,
-    owner: string,
   ): Promise<any> {
     try {
       let collection = new Collection();
@@ -41,7 +39,7 @@ export class CollectionsService {
       collection.displayTheme = createCollectionDto.displayTheme;
       collection.explicitOrSensitiveContent =
         createCollectionDto.explicitOrSensitiveContent;
-      collection.owner = owner;
+      collection.owner = walletAddress;
 
       collection = await this.collectionRepository.save(collection);
       return collection;
@@ -168,6 +166,73 @@ export class CollectionsService {
         updateCollaboratorDto.collecionId,
         collection,
       );
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  /**
+   * @description Function will add current user to the collection watchlist
+   * @param walletAddress , wallet address of the current user
+   * @param collectionId , collecton id to perform the update
+   * @returns Promise
+   */
+  async addUserInWatchlist(
+    walletAddress: string,
+    collectionId: string,
+  ): Promise<boolean> {
+    try {
+      const collection = await this.collectionRepository.findOne({
+        where: { id: collectionId },
+      });
+
+      if (!collection) return null;
+
+      collection.watchlist.push(walletAddress);
+      await this.collectionRepository.save(collection);
+
+      return true;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  async removeUseFromWatchlist(
+    walletAddress: string,
+    collectionId: string,
+  ): Promise<boolean> {
+    try {
+      const collection = await this.collectionRepository.findOne({
+        where: [{ id: collectionId, isDeleted: false }],
+      });
+
+      if (!collection) return null;
+
+      const watchlist = collection.watchlist.map((wallets) => {
+        if (wallets != walletAddress) return wallets;
+      });
+
+      if (!watchlist) {
+        collection.watchlist = [];
+      } else {
+        collection.watchlist = watchlist;
+      }
+      await this.collectionRepository.save(collection);
+
+      return true;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  async getCollectionForUser(walletAddress: string): Promise<Collection[]> {
+    try {
+      const collections = await this.collectionRepository.find({
+        where: {
+          watchlist: In([walletAddress]),
+        },
+      });
+      return collections;
     } catch (error) {
       throw new Error(error);
     }

@@ -11,6 +11,7 @@ export const ResponseMessage = {
   INTERNAL_SERVER_ERROR: 'Internal Server Error',
   UNAUTHORIZED: 'Unauthorized',
   CHAIN_DETAILS: 'Chain Details',
+  TOKEN_DETAILS: 'Token Details',
   USER_CREATED: 'User has been created',
   USER_LOGGED_IN: 'User has been Logged In',
   UNIQUE_CONSTRAINTS_EMAIL: 'Email already exists',
@@ -51,4 +52,7 @@ export const ResponseMessage = {
   ACTIVITY_DELETED: 'Activity deleted',
   COLLABORATOR_ADDED: 'Collaborator added',
   COLLABORATOR_REMOVED: 'Collaborator removed',
+  WATCHLIST_ADDED: 'User has been added in Watchlist',
+  WATCHLIST_REMOVED: 'User has been removed from watchlist',
+  COLLECTION_LIST: 'List of Collections',
 };

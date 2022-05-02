@@ -108,15 +108,14 @@ export class UserRepository extends Repository<User> {
    * @returns it will return Boolean or null
    * @author Jeetanshu Srivastava
    */
-    async isUserValid(walletAddress: string): Promise<Boolean> {
+  async isUserValid(walletAddress: string): Promise<boolean> {
     try {
-
-      const user = await this.findOne({ 
-        where : { walletAddress }
+      const user = await this.findOne({
+        where: { walletAddress },
       });
 
-      if(!user) return null;
-      if(user.isBlocked || !user.isActive) return null;
+      if (!user) return null;
+      if (user.isBlocked || !user.isActive) return null;
 
 
       return true;
@@ -124,5 +123,4 @@ export class UserRepository extends Repository<User> {
       throw new Error(error);
     }
   }
-
 }
