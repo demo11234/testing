@@ -45,7 +45,7 @@ export class UserService implements OnModuleInit {
       user.walletAddress = process.env.MINTING_ACCOUNT_ADDRESS;
       await this.userRepository.save(user);
     } catch (error) {
-      //  throw new Error(error);
+      console.error(error.message);
     }
   }
 
