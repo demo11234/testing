@@ -16,6 +16,7 @@ import {
   ApiBody,
   ApiConflictResponse,
   ApiOkResponse,
+  ApiOperation,
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
@@ -51,6 +52,7 @@ export class AdminController {
   @UseGuards(LocalAuthGuard)
   @Post('login')
   @ApiOkResponse({ description: ResponseMessage.LOGIN_ADMIN })
+  @ApiOperation({ summary: 'Admin login' })
   @ApiUnauthorizedResponse({ description: ResponseMessage.INVALID_CRED })
   @ApiBody({ required: true, type: LoginAdminDto })
   async login(@Req() req): Promise<any> {
@@ -72,7 +74,7 @@ export class AdminController {
   @ApiConflictResponse({
     description: ResponseMessage.UNIQUE_CONSTRAINTS_EMAIL,
   })
-  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Create Admin' })
   async create(@Body() createAdminDto: CreateAdminDto): Promise<any> {
     return this.adminService.create(createAdminDto);
   }
@@ -87,6 +89,7 @@ export class AdminController {
   @ApiOkResponse({ description: ResponseMessage.ALL_ADMINS })
   @ApiUnauthorizedResponse({ description: ResponseMessage.ADMIN_NOT_LOGGED_IN })
   @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get all Admins' })
   async findAll(@Req() req) {
     await this.authService.checkAdmin(req.user.data);
     return this.adminService.findAll();
@@ -101,6 +104,7 @@ export class AdminController {
   @Patch(':id')
   @UseGuards(JwtAuthGuard)
   @ApiOkResponse({ description: ResponseMessage.UPDATE_ADMIN })
+  @ApiOperation({ summary: 'Update Admin by id' })
   @ApiUnauthorizedResponse({ description: ResponseMessage.ADMIN_NOT_LOGGED_IN })
   @ApiBearerAuth()
   async update(
@@ -126,6 +130,7 @@ export class AdminController {
   })
   @ApiUnauthorizedResponse({ description: ResponseMessage.ADMIN_NOT_LOGGED_IN })
   @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get Admin profile of logged in admin' })
   async getAdminProfile(@GetAdmin() admin: Admin, @Req() req): Promise<Admin> {
     await this.authService.checkAdmin(req.user.data);
 
@@ -150,6 +155,7 @@ export class AdminController {
     description: ResponseMessage.UNIQUE_CONSTRAINTS_CATEGORY,
   })
   @ApiBearerAuth()
+  @ApiOperation({ summary: 'create category' })
   async createCategory(
     @Body() createCategoryDto: CreateCategoryDto,
     @GetAdmin() admin: Admin,
@@ -167,6 +173,7 @@ export class AdminController {
   @Delete('deleteCategory/:categoryId')
   @UseGuards(JwtAuthGuard)
   @ApiOkResponse({ description: ResponseMessage.DELETE_CATEGORY })
+  @ApiOperation({ summary: 'Delete category by ID' })
   @ApiUnauthorizedResponse({ description: ResponseMessage.ADMIN_NOT_LOGGED_IN })
   @ApiBearerAuth()
   async deleteCategory(@Param('categoryId') categoryId: string, @Req() req) {
@@ -185,6 +192,7 @@ export class AdminController {
   @ApiOkResponse({ description: ResponseMessage.UPDATE_CATEGORY })
   @ApiUnauthorizedResponse({ description: ResponseMessage.ADMIN_NOT_LOGGED_IN })
   @ApiBearerAuth()
+  @ApiOperation({ summary: 'update category' })
   async updateCategory(
     @Param('categoryId') categoryId: string,
     @Body() updateCategoryDto: UpdateCategoryDto,
@@ -205,6 +213,7 @@ export class AdminController {
   @ApiUnauthorizedResponse({ description: ResponseMessage.ADMIN_NOT_LOGGED_IN })
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
+  @ApiOperation({ summary: 'Find All categories' })
   async findAllCategories(@Req() req) {
     await this.authService.checkAdmin(req.user.data);
     return this.adminService.findAllCategories();
@@ -221,6 +230,7 @@ export class AdminController {
   })
   @ApiUnauthorizedResponse({ description: ResponseMessage.ADMIN_NOT_LOGGED_IN })
   @ApiBearerAuth()
+  @ApiOperation({ summary: 'get category by Id' })
   async getCategoryById(
     @Param('categoryId') categoryId: string,
     @Req() req,

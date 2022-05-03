@@ -325,8 +325,23 @@ export class UserController {
    */
   @ApiTags('User Module')
   @Get('getAllCategories')
+  @ApiOperation({
+    summary: 'get all categories',
+  })
   @ApiResponse({ description: 'Array of all categories' })
   async getAllCategories() {
     return this.userService.findAllCategories();
+  }
+
+  @ApiTags('User Module')
+  @Get('freezeMetadata')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({
+    summary: 'freezing metadata',
+  })
+  @ApiResponse({ description: 'metadata ipfs hash cid' })
+  @ApiBearerAuth()
+  async freezeMetadata(itemId) {
+    return this.userService.freezeMetadata(itemId);
   }
 }

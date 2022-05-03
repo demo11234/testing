@@ -17,6 +17,8 @@ import { Category } from 'src/admin/entities/categories.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { SignedUrlDto } from './dto/signed-url.dto';
+import 'dotenv/config';
+import { ServicesService } from 'src/services/services.service';
 
 @Injectable()
 export class UserService implements OnModuleInit {
@@ -25,6 +27,8 @@ export class UserService implements OnModuleInit {
     private readonly categoryRepository: Repository<Category>,
     private readonly userRepository: UserRepository,
     private readonly notificationService: NotificationService,
+    private readonly servicesService: ServicesService,
+    //private readonly nftItemService : NftItemService ,
     private readonly fileUpload: FileUpload, //  @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
   ) {}
 
@@ -41,7 +45,7 @@ export class UserService implements OnModuleInit {
       user.walletAddress = process.env.MINTING_ACCOUNT_ADDRESS;
       await this.userRepository.save(user);
     } catch (error) {
-      throw new Error(error);
+      //  throw new Error(error);
     }
   }
 
@@ -186,5 +190,22 @@ export class UserService implements OnModuleInit {
     } catch (error) {
       throw new Error(error);
     }
+  }
+
+  async freezeMetadata(itemId) {
+    // const item = this.NftItemService.findOne({ id: itemId });
+
+    // // const attributes = [{
+    // //   trait_type:,
+    // //   value:
+    // // }];
+    const metadata = {
+      //   description,
+      //   externalUrl,
+      //   fileName,
+      //   attributes,
+    };
+
+    return this.servicesService.freezeMetadata(metadata);
   }
 }
