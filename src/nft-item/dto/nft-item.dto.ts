@@ -3,6 +3,7 @@ import { IsArray, IsBoolean, IsNumber, IsString, IsUrl } from 'class-validator';
 import { Chains } from 'src/chains/entities/chains.entity';
 import { Collection } from 'src/collections/entities/collection.entity';
 import { Levels, Properties, Stats } from '../entities/nft-item.entities';
+// import { Stats } from '../entities/stats-entites';
 
 export class NftItemDto {
   @ApiProperty()
@@ -25,7 +26,7 @@ export class NftItemDto {
 
   @ApiProperty()
   @IsString()
-  collection: string;
+  collectionId: string;
   // collection: Collection;
 
   @ApiProperty()
@@ -42,15 +43,15 @@ export class NftItemDto {
 
   @ApiProperty()
   @IsBoolean()
-  unlockable: boolean;
+  isLockable: boolean;
 
   @ApiProperty()
   @IsString()
-  unlockableContent: string;
+  lockableContent: string;
 
   @ApiProperty()
   @IsBoolean()
-  explicit: boolean;
+  isExplicit: boolean;
 
   @ApiProperty()
   @IsNumber()
@@ -58,9 +59,6 @@ export class NftItemDto {
 
   @ApiProperty()
   @IsString()
-  blockChain: string;
+  blockChainId: string;
 
-  // @ApiProperty()
-  // @IsString()
-  // ownerId: string; 
 }

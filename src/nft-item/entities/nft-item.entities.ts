@@ -1,16 +1,7 @@
 import { Chains } from 'src/chains/entities/chains.entity';
 import { Collection } from 'src/collections/entities/collection.entity';
-import { Tokens } from 'src/token/entities/tokens.entity';
-import { User } from 'src/user/entities/user.entity';
-import { CreateDateColumn, ManyToOne, OneToMany } from 'typeorm';
-import { UpdateDateColumn } from 'typeorm';
-import { PrimaryGeneratedColumn } from 'typeorm';
-import { OneToOne, JoinColumn } from 'typeorm';
-
-import {
-  Column,
-  Entity,
-} from 'typeorm';
+import { CreateDateColumn, ManyToOne, OneToMany, Column, Entity, UpdateDateColumn } from 'typeorm';
+import { PrimaryGeneratedColumn, JoinColumn } from 'typeorm';
 
 @Entity()
 export class NftItem {
@@ -29,15 +20,13 @@ export class NftItem {
   @Column({default: ''})
   description: string;
 
-  @Column({default: ''})
-  collection: string;
-  // @ManyToOne(() => Collection, (collection) => collection.nftItem, {onDelete: 'SET NULL'})
-  // @JoinColumn({name: 'collection_id'})
-  // collection: Collection;
+  @ManyToOne(() => Collection, (collection) => collection.nftItem)
+  @JoinColumn()
+  collection: Collection;
 
   @Column({type: "simple-array",default: []})
   properties: Properties[];
-
+    
   @Column({type: "simple-array",default: []})
   levels: Levels[];
 
@@ -45,20 +34,20 @@ export class NftItem {
   stats: Stats[];
 
   @Column({default: false})
-  unlockable: boolean;
+  isLockable: boolean;
 
   @Column({default: false})
-  explicit: boolean;
+  isExplicit: boolean;
   
   @Column({ default: 1 })
   supply: number;
 
-  // @ManyToOne(()=> Chains, (chains) => chains.nftChainName)
-  @Column({ default: '' })
-  blockChain: string;
+  @ManyToOne(()=> Chains, (chains) => chains.nftChainName)
+  @JoinColumn()
+  blockChain: Chains;
 
   @Column({length: 1000, default: ''})
-  unlockableContent: string;
+  lockableContent: string;
 
   @Column("simple-array", {default: []})
   allowedTokens:string[];
@@ -69,11 +58,8 @@ export class NftItem {
   @Column({default: ''})
   owner: string;
 
-  // @OneToOne(()=> User)
-  // originalOwner: User;
-
-  @Column()
-  ownerId: string;
+  @Column({default: ''})
+  originalOwner: string;
 
   @Column()
   walletAddress: string;
@@ -86,25 +72,41 @@ export class NftItem {
 }
 
 export class Properties {
-  @Column()
-  name: string
+  @PrimaryGeneratedColumn('uuid')
+  id: string
 
   @Column()
-  value: string
+  type: string;
+
+  @Column()
+  name: string;
+
+  @Column()
+  value: string;
+
 }
 
 export class Levels {
-  @Column()
-  name: string
+  @PrimaryGeneratedColumn('uuid')
+  id: string
 
   @Column()
-  value: number
+  name: string;
 
   @Column()
-  valueMax: number
+  Value: number;
+
+  @Column()
+  maxValue: number;
+
+  @Column()
+  itemId: string;
 }
 
 export class Stats {
+  @PrimaryGeneratedColumn('uuid')
+  id: string
+
   @Column()
   name: string
 
@@ -112,5 +114,6 @@ export class Stats {
   value: number
 
   @Column()
-  valueMax: number
+  maxValue: number;
+
 }

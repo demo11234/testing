@@ -1,9 +1,10 @@
-import { Body, Controller, Get, Post, Request, Response, Param, Patch, UseGuards} from '@nestjs/common';
+import { Body, Controller, Get, Post, Request, Response, Param, Patch, UseGuards, Query} from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ResponseMessage } from 'shared/ResponseMessage';
 import { ResponseStatusCode } from 'shared/ResponseStatusCode';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { ResponseModel } from 'src/responseModel';
+import { FilterDto } from './dto/filter.dto';
 import { NftItemDto } from './dto/nft-item.dto';
 import { UpdateNftItemDto } from './dto/update.nftItem.dto';
 import { NftItemService } from './nft-item.service';
@@ -15,7 +16,7 @@ export class NftItemController {
       private readonly responseModel: ResponseModel,
     ) {}
 
-     /**
+    /**
    * @description: This api create the item and returns status
    * @param NftItemDto
    * @returns: create Item
@@ -43,12 +44,12 @@ export class NftItemController {
       @Request() req,
       @Response() response
     ): Promise<any> {
-      // console.log(nftItemDto)
-      console.log(req.user.walletAddress)
-      console.log(req.user.data)
       try{
         const user = req.user
-        const create = await this.nftItemService.createNftItem(user, nftItemDto);
+        const create = await this.nftItemService.createNftItem(
+          user,
+          nftItemDto,
+          );
         if (create) 
         return this.responseModel.response(
           create,
@@ -68,7 +69,7 @@ export class NftItemController {
 
     /**
    * @description: This api find item and returns status
-   * @param walletAddress
+   * @param filterDto
    * @returns: find Item
    * @author: vipin
    */
@@ -86,14 +87,14 @@ export class NftItemController {
       status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
       description: ResponseMessage.INTERNAL_SERVER_ERROR,
     })
-    @Get(':search')
+    @Get()
     async findNftItems(
-      @Param('search') search: string,
+      @Query() filterDto: FilterDto,
       @Response() response
     ): Promise<any> {
       try {
-        const find = await this.nftItemService.findNftItems(search);
-        if (find.length !== 0) {
+        const find = await this.nftItemService.findNftItems( filterDto);
+        if (find) {
           return this.responseModel.response(
             find,
             ResponseStatusCode.OK,

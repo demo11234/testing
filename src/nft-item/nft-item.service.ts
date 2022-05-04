@@ -1,6 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Like, Repository } from 'typeorm';
+import { ResponseMessage } from 'shared/ResponseMessage';
+import { Chains } from 'src/chains/entities/chains.entity';
+import { Collection } from 'src/collections/entities/collection.entity';
+import { ILike, LessThan, Like, MoreThan, Repository } from 'typeorm';
+import { FilterDto } from './dto/filter.dto';
 import { NftItemDto } from './dto/nft-item.dto';
 import { UpdateNftItemDto } from './dto/update.nftItem.dto';
 import { NftItem } from './entities/nft-item.entities';
@@ -8,60 +12,121 @@ import { NftItem } from './entities/nft-item.entities';
 @Injectable()
 export class NftItemService {
     constructor(
+        
+        @InjectRepository(Collection)
+        private readonly collectionRepository: Repository<Collection>,
         @InjectRepository(NftItem)
-        private readonly nftItemRepository: Repository<NftItem>
+        private readonly nftItemRepository: Repository<NftItem>,
+        @InjectRepository(Chains)
+        private chainsRepository: Repository<Chains>,
+
     ){}
 
+    /**
+   * @description: This api create the item and returns status
+   * @param NftItemDto
+   * @param user
+   * @returns: create Item
+   * @author: vipin
+   */
     async createNftItem (user, nftItemDto: NftItemDto): Promise<any>{
         try {
             let nftItem = new NftItem()
             nftItem.walletAddress = user.walletAddress
-            nftItem.ownerId = user.walletAddress
-            // nftItem.owner = user.userName
-            nftItem.collection = nftItemDto.collection
+            nftItem.originalOwner = user.walletAddress
+            const collection = await this.collectionRepository.findOne({
+                where: { id: nftItemDto.collectionId },
+            });
+            nftItem.collection = collection
             nftItem.description = nftItemDto.description
-            nftItem.blockChain = nftItemDto.blockChain
-            nftItem.explicit = nftItemDto.explicit
+
+            const chains = await this.chainsRepository.findOne({
+                where: { id: nftItemDto.blockChainId },
+            });
+            nftItem.blockChain = chains
+
+            nftItem.isExplicit = nftItemDto.isExplicit
             nftItem.externalUrl = nftItemDto.externalUrl
             nftItem.fileUrl = nftItemDto.fileUrl
             nftItem.levels = nftItemDto.levels
             nftItem.properties = nftItemDto.properties
             nftItem.stats = nftItemDto.stats
             nftItem.supply = nftItemDto.supply
-            nftItem.unlockable = nftItemDto.unlockable
-            nftItem.unlockableContent = nftItemDto.unlockableContent
+            nftItem.isLockable = nftItemDto.isLockable
+            nftItem.lockableContent = nftItemDto.lockableContent
             nftItem.fileName = nftItemDto.fileName
-            // nftItem.collection = nftItemDto.fileName
 
-            // console.log(nftItem)
-            console.log(user.userName)
             const data = await this.nftItemRepository.save(nftItem);
-            console.log(data)
+
             if (data) return data;
         } catch (error) {
+            console.log(error)
             throw new Error(error);
         }
     }
 
-    async findNftItems(search: string): Promise<any>{
+    /**
+   * @description: This api find item and returns status
+   * @param filterDto
+   * @returns: find Item
+   * @author: vipin
+   */
+    async findNftItems(filterDto: FilterDto): Promise<any>{
         try{
-            const data = await this.nftItemRepository.find(
-                {walletAddress: Like(`%${search}%`)}
-            )
-            if (data.length !== 0) return data;
-            // const data2 = await this.nftItemRepository.find({collection: Like(`%${search}%`)})
-            // return data2;
+            const {walletAddress, sortBy, order: orderBy} = filterDto
+            const where: {} | any = {};
+
+            let order = {};
+            if (sortBy === "date") {
+            switch (orderBy) {
+                case "asc":
+                    order["createdAt"] = "ASC";
+                    break;
+                case "desc":
+                    order["createdAt"] = "DESC";
+                    break;
+                default:
+                    order["id"] = "ASC";
+                }
+            }
+            where.walletAddress = ILike(`%${walletAddress}%`);
+
+            const data = await this.nftItemRepository.find({
+                where,
+                order,
+            })
+            return data;
         }catch (error){
             throw new Error(error);
         }
     }
-
+    
+    /**
+   * @description: This api updates the item and returns status
+   * @param id
+   * @param UpdateNftItemDto
+   * @returns: Update Item
+   * @author: vipin
+   */
     async updateNftItems(id: string, updateNftItemDto: UpdateNftItemDto): Promise<any>{
-        try{
-            // const item = await this.nftItemRepository.find({id})
-            // if (item.length === 0) return("404")
-            
-            const update = await this.nftItemRepository.update({id}, updateNftItemDto)
+        try{   
+            let updateNftItem = new NftItem()
+            updateNftItem.description = updateNftItemDto.description
+            updateNftItem.externalUrl = updateNftItemDto.externalUrl
+            updateNftItem.fileName = updateNftItemDto.fileName
+            updateNftItem.fileUrl = updateNftItemDto.fileUrl
+            updateNftItem.isExplicit = updateNftItemDto.isExplicit
+            updateNftItem.isLockable = updateNftItemDto.isLockable
+            updateNftItem.levels = updateNftItemDto.levels
+            updateNftItem.lockableContent = updateNftItemDto.lockableContent
+            updateNftItem.properties = updateNftItemDto.properties
+            updateNftItem.stats = updateNftItemDto.stats
+            const collection = await this.collectionRepository.findOne({
+                where: { id: updateNftItemDto.collectionId },
+            });
+            updateNftItem.collection = collection
+
+            const update = await this.nftItemRepository.update({id}, updateNftItem)
             if (update)
             return update
         }catch (error) {
