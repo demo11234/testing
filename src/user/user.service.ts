@@ -42,6 +42,7 @@ export class UserService implements OnModuleInit {
       await this.userRepository.save(user);
     } catch (error) {
       console.error(error.message);
+      // throw new Error(error);
     }
   }
 

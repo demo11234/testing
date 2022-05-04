@@ -396,50 +396,46 @@ export class CollectionsController {
   }
 
   /**
-   * @description: watchlist adds or removes user from watchlist depending upon the value of isWatched
-   * @param updateCollectionDto
-   * @returns: Update Staus
+   * @description: getWatchCollections returns the collections present in current user watchlist
+   * @returns: Collections
    * @author: Jeetanshu Srivastava
    */
-  // @Get('/getWatchCollections')
-  // @UseGuards(JwtAuthGuard)
-  // @ApiTags('Collection Module')
-  // @ApiOperation({
-  //   summary:
-  //     'Add and Removes user wallet address from watchlist of a collection',
-  // })
-  // @ApiResponse({
-  //   status: ResponseStatusCode.OK,
-  //   description: ResponseMessage.COLLECTION_LIST,
-  // })
-  // @ApiResponse({
-  //   status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
-  //   description: ResponseMessage.INTERNAL_SERVER_ERROR,
-  // })
-  // @ApiBearerAuth()
-  // async getWatchCollections(
-  //   @Response() response,
-  //   @Request() request,
-  // ): Promise<any> {
-  //   console.log('getWatchCollections');
-  //   try {
-  //     const collections = await this.collectionService.getCollectionForUser(
-  //       request.user.walletAddress,
-  //     );
-  //     return this.responseModel.response(
-  //       collections,
-  //       ResponseStatusCode.OK,
-  //       true,
-  //       response,
-  //     );
-  //   } catch (error) {
-  //     console.log(error);
-  //     return this.responseModel.response(
-  //       error,
-  //       ResponseStatusCode.INTERNAL_SERVER_ERROR,
-  //       false,
-  //       response,
-  //     );
-  //   }
-  // }
+  @Put('/getWatchCollections')
+  @UseGuards(JwtAuthGuard)
+  @ApiTags('Collection Module')
+  @ApiOperation({
+    summary: 'Returns Current User Watchlist Collection',
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.OK,
+    description: ResponseMessage.COLLECTION_LIST,
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
+    description: ResponseMessage.INTERNAL_SERVER_ERROR,
+  })
+  @ApiBearerAuth()
+  async getWatchCollections(
+    @Response() response,
+    @Request() request,
+  ): Promise<any> {
+    try {
+      const collections = await this.collectionService.getCollectionForUser(
+        request.user.walletAddress,
+      );
+      return this.responseModel.response(
+        collections,
+        ResponseStatusCode.OK,
+        true,
+        response,
+      );
+    } catch (error) {
+      return this.responseModel.response(
+        error,
+        ResponseStatusCode.INTERNAL_SERVER_ERROR,
+        false,
+        response,
+      );
+    }
+  }
 }
