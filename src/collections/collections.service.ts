@@ -7,12 +7,17 @@ import { Collection } from './entities/collection.entity';
 import { FilterDto } from './dto/filter.dto';
 import { UpdateCollaboratorDto } from './dto/update-collaborator.dto';
 import { collaboratorUpdateType } from './enums/collaborator-update-type.enum';
+import { ResponseMessage } from 'shared/ResponseMessage';
+import { User } from '../../src/user/entities/user.entity';
+// import { UserRepository } from 'src/user/repositories/user.repository';
 
 @Injectable()
 export class CollectionsService {
   constructor(
     @InjectRepository(Collection)
     private readonly collectionRepository: Repository<Collection>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
   ) {}
 
   async create(
@@ -184,16 +189,28 @@ export class CollectionsService {
     try {
       const collection = await this.collectionRepository.findOne({
         where: { id: collectionId },
+        relations: ['watchlist'],
       });
-
       if (!collection) return null;
 
-      collection.watchlist.push(walletAddress);
+      const user = await this.userRepository.findOne({
+        where: {
+          walletAddress: walletAddress,
+        },
+      });
+      if (!user) return null;
+
+      if (collection.watchlist) {
+        collection.watchlist.push(user);
+      } else {
+        collection.watchlist = [user];
+      }
+
       await this.collectionRepository.save(collection);
 
       return true;
     } catch (error) {
-      throw new Error(error);
+      console.error(error);
     }
   }
 
@@ -202,39 +219,47 @@ export class CollectionsService {
     collectionId: string,
   ): Promise<boolean> {
     try {
-      const collection = await this.collectionRepository.findOne({
-        where: [{ id: collectionId, isDeleted: false }],
+      const user = await this.userRepository.findOne({
+        where: {
+          walletAddress: walletAddress,
+        },
       });
+      if (!user) return null;
 
-      if (!collection) return null;
-
-      const watchlist = collection.watchlist.map((wallets) => {
-        if (wallets != walletAddress) return wallets;
-      });
-
-      if (!watchlist) {
-        collection.watchlist = [];
-      } else {
-        collection.watchlist = watchlist;
-      }
-      await this.collectionRepository.save(collection);
+      await this.collectionRepository
+        .createQueryBuilder()
+        .relation(Collection, 'watchlist')
+        .of(collectionId)
+        .remove(user.id);
 
       return true;
     } catch (error) {
-      throw new Error(error);
+      console.log(error);
     }
   }
 
   async getCollectionForUser(walletAddress: string): Promise<Collection[]> {
     try {
-      const collections = await this.collectionRepository.find({
-        where: {
-          watchlist: In([walletAddress]),
-        },
-      });
+      const collections = await this.collectionRepository
+        .createQueryBuilder('collection')
+        .innerJoinAndSelect(
+          'collection.watchlist',
+          'watchlist',
+          'watchlist.walletAddress = :walletAddress',
+          { walletAddress },
+        )
+        .select([
+          'collection.id',
+          'collection.logo',
+          'collection.featureImage',
+          'collection.name',
+          'collection.banner',
+        ])
+        .getMany();
+
       return collections;
     } catch (error) {
-      throw new Error(error);
+      console.log(error);
     }
   }
 }

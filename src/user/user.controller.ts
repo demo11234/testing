@@ -8,6 +8,7 @@ import {
   UseGuards,
   UploadedFile,
   Get,
+  Param,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 
@@ -217,13 +218,21 @@ export class UserController {
     description: ResponseMessage.INTERNAL_SERVER_ERROR,
   })
   @ApiBearerAuth()
-  @Post('/userdetails/username')
+  @Get('/userdetails/username/:userName')
   async getUserDetailsByUserName(
-    @Body() userNameDto: UserNameDto,
+    @Param('userName') userName: string,
     @Response() response,
   ): Promise<any> {
     try {
-      const { userName } = userNameDto;
+      if (!userName) {
+        return this.responseModel.response(
+          ResponseMessage.USER_DOES_NOT_EXISTS_WITH_GIVEN_USERNAME,
+          ResponseStatusCode.NOT_FOUND,
+          false,
+          response,
+        );
+      }
+
       const user = await this.userService.findUserByUserName(userName);
       if (!user) {
         return this.responseModel.response(
@@ -268,13 +277,15 @@ export class UserController {
     description: ResponseMessage.INTERNAL_SERVER_ERROR,
   })
   @ApiBearerAuth()
-  @Post('/userdetails/walletaddress')
+  @Get('/userdetails/walletaddress/:walletAddress')
   async getUserDetailsByWalletAddress(
-    @Body() walletAddressDto: WalletAddressDto,
+    @Param('walletAddress') walletAddress: string,
     @Response() response,
   ): Promise<any> {
     try {
-      const user = await this.userService.findUser(walletAddressDto);
+      const user = await this.userService.findUserByWalletAddress(
+        walletAddress,
+      );
       if (!user) {
         return this.responseModel.response(
           ResponseMessage.USER_DOES_NOT_EXISTS_WITH_GIVEN_WALLET_ADDRESS,
