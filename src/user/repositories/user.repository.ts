@@ -1,4 +1,4 @@
-import { EntityRepository, Repository } from 'typeorm';
+import { Any, EntityRepository, Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
 import { UpdateUserInterface } from '../interface/update-user.interface';
 import { CreateUserInterface } from '../interface/create-user.interface';
@@ -32,11 +32,12 @@ export class UserRepository extends Repository<User> {
   async findUser(walletAddress: string): Promise<User> {
     try {
       const user = await this.findOne({
-        where: { walletAddress },
+        where: { walletAddress: Any([walletAddress]) },
       });
       return user;
     } catch (error) {
-      throw new Error(error);
+      console.error(error);
+      // throw new Error(error);
     }
   }
 
@@ -116,7 +117,6 @@ export class UserRepository extends Repository<User> {
 
       if (!user) return null;
       if (user.isBlocked || !user.isActive) return null;
-
 
       return true;
     } catch (error) {

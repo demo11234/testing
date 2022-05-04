@@ -21,7 +21,7 @@ import { Category } from 'src/admin/entities/categories.entity';
       secret: Constants.JWT_SECRET_KEY,
       signOptions: { expiresIn: Constants.USER_TOKEN_VALIDITY },
     }),
-    TypeOrmModule.forFeature([UserRepository,Notification, Category]),
+    TypeOrmModule.forFeature([UserRepository, Notification, Category]),
   ],
   controllers: [UserController],
   providers: [

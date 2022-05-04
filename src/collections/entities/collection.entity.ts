@@ -1,9 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum } from 'class-validator';
+import { User } from 'src/user/entities/user.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinTable,
+  ManyToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -23,12 +26,13 @@ export class Collection {
   @ApiProperty()
   featureImage: string;
 
-  // @ManyToMany((_type) => User, (user) => user.id, {
-  //   eager: false,
-  // })
-  @Column({ type: 'jsonb', default: [] })
-  @ApiProperty()
-  watchlist: string[];
+  @ManyToMany(() => User)
+  @JoinTable({
+    name: 'watchlist',
+    joinColumn: { name: 'collection_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'user_id', referencedColumnName: 'id' },
+  })
+  watchlist: User[];
 
   @Column({ length: 50 })
   @ApiProperty()
