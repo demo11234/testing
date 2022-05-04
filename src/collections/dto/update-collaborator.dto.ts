@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsOptional } from 'class-validator';
+import { IsNotEmpty } from 'class-validator';
 import { collaboratorUpdateType } from '../enums/collaborator-update-type.enum';
 
 export class UpdateCollaboratorDto {
@@ -16,9 +16,8 @@ export class UpdateCollaboratorDto {
   updateType: collaboratorUpdateType.ADD | collaboratorUpdateType.REMOVE;
 
   @ApiProperty({
-    description: 'Number of items per page',
+    description: 'Wallet id of collaborator',
   })
   @IsNotEmpty()
-  @IsOptional()
   collaboratorWalletId: string;
 }

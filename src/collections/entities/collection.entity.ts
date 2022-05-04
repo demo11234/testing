@@ -29,9 +29,9 @@ export class Collection {
   // @ManyToMany((_type) => User, (user) => user.id, {
   //   eager: false,
   // })
-  @Column()
+  @Column({ type: 'jsonb', default: [] })
   @ApiProperty()
-  watchlist: User[];
+  watchlist: string[];
 
   @Column({ length: 50 })
   @ApiProperty()
@@ -97,7 +97,7 @@ export class Collection {
   @ApiProperty()
   earningWalletAddress: string;
 
-  @Column()
+  @Column({ type: 'jsonb', default: [] })
   @ApiProperty()
   collaborators: string[];
 

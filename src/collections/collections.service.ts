@@ -4,7 +4,6 @@ import { Repository } from 'typeorm';
 import { CreateCollectionsDto } from './dto/create-collections.dto';
 import { UpdateCollectionsDto } from './dto/update-collection.dto';
 import { Collection } from './entities/collection.entity';
-import { ResponseModel } from 'src/responseModel';
 import { FilterDto } from './dto/filter.dto';
 import { UpdateCollaboratorDto } from './dto/update-collaborator.dto';
 import { collaboratorUpdateType } from './enums/collaborator-update-type.enum';
@@ -14,7 +13,6 @@ export class CollectionsService {
   constructor(
     @InjectRepository(Collection)
     private readonly collectionRepository: Repository<Collection>,
-    private readonly responseModel: ResponseModel,
   ) {}
 
   async create(
