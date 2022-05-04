@@ -224,6 +224,15 @@ export class UserController {
     @Response() response,
   ): Promise<any> {
     try {
+      if (!userName) {
+        return this.responseModel.response(
+          ResponseMessage.USER_DOES_NOT_EXISTS_WITH_GIVEN_USERNAME,
+          ResponseStatusCode.NOT_FOUND,
+          false,
+          response,
+        );
+      }
+
       const user = await this.userService.findUserByUserName(userName);
       if (!user) {
         return this.responseModel.response(
