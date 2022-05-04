@@ -34,7 +34,6 @@
     "@nestjs/terminus": "^8.0.4",
     "@nestjs/throttler": "^2.0.0",
     "@nestjs/typeorm": "^8.0.3",
-    "@pinata/sdk": "^1.1.25",
     "@types/helmet": "^4.0.0",
     "@types/hpp": "^0.2.2",
     "algoliasearch": "^4.13.0",

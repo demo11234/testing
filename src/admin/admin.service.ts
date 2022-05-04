@@ -33,21 +33,18 @@ export class AdminService implements OnModuleInit {
 
   async onModuleInit(): Promise<void> {
     const isAdminPresent = await this.adminRepository.findOne({
-      username: 'admin@jungle.com',
+      username: process.env.ADMIN_USERNAME,
     });
-    console.log('hello from on moduleinit', isAdminPresent);
 
     if (!isAdminPresent) {
       const admin = {
-        firstName: 'admin',
-        lastName: 'admin',
-        username: 'admin@jungle.com',
-        password: 'Admin!23',
+        firstName: process.env.ADMIN_FIRST_NAME,
+        lastName: process.env.ADMIN_LAST_NAME,
+        username: process.env.ADMIN_USERNAME,
+        password: process.env.ADMIN_PASSWORD
       };
-      console.log('b4 admin creation');
 
       await this.create(admin);
-      console.log('default admin creared');
     }
   }
 

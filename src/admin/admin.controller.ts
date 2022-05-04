@@ -52,12 +52,13 @@ export class AdminController {
   @UseGuards(LocalAuthGuard)
   @Post('login')
   @ApiOkResponse({ description: ResponseMessage.LOGIN_ADMIN })
-  @ApiOperation({ summary: 'Admin login' })
+  @ApiOperation({ summary: 'Admin api for login' })
   @ApiUnauthorizedResponse({ description: ResponseMessage.INVALID_CRED })
   @ApiBody({ required: true, type: LoginAdminDto })
   async login(@Req() req): Promise<any> {
     return await this.adminService.login(req.user);
   }
+
   /**
    *@description creating admin account
    * @param createAdminDto
@@ -74,10 +75,11 @@ export class AdminController {
   @ApiConflictResponse({
     description: ResponseMessage.UNIQUE_CONSTRAINTS_EMAIL,
   })
-  @ApiOperation({ summary: 'Create Admin' })
+  @ApiOperation({ summary: 'Api to create an Admin' })
   async create(@Body() createAdminDto: CreateAdminDto): Promise<any> {
     return this.adminService.create(createAdminDto);
   }
+
   /**
    * @description get all admins
    * @returns array of admins
@@ -89,11 +91,12 @@ export class AdminController {
   @ApiOkResponse({ description: ResponseMessage.ALL_ADMINS })
   @ApiUnauthorizedResponse({ description: ResponseMessage.ADMIN_NOT_LOGGED_IN })
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Get all Admins' })
+  @ApiOperation({ summary: 'Api request to fetch all Admins' })
   async findAll(@Req() req) {
     await this.authService.checkAdmin(req.user.data);
     return this.adminService.findAll();
   }
+
   /**
    * @description upadtes admin
    * @param id of admin
@@ -130,7 +133,7 @@ export class AdminController {
   })
   @ApiUnauthorizedResponse({ description: ResponseMessage.ADMIN_NOT_LOGGED_IN })
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Get Admin profile of logged in admin' })
+  @ApiOperation({ summary: 'Admin api to fetch details.' })
   async getAdminProfile(@GetAdmin() admin: Admin, @Req() req): Promise<Admin> {
     await this.authService.checkAdmin(req.user.data);
 
@@ -192,7 +195,7 @@ export class AdminController {
   @ApiOkResponse({ description: ResponseMessage.UPDATE_CATEGORY })
   @ApiUnauthorizedResponse({ description: ResponseMessage.ADMIN_NOT_LOGGED_IN })
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'update category' })
+  @ApiOperation({ summary: 'update category using category id.' })
   async updateCategory(
     @Param('categoryId') categoryId: string,
     @Body() updateCategoryDto: UpdateCategoryDto,
@@ -230,7 +233,7 @@ export class AdminController {
   })
   @ApiUnauthorizedResponse({ description: ResponseMessage.ADMIN_NOT_LOGGED_IN })
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'get category by Id' })
+  @ApiOperation({ summary: 'Get category details by Id' })
   async getCategoryById(
     @Param('categoryId') categoryId: string,
     @Req() req,

@@ -52,8 +52,6 @@ export class ServicesService {
       .subtract(4, 'h')
       .format('YYYY-MM-DD HH:MM:SS.SSSSSS');
 
-    console.log(timeStamp);
-
     const result = await this.userRepository.find({
       select: [
         'id',
@@ -73,18 +71,14 @@ export class ServicesService {
       ],
     });
 
-    console.log(result);
-
     const success = await userIndex
       .saveObjects(result, {
         autoGenerateObjectIDIfNotExist: true,
       })
       .then(({ objectIDs }) => {
-        console.log(objectIDs);
         return objectIDs;
       })
       .catch((err) => {
-        console.log(err);
         throw new Error(err);
       });
     return success;
@@ -105,8 +99,6 @@ export class ServicesService {
     const timeStamp = moment()
       .subtract(4, 'h')
       .format('YYYY-MM-DD HH:MM:SS.SSSSSS');
-
-    console.log(timeStamp);
 
     //collection adding
     const result = await this.collectionRepository.find({
