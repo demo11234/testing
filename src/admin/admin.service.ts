@@ -5,6 +5,7 @@ import {
   Injectable,
   InternalServerErrorException,
   NotFoundException,
+  OnModuleInit,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -21,7 +22,7 @@ import { ResponseMessage } from 'shared/ResponseMessage';
 import { ResponseStatusCode } from 'shared/ResponseStatusCode';
 
 @Injectable()
-export class AdminService {
+export class AdminService implements OnModuleInit {
   constructor(
     @InjectRepository(Admin)
     private adminRepository: Repository<Admin>,
@@ -29,6 +30,26 @@ export class AdminService {
     private categoryRepository: Repository<Category>,
     private jwtService: JwtService,
   ) {}
+
+  async onModuleInit(): Promise<void> {
+    const isAdminPresent = await this.adminRepository.findOne({
+      username: 'admin@jungle.com',
+    });
+    console.log('hello from on moduleinit', isAdminPresent);
+
+    if (!isAdminPresent) {
+      const admin = {
+        firstName: 'admin',
+        lastName: 'admin',
+        username: 'admin@jungle.com',
+        password: 'Admin!23',
+      };
+      console.log('b4 admin creation');
+
+      await this.create(admin);
+      console.log('default admin creared');
+    }
+  }
 
   /**
    *

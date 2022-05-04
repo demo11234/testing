@@ -191,21 +191,4 @@ export class UserService implements OnModuleInit {
       throw new Error(error);
     }
   }
-
-  async freezeMetadata(itemId) {
-    // const item = this.NftItemService.findOne({ id: itemId });
-
-    // // const attributes = [{
-    // //   trait_type:,
-    // //   value:
-    // // }];
-    const metadata = {
-      //   description,
-      //   externalUrl,
-      //   fileName,
-      //   attributes,
-    };
-
-    return this.servicesService.freezeMetadata(metadata);
-  }
 }
