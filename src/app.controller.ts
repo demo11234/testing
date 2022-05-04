@@ -5,7 +5,7 @@ import { categoryMockdata } from './categoryMockdata';
 import { notableDrops } from './notabledrops';
 
 @Controller()
-@ApiTags('app')
+@ApiTags('Dashboard')
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
@@ -49,7 +49,6 @@ export class AppController {
   @Get('toptrending/:filterTime')
   @ApiOkResponse({ description: 'top trending' })
   async toptrending(@Param('filterTime') filterTime: string): Promise<any> {
-    console.log(filterTime);
     return notableDrops();
   }
   /**
@@ -61,8 +60,6 @@ export class AppController {
   @Get('topCollections/:filterTime')
   @ApiOkResponse({ description: 'top collections' })
   async topCollections(@Param('filterTime') filterTime: string): Promise<any> {
-    console.log(filterTime);
-
     return notableDrops();
   }
 }

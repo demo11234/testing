@@ -1,4 +1,10 @@
-import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
+import {
+  CACHE_MANAGER,
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+  OnModuleInit,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
@@ -6,14 +12,14 @@ import { UserRepository } from './repositories/user.repository';
 import { Cache } from 'cache-manager';
 import { WalletAddressDto } from './dto/get-user.dto';
 import { FileUpload } from './utils/s3.upload';
-import {NotificationService} from '../notification/notification.service'
+import { NotificationService } from '../notification/notification.service';
 import { Category } from 'src/admin/entities/categories.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { SignedUrlDto } from './dto/signed-url.dto';
 
 @Injectable()
-export class UserService {
+export class UserService implements OnModuleInit {
   constructor(
     @InjectRepository(Category)
     private readonly categoryRepository: Repository<Category>,
@@ -21,6 +27,23 @@ export class UserService {
     private readonly notificationService: NotificationService,
     private readonly fileUpload: FileUpload, //  @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
   ) {}
+
+  async onModuleInit() {
+    try {
+      const nftAccount = await this.userRepository.findOne({
+        walletAddress: process.env.MINTING_ACCOUNT_ADDRESS,
+      });
+      if (nftAccount) {
+        throw new Error('Already exists');
+      }
+      const user = new User();
+      user.userName = process.env.MINTING_ACCOUNT_USERNAME;
+      user.walletAddress = process.env.MINTING_ACCOUNT_ADDRESS;
+      await this.userRepository.save(user);
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
 
   /**
    * @description createUser will create User if user with given wallet address
@@ -31,7 +54,7 @@ export class UserService {
   async createUser(createUserDto: CreateUserDto): Promise<User> {
     try {
       const user = await this.userRepository.createUser(createUserDto);
-      await this.notificationService.createNotification(createUserDto, user)
+      await this.notificationService.createNotification(createUserDto, user);
       return user;
     } catch (error) {
       throw new Error(error);
@@ -120,7 +143,7 @@ export class UserService {
     updateUserDto: UpdateUserDto,
   ): Promise<any> {
     try {
-      let user = await this.userRepository.updateUserDetails(
+      const user = await this.userRepository.updateUserDetails(
         walletAddress,
         updateUserDto,
       );
@@ -140,7 +163,7 @@ export class UserService {
    * @returns it will return preSigned url
    * @author Vipin
    */
-  async getPresignedURL(signedUrlDto : SignedUrlDto): Promise<any> {
+  async getPresignedURL(signedUrlDto: SignedUrlDto): Promise<any> {
     try {
       const { fileName, fileType, filePath } = signedUrlDto;
       const url = await this.fileUpload.signedUrl(fileName, fileType, filePath);
@@ -155,7 +178,11 @@ export class UserService {
    */
   async findAllCategories(): Promise<Category[]> {
     try {
-      return this.categoryRepository.find({});
+      return this.categoryRepository.find({
+        where: {
+          categoryStatus: true,
+        },
+      });
     } catch (error) {
       throw new Error(error);
     }

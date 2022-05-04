@@ -190,7 +190,6 @@ export class UserController {
         );
       }
     } catch (error) {
-      console.log(error);
       return this.responseModel.response(
         error,
         ResponseStatusCode.INTERNAL_SERVER_ERROR,

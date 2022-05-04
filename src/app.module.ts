@@ -18,6 +18,7 @@ import * as redisStore from 'cache-manager-redis-store';
 import { ResponseModel } from './responseModel';
 import { AuthModule } from './auth/auth.module';
 import { ChainsModule } from './chains/chains.module';
+import { TokenModule } from './token/token.module';
 import { CollectionsModule } from './collections/collections.module';
 import { UtilsModule } from './utils/utils.module';
 import { NotificationModule } from './notification/notification.module';
@@ -51,6 +52,7 @@ import { ActivityModule } from './activity/activity.module';
     AdminModule,
     AuthModule,
     ChainsModule,
+    TokenModule,
     NotificationModule,
     CollectionsModule,
     UtilsModule,

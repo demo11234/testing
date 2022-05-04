@@ -22,7 +22,6 @@ export class FilterDto {
   @ApiPropertyOptional({ description: 'name of the collection' })
   @IsString()
   @IsNotEmpty()
-  @IsOptional()
   name: string;
 
   @ApiPropertyOptional({ description: 'status' })
