@@ -386,7 +386,6 @@ export class CollectionsController {
         );
       }
     } catch (error) {
-      console.error(error);
       return this.responseModel.response(
         error,
         ResponseStatusCode.INTERNAL_SERVER_ERROR,
@@ -397,17 +396,15 @@ export class CollectionsController {
   }
 
   /**
-   * @description: watchlist adds or removes user from watchlist depending upon the value of isWatched
-   * @param updateCollectionDto
-   * @returns: Update Staus
+   * @description: getWatchCollections returns the collections present in current user watchlist
+   * @returns: Collections
    * @author: Jeetanshu Srivastava
    */
   @Put('/getWatchCollections')
   @UseGuards(JwtAuthGuard)
   @ApiTags('Collection Module')
   @ApiOperation({
-    summary:
-      'Add and Removes user wallet address from watchlist of a collection',
+    summary: 'Returns Current User Watchlist Collection',
   })
   @ApiResponse({
     status: ResponseStatusCode.OK,
@@ -422,7 +419,6 @@ export class CollectionsController {
     @Response() response,
     @Request() request,
   ): Promise<any> {
-    console.log('getWatchCollections');
     try {
       const collections = await this.collectionService.getCollectionForUser(
         request.user.walletAddress,
@@ -434,7 +430,6 @@ export class CollectionsController {
         response,
       );
     } catch (error) {
-      console.log(error);
       return this.responseModel.response(
         error,
         ResponseStatusCode.INTERNAL_SERVER_ERROR,
