@@ -1,7 +1,5 @@
-import { ApiProperty } from '@nestjs/swagger'
+import { ApiProperty } from '@nestjs/swagger';
 import { IsArray, IsBoolean, IsNumber, IsString, IsUrl } from 'class-validator';
-import { Chains } from 'src/chains/entities/chains.entity';
-import { Collection } from 'src/collections/entities/collection.entity';
 import { Levels, Properties, Stats } from '../entities/nft-item.entities';
 // import { Stats } from '../entities/stats-entites';
 
@@ -39,7 +37,7 @@ export class NftItemDto {
 
   @ApiProperty()
   @IsArray()
-  stats: Stats[]
+  stats: Stats[];
 
   @ApiProperty()
   @IsBoolean()
@@ -60,5 +58,4 @@ export class NftItemDto {
   @ApiProperty()
   @IsString()
   blockChainId: string;
-
 }

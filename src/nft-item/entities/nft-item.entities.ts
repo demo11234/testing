@@ -1,23 +1,29 @@
 import { Chains } from 'src/chains/entities/chains.entity';
 import { Collection } from 'src/collections/entities/collection.entity';
-import { CreateDateColumn, ManyToOne, OneToMany, Column, Entity, UpdateDateColumn } from 'typeorm';
+import {
+  CreateDateColumn,
+  ManyToOne,
+  Column,
+  Entity,
+  UpdateDateColumn,
+} from 'typeorm';
 import { PrimaryGeneratedColumn, JoinColumn } from 'typeorm';
 
 @Entity()
 export class NftItem {
   @PrimaryGeneratedColumn('uuid')
-  id: string
+  id: string;
 
-  @Column({nullable: false})
+  @Column({ nullable: false })
   fileUrl: string;
-  
-  @Column({nullable: false})
+
+  @Column({ nullable: false })
   fileName: string;
 
-  @Column({default: ''})
+  @Column({ default: '' })
   externalUrl: string;
 
-  @Column({default: ''})
+  @Column({ default: '' })
   description: string;
 
   @ManyToOne(() => Collection, (collection) => collection.nftItem)
@@ -25,38 +31,38 @@ export class NftItem {
   collection: Collection;
 
   // @OneToMany(()=> Properties)
-  @Column({type: "jsonb",default: []})
+  @Column({ type: 'jsonb', default: [] })
   properties: Properties[];
 
-  @Column({type: "jsonb",default: []})
+  @Column({ type: 'jsonb', default: [] })
   levels: Levels[];
 
-  @Column({type: "jsonb",default: []})
+  @Column({ type: 'jsonb', default: [] })
   stats: Stats[];
 
-  @Column({default: false})
+  @Column({ default: false })
   isLockable: boolean;
 
-  @Column({default: false})
+  @Column({ default: false })
   isExplicit: boolean;
-  
+
   @Column({ default: 1 })
   supply: number;
 
-  @ManyToOne(()=> Chains, (chains) => chains.nftChainName)
+  @ManyToOne(() => Chains, (chains) => chains.nftChainName)
   @JoinColumn()
   blockChain: Chains;
 
-  @Column({length: 1000, default: ''})
+  @Column({ length: 1000, default: '' })
   lockableContent: string;
 
-  @Column("simple-array", {default: []})
-  allowedTokens:string[];
+  @Column('simple-array', { default: [] })
+  allowedTokens: string[];
 
-  @Column({default: ''})
+  @Column({ default: '' })
   owner: string;
 
-  @Column({default: ''})
+  @Column({ default: '' })
   originalOwner: string;
 
   @Column()
@@ -70,8 +76,8 @@ export class NftItem {
 }
 
 export class Properties {
-  type: string
-  name: string
+  type: string;
+  name: string;
 }
 
 export class Levels {
@@ -81,7 +87,7 @@ export class Levels {
 }
 
 export class Stats {
-  name: string
-  value: number
+  name: string;
+  value: number;
   maxValue: number;
 }
