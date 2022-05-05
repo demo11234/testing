@@ -59,7 +59,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     NotificationModule,
     CollectionsModule,
     UtilsModule,
-    NftItemModule
+    NftItemModule,
     ServicesModule,
   ],
   controllers: [AppController],
