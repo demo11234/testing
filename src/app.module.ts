@@ -22,6 +22,7 @@ import { TokenModule } from './token/token.module';
 import { CollectionsModule } from './collections/collections.module';
 import { UtilsModule } from './utils/utils.module';
 import { NotificationModule } from './notification/notification.module';
+import { NftItemModule } from './nft-item/nft-item.module';
 import { ServicesModule } from './services/services.module';
 import { ScheduleModule } from '@nestjs/schedule';
 
@@ -58,6 +59,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     NotificationModule,
     CollectionsModule,
     UtilsModule,
+    NftItemModule,
     ServicesModule,
   ],
   controllers: [AppController],

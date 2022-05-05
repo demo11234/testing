@@ -48,4 +48,7 @@ export const ResponseMessage = {
   WATCHLIST_ADDED: 'User has been added in Watchlist',
   WATCHLIST_REMOVED: 'User has been removed from watchlist',
   COLLECTION_LIST: 'List of Collections',
+  ITEM_NOT_FOUND: 'Item not found',
+  BAD_REQUEST: 'Bad request',
+  USER_DOES_NOT_OWN_ITEM: 'User does not own the item',
 };
