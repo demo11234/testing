@@ -76,6 +76,12 @@ export class NftItemService {
             const {walletAddress, sortBy, order: orderBy} = filterDto
             const where: {} | any = {};
 
+            // if(status){
+            //     // const new = Date.now() - 1000*60*60*24
+
+            //     where.createdAt = ILike(`%${"2022-05-04T11:16:36.725Z"}%`);
+            // }
+
             let order = {};
             if (sortBy === "date") {
             switch (orderBy) {
@@ -94,6 +100,7 @@ export class NftItemService {
             const data = await this.nftItemRepository.find({
                 where,
                 order,
+                relations: ["collection", "blockChain"],
             })
             return data;
         }catch (error){

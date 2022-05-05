@@ -24,13 +24,14 @@ export class NftItem {
   @JoinColumn()
   collection: Collection;
 
-  @Column({type: "simple-array",default: []})
+  // @OneToMany(()=> Properties)
+  @Column({type: "jsonb",default: []})
   properties: Properties[];
-    
-  @Column({type: "simple-array",default: []})
+
+  @Column({type: "jsonb",default: []})
   levels: Levels[];
 
-  @Column({type: "simple-array",default: []})
+  @Column({type: "jsonb",default: []})
   stats: Stats[];
 
   @Column({default: false})
@@ -51,9 +52,6 @@ export class NftItem {
 
   @Column("simple-array", {default: []})
   allowedTokens:string[];
-  
-  // @OneToOne(()=> Tokens)
-  // paymentToken: Tokens;
 
   @Column({default: ''})
   owner: string;
@@ -72,48 +70,18 @@ export class NftItem {
 }
 
 export class Properties {
-  @PrimaryGeneratedColumn('uuid')
-  id: string
-
-  @Column()
-  type: string;
-
-  @Column()
-  name: string;
-
-  @Column()
-  value: string;
-
+  type: string
+  name: string
 }
 
 export class Levels {
-  @PrimaryGeneratedColumn('uuid')
-  id: string
-
-  @Column()
   name: string;
-
-  @Column()
-  Value: number;
-
-  @Column()
+  value: number;
   maxValue: number;
-
-  @Column()
-  itemId: string;
 }
 
 export class Stats {
-  @PrimaryGeneratedColumn('uuid')
-  id: string
-
-  @Column()
   name: string
-
-  @Column()
   value: number
-
-  @Column()
   maxValue: number;
-
 }
