@@ -1,5 +1,11 @@
-import { ApiProperty } from '@nestjs/swagger'
-import { IsArray, IsBoolean, IsNumber, IsOptional, IsString, IsUrl } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+import {
+  IsArray,
+  IsBoolean,
+  IsOptional,
+  IsString,
+  IsUrl,
+} from 'class-validator';
 import { Levels, Properties, Stats } from '../entities/nft-item.entities';
 
 export class UpdateNftItemDto {
@@ -40,7 +46,7 @@ export class UpdateNftItemDto {
   @ApiProperty()
   @IsArray()
   @IsOptional()
-  stats: Stats[]
+  stats: Stats[];
 
   @ApiProperty()
   @IsBoolean()
@@ -56,5 +62,4 @@ export class UpdateNftItemDto {
   @IsBoolean()
   @IsOptional()
   isExplicit: boolean;
-
 }
