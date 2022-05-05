@@ -9,6 +9,7 @@ import {
   ManyToMany,
   ManyToOne,
   OneToMany,
+  JoinTable,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -28,12 +29,13 @@ export class Collection {
   @ApiProperty()
   featureImage: string;
 
-  // @ManyToMany((_type) => User, (user) => user.id, {
-  //   eager: false,
-  // })
-  @Column({ type: 'jsonb', default: [] })
-  @ApiProperty()
-  watchlist: string[];
+  @ManyToMany(() => User)
+  @JoinTable({
+    name: 'watchlist',
+    joinColumn: { name: 'collection_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'user_id', referencedColumnName: 'id' },
+  })
+  watchlist: User[];
 
   @Column({ length: 50 })
   @ApiProperty()

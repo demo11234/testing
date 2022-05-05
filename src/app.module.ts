@@ -23,9 +23,12 @@ import { CollectionsModule } from './collections/collections.module';
 import { UtilsModule } from './utils/utils.module';
 import { NotificationModule } from './notification/notification.module';
 import { NftItemModule } from './nft-item/nft-item.module';
+import { ServicesModule } from './services/services.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     ConfigModule.forRoot({
       envFilePath: [`.env.stage.${process.env.STAGE}`],
     }),
@@ -57,6 +60,7 @@ import { NftItemModule } from './nft-item/nft-item.module';
     CollectionsModule,
     UtilsModule,
     NftItemModule
+    ServicesModule,
   ],
   controllers: [AppController],
   providers: [

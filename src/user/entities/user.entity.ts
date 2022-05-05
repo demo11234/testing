@@ -41,6 +41,21 @@ export class User {
   @Column({ default: '' })
   imageUrl: string;
 
+  @Column({ default: '' })
+  bannerUrl: string;
+
+  @Column({ default: '' })
+  bio: string;
+
+  @Column({ default: '' })
+  twitterHandle: string;
+
+  @Column({ default: '' })
+  instagramHandle: string;
+
+  @Column({ default: '' })
+  website: string;
+
   @CreateDateColumn()
   createdAt: Date;
 

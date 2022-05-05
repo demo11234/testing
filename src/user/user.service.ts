@@ -17,6 +17,8 @@ import { Category } from 'src/admin/entities/categories.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { SignedUrlDto } from './dto/signed-url.dto';
+import 'dotenv/config';
+import { ServicesService } from 'src/services/services.service';
 
 @Injectable()
 export class UserService implements OnModuleInit {
@@ -25,6 +27,8 @@ export class UserService implements OnModuleInit {
     private readonly categoryRepository: Repository<Category>,
     private readonly userRepository: UserRepository,
     private readonly notificationService: NotificationService,
+    private readonly servicesService: ServicesService,
+    //private readonly nftItemService : NftItemService ,
     private readonly fileUpload: FileUpload, //  @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
   ) {}
 
@@ -41,7 +45,8 @@ export class UserService implements OnModuleInit {
       user.walletAddress = process.env.MINTING_ACCOUNT_ADDRESS;
       await this.userRepository.save(user);
     } catch (error) {
-      throw new Error(error);
+      console.error(error.message);
+      // throw new Error(error);
     }
   }
 
@@ -67,10 +72,33 @@ export class UserService implements OnModuleInit {
    * @returns it will return user details or null
    * @author Jeetanshu Srivastava
    */
-  async findUser(walletAddressDto: WalletAddressDto): Promise<any> {
+  async findUser(createUserDto: CreateUserDto): Promise<any> {
     try {
-      const { walletAddress } = walletAddressDto;
+      //Fetching user info from cache
+      // const cachedItem = await this.cacheManager.get(walletAddress);
+      // if (cachedItem) return cachedItem;
 
+      const user = await this.userRepository.findUser(
+        createUserDto.walletAddress,
+      );
+      if (!user) return null;
+
+      //Setting user info into the cache
+      // await this.cacheManager.set(walletAddress, user);
+      return user;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  /**
+   * @description findUserByWalletAddress will return user details with given wallet address or null if there is no user with given wallet address
+   * @param walletAddress
+   * @returns it will return user details or null
+   * @author Jeetanshu Srivastava
+   */
+  async findUserByWalletAddress(walletAddress: string): Promise<any> {
+    try {
       //Fetching user info from cache
       // const cachedItem = await this.cacheManager.get(walletAddress);
       // if (cachedItem) return cachedItem;
