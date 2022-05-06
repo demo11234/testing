@@ -72,15 +72,3 @@ export class Activity {
   @ApiProperty()
   createdDate: Date;
 }
-
-//Filters:
-//eventType
-//Collection : asset(item) ---> collection(name)
-//Chain : asset(item) ---> chain(name)
-
-//fromAccount ---> User(OneToOne Relation)
-//toAccount ---> User(OneToOne Relation)
-
-//asset ---> Item(OneToOne Relation)
-
-//eventType ???
