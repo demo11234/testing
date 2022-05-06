@@ -1,6 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsNotEmpty, IsOptional } from 'class-validator';
-import { eventType } from '../enums/activity.enum';
+import { eventType } from '../../../shared/Constants';
 
 export class ActivityFilterDto {
   @ApiPropertyOptional()
@@ -16,7 +16,7 @@ export class ActivityFilterDto {
   @ApiPropertyOptional()
   @IsOptional()
   @IsNotEmpty()
-  eventType: [string];
+  eventType: eventType[];
 
   @ApiPropertyOptional()
   @IsNotEmpty()

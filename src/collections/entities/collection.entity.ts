@@ -37,6 +37,10 @@ export class Collection {
   })
   watchlist: User[];
 
+  @ManyToMany(() => User)
+  @ApiProperty()
+  collaborators: string[];
+
   @Column({ length: 50 })
   @ApiProperty()
   banner: string;
@@ -101,10 +105,6 @@ export class Collection {
   @ApiProperty()
   earningWalletAddress: string;
 
-  @Column({ type: 'jsonb', default: [] })
-  @ApiProperty()
-  collaborators: string[];
-
   @Column({ length: 100, default: displayTheme.CONTAINED })
   @ApiProperty()
   @IsEnum(displayTheme)
@@ -153,5 +153,5 @@ export class Collection {
   updatedAt: Date;
 
   @OneToMany(() => NftItem, (nftItem) => nftItem.collection)
-  nftItem: NftItem[]
+  nftItem: NftItem[];
 }

@@ -18,6 +18,12 @@ export class ActivityService {
     private readonly nftItemRepository: Repository<NftItem>,
   ) {}
 
+  /**
+   * @description createActivity will create new activity
+   * @param CreateActivityInterface
+   * @returns Details of created activity
+   * @author Jeetanshu Srivastava
+   */
   async createActivity(
     createActivityInterface: CreateActivityInterface,
   ): Promise<Activity> {
@@ -61,6 +67,12 @@ export class ActivityService {
     }
   }
 
+  /**
+   * @description getActivity will return activities based on given filters
+   * @param ActivityFilterInterface
+   * @returns Details of activity
+   * @author Jeetanshu Srivastava
+   */
   async getActivity(
     activityFilterInterface: ActivityFilterInterface,
   ): Promise<Activity[]> {
@@ -68,116 +80,50 @@ export class ActivityService {
       const { take, skip, collectionId, chain, eventType } =
         activityFilterInterface;
 
-      let activity = [];
+      let activity = await this.activityRepository.createQueryBuilder(
+        'activity',
+      );
 
-      if (collectionId.length && chain.length && eventType.length) {
-        activity = await this.activityRepository
-          .createQueryBuilder('activity')
-          .where('activity.collectionId IN (:...collectionId)', {
-            collectionId,
-          })
-          .andWhere('activity.eventType IN (:...eventType)', {
-            eventType,
-          })
-          .leftJoinAndSelect('activity.nftItem', 'nft_item')
-          .leftJoinAndSelect(
-            'nft_item.blockChain',
-            'chains',
-            'chains.id IN (:...chain)',
-            { chain },
-          )
-          .skip(skip)
-          .take(take)
-          .getMany();
-      } else if (collectionId.length && chain.length) {
-        activity = await this.activityRepository
-          .createQueryBuilder('activity')
-          .where('activity.collectionId IN (:...collectionId)', {
-            collectionId,
-          })
-          .leftJoinAndSelect('activity.nftItem', 'nft_item')
-          .leftJoinAndSelect(
-            'nft_item.blockChain',
-            'chains',
-            'chains.id IN (:...chain)',
-            { chain },
-          )
-          .skip(skip)
-          .take(take)
-          .getMany();
-      } else if (chain.length && eventType.length) {
-        activity = await this.activityRepository
-          .createQueryBuilder('activity')
-          .where('activity.eventType IN (:...eventType)', {
-            eventType,
-          })
-          .leftJoinAndSelect('activity.nftItem', 'nft_item')
-          .leftJoinAndSelect(
-            'nft_item.blockChain',
-            'chains',
-            'chains.id IN (:...chain)',
-            { chain },
-          )
-          .skip(skip)
-          .take(take)
-          .getMany();
-      } else if (eventType.length && collectionId.length) {
-        activity = await this.activityRepository
-          .createQueryBuilder('activity')
-          .where('activity.collectionId IN (:...collectionId)', {
-            collectionId,
-          })
-          .andWhere('activity.eventType IN (:...eventType)', {
-            eventType,
-          })
-          .skip(skip)
-          .take(take)
-          .getMany();
-      } else if (collectionId.length) {
-        activity = await this.activityRepository
-          .createQueryBuilder('activity')
-          .where('activity.collectionId IN (:...collectionId)', {
-            collectionId,
-          })
-          .skip(skip)
-          .take(take)
-          .getMany();
-      } else if (chain.length) {
-        activity = await this.activityRepository
-          .createQueryBuilder('activity')
-          .leftJoinAndSelect('activity.nftItem', 'nft_item')
-          .leftJoinAndSelect(
-            'nft_item.blockChain',
-            'chains',
-            'chains.id IN (:...chain)',
-            { chain },
-          )
-          .skip(skip)
-          .take(take)
-          .getMany();
-      } else if (eventType.length) {
-        activity = await this.activityRepository
-          .createQueryBuilder('activity')
-          .where('activity.eventType IN (:...eventType)', {
-            eventType,
-          })
-          .skip(skip)
-          .take(take)
-          .getMany();
-      } else {
-        activity = await this.activityRepository
-          .createQueryBuilder('activity')
-          .skip(skip)
-          .take(take)
-          .getMany();
+      if (collectionId.length) {
+        activity = await activity.where(
+          'activity.collectionId IN (:...collectionId)',
+          { collectionId },
+        );
       }
 
-      return activity;
+      if (chain.length) {
+        activity = await activity.andWhere(
+          'activity.eventType IN (:...eventType)',
+          { eventType },
+        );
+      }
+
+      if (eventType.length) {
+        activity = await activity
+          .leftJoinAndSelect('activity.nftItem', 'nft_item')
+          .leftJoinAndSelect(
+            'nft_item.blockChain',
+            'chains',
+            'chains.id IN (:...chain)',
+            { chain },
+          );
+      }
+
+      return activity
+        .skip((skip - 1) * take)
+        .take(take)
+        .getMany();
     } catch (error) {
       console.log(error);
     }
   }
 
+  /**
+   * @description getActivityByItemId will return activity details with given item id
+   * @param id
+   * @returns Details of item activity
+   * @author Jeetanshu Srivastava
+   */
   async getActivityByItemId(id: string): Promise<Activity[]> {
     try {
       const activity = await this.activityRepository

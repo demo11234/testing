@@ -16,7 +16,6 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { Constants } from 'shared/Constants';
 import { ResponseMessage } from 'shared/ResponseMessage';
 import { ResponseStatusCode } from 'shared/ResponseStatusCode';
 import { ActivityService } from 'src/activity/activity.service';
@@ -26,6 +25,7 @@ import { FilterDto } from './dto/filter.dto';
 import { NftItemDto } from './dto/nft-item.dto';
 import { UpdateNftItemDto } from './dto/update.nftItem.dto';
 import { NftItemService } from './nft-item.service';
+import { eventType, eventActions } from '../../shared/Constants';
 
 @Controller('nft-item')
 export class NftItemController {
@@ -67,9 +67,9 @@ export class NftItemController {
       const user = req.user;
       const create = await this.nftItemService.createNftItem(user, nftItemDto);
       const activity = await this.activityService.createActivity({
-        eventActions: Constants.eventActions.CREATED,
+        eventActions: eventActions.MINTED,
         nftItem: create.id,
-        eventType: Constants.eventType.TRANSFERS,
+        eventType: eventType.TRANSFERS,
         fromAccount: null,
         toAccount: req.user.walletAddress,
         totalPrice: null,

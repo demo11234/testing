@@ -1,7 +1,9 @@
+import { eventActions, eventType } from '../../../shared/Constants';
+
 export interface CreateActivityInterface {
-  eventActions?: string;
+  eventActions?: eventActions;
   nftItem?: string;
-  eventType?: string;
+  eventType?: eventType;
   fromAccount?: string;
   toAccount?: string;
   isPrivate?: boolean;

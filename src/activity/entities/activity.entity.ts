@@ -7,10 +7,10 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
-  OneToOne,
+  ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { eventActions, eventType } from '../enums/activity.enum';
+import { eventActions, eventType } from 'shared/Constants';
 
 @Entity()
 export class Activity {
@@ -26,7 +26,7 @@ export class Activity {
     | eventActions.BID_ENTERED
     | eventActions.BID_WITHDRAWN
     | eventActions.CANCELLED
-    | eventActions.CREATED
+    | eventActions.MINTED
     | eventActions.OFFER_ENTERED
     | eventActions.SUCCESSFUL
     | eventActions.TRANSFER;
@@ -40,15 +40,15 @@ export class Activity {
     | eventType.SALES
     | eventType.TRANSFERS;
 
-  @OneToOne(() => NftItem)
+  @ManyToOne(() => NftItem)
   @JoinColumn()
   nftItem: NftItem;
 
-  @OneToOne(() => User)
+  @ManyToOne(() => User)
   @JoinColumn()
   fromAccount: User;
 
-  @OneToOne(() => User)
+  @ManyToOne(() => User)
   @JoinColumn()
   toAccount: User;
 
@@ -64,7 +64,7 @@ export class Activity {
   @ApiProperty()
   collectionId: string;
 
-  @OneToOne(() => User)
+  @ManyToOne(() => User)
   @JoinColumn()
   winnerAccount: User;
 
