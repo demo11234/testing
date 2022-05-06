@@ -16,4 +16,3 @@ export enum eventType {
   TRANSFERS = 'Tansfers',
 }
 
-//Mint ----> Sales ----> Offer(can be cancelled/approved) ----> If Approve(Transfer ---> Sales)
