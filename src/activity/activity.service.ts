@@ -1,128 +1,198 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { NftItem } from 'src/nft-item/entities/nft-item.entities';
+import { User } from 'src/user/entities/user.entity';
 import { Repository } from 'typeorm';
-import { ActivityFilterDto } from './dto/activity-filter.dto';
-import { CreateActivityDto } from './dto/create-activity.dto';
-import { UpdateActivityDto } from './dto/update-activity.dto';
 import { Activity } from './entities/activity.entity';
+import { ActivityFilterInterface } from './interface/activity-filter.interface';
+import { CreateActivityInterface } from './interface/create-activity.interface';
 
 @Injectable()
 export class ActivityService {
   constructor(
     @InjectRepository(Activity)
     private readonly activityRepository: Repository<Activity>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+    @InjectRepository(NftItem)
+    private readonly nftItemRepository: Repository<NftItem>,
   ) {}
 
-  async createActivity(createActivityDto: CreateActivityDto) {
+  async createActivity(
+    createActivityInterface: CreateActivityInterface,
+  ): Promise<Activity> {
     try {
-      let activity = new Activity();
-      activity.eventType = createActivityDto.eventType;
-      activity.asset = createActivityDto.asset;
-      activity.fromAccount = createActivityDto.fromAccount;
-      activity.toAccount = createActivityDto.toAccount;
-      activity.isPrivate = createActivityDto.isPrivate;
-      activity.paymentToken = createActivityDto.paymentToken;
-      activity.quantity = createActivityDto.quantity;
-      activity.totalPrice = createActivityDto.totalPrice;
-      activity.collection = createActivityDto.collection;
+      const activity = new Activity();
 
-      activity = await this.activityRepository.save(activity);
+      if (createActivityInterface.toAccount) {
+        activity.toAccount = await this.userRepository.findOne({
+          walletAddress: createActivityInterface.toAccount,
+        });
+        delete createActivityInterface.toAccount;
+      }
+      if (createActivityInterface.fromAccount) {
+        activity.fromAccount = await this.userRepository.findOne({
+          walletAddress: createActivityInterface.fromAccount,
+        });
+        delete createActivityInterface.fromAccount;
+      }
+      if (createActivityInterface.winnerAccount) {
+        activity.winnerAccount = await this.userRepository.findOne({
+          walletAddress: createActivityInterface.winnerAccount,
+        });
+        delete createActivityInterface.winnerAccount;
+      }
+
+      if (createActivityInterface.nftItem) {
+        activity.nftItem = await this.nftItemRepository.findOne({
+          id: createActivityInterface.nftItem,
+        });
+        delete createActivityInterface.nftItem;
+      }
+
+      const keys = Object.keys(createActivityInterface);
+      keys.forEach((key) => {
+        activity[key] = createActivityInterface[key];
+      });
+
+      return await this.activityRepository.save(activity);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async getActivity(
+    activityFilterInterface: ActivityFilterInterface,
+  ): Promise<Activity[]> {
+    try {
+      const { take, skip, collectionId, chain, eventType } =
+        activityFilterInterface;
+
+      const eventTypeArray = [eventType];
+      const collectionIdArray = [collectionId];
+      const chainArray = [chain];
+
+      let activity = [];
+
+      if (collectionId && chain && eventType) {
+        activity = await this.activityRepository
+          .createQueryBuilder('activity')
+          .where('activity.collectionId IN (:...collectionIdArray)', {
+            collectionIdArray,
+          })
+          .andWhere('activity.eventType IN (:...eventTypeArray)', {
+            eventTypeArray,
+          })
+          .leftJoinAndSelect('activity.nftItem, nftItem', 'nftItem')
+          .leftJoinAndSelect(
+            'nft_item.blockChain',
+            'chains',
+            'chains.id IN (:...chainArray)',
+            { chainArray },
+          )
+          .skip(skip)
+          .take(take)
+          .getMany();
+      } else if (collectionId && chain) {
+        activity = await this.activityRepository
+          .createQueryBuilder('activity')
+          .where('activity.collectionId IN (:...collectionIdArray)', {
+            collectionIdArray,
+          })
+          .leftJoinAndSelect('activity.nftItem', 'nft_item')
+          .leftJoinAndSelect(
+            'nft_item.blockChain',
+            'chains',
+            'chains.id IN (:...chainArray)',
+            { chainArray },
+          )
+          .skip(skip)
+          .take(take)
+          .getMany();
+      } else if (chain && eventType) {
+        activity = await this.activityRepository
+          .createQueryBuilder('activity')
+          .where('activity.eventType IN (:...eventTypeArray)', {
+            eventTypeArray,
+          })
+          .leftJoinAndSelect('activity.nftItem', 'nft_item')
+          .leftJoinAndSelect(
+            'nft_item.blockChain',
+            'chains',
+            'chains.id IN (:...chainArray)',
+            { chainArray },
+          )
+          .skip(skip)
+          .take(take)
+          .getMany();
+      } else if (eventType && collectionId) {
+        activity = await this.activityRepository
+          .createQueryBuilder('activity')
+          .where('activity.collectionId IN (:...collectionIdArray)', {
+            collectionIdArray,
+          })
+          .andWhere('activity.eventType IN (:...eventTypeArray)', {
+            eventTypeArray,
+          })
+          .skip(skip)
+          .take(take)
+          .getMany();
+      } else if (collectionId) {
+        activity = await this.activityRepository
+          .createQueryBuilder('activity')
+          .where('activity.collectionId IN (:...collectionIdArray)', {
+            collectionIdArray,
+          })
+          .skip(skip)
+          .take(take)
+          .getMany();
+      } else if (chain) {
+        activity = await this.activityRepository
+          .createQueryBuilder('activity')
+          .leftJoinAndSelect('activity.nftItem', 'nft_item')
+          .leftJoinAndSelect(
+            'nft_item.blockChain',
+            'chains',
+            'chains.id IN (:...chainArray)',
+            { chainArray },
+          )
+          .skip(skip)
+          .take(take)
+          .getMany();
+      } else if (eventType) {
+        activity = await this.activityRepository
+          .createQueryBuilder('activity')
+          .where('activity.eventType IN (:...eventTypeArray)', {
+            eventTypeArray,
+          })
+          .skip(skip)
+          .take(take)
+          .getMany();
+      } else {
+        activity = await this.activityRepository
+          .createQueryBuilder('activity')
+          .skip(skip)
+          .take(take)
+          .getMany();
+      }
+
       return activity;
     } catch (error) {
-      throw new Error(error);
+      console.log(error);
     }
   }
 
-  async findOne(id: string) {
+  async getActivityByItemId(id: string): Promise<Activity[]> {
     try {
-      const activity = await this.activityRepository.findOne(id);
-      if (!activity) return null;
+      const activity = await this.activityRepository
+        .createQueryBuilder('activity')
+        .leftJoinAndSelect('activity.nftItem', 'nftItem', 'nftItem.id = :id', {
+          id,
+        })
+        .getMany();
       return activity;
     } catch (error) {
-      throw new Error(error);
+      console.log(error);
     }
-  }
-
-  async findAll(filterDto: ActivityFilterDto): Promise<[Activity[], number]> {
-    try {
-      const {
-        take,
-        skip,
-        eventType,
-        asset,
-        fromAccount,
-        toAccount,
-        paymentToken,
-        search,
-        collection,
-      } = filterDto;
-      const activities = await this.activityRepository.findAndCount({
-        take,
-        skip,
-      });
-      if (!activities[0]) return null;
-      activities[0] = activities[0].filter((activity) => {
-        activity.collection = collection;
-      });
-      if (eventType) {
-        activities[0] = activities[0].filter((activity) => {
-          activity.eventType === eventType;
-        });
-      }
-      if (asset) {
-        activities[0] = activities[0].filter((activity) => {
-          activity.asset === asset;
-        });
-      }
-      if (fromAccount) {
-        activities[0] = activities[0].filter((activity) => {
-          activity.fromAccount === fromAccount;
-        });
-      }
-      if (toAccount) {
-        activities[0] = activities[0].filter((activity) => {
-          activity.toAccount === toAccount;
-        });
-      }
-      if (paymentToken) {
-        activities[0] = activities[0].filter((activity) => {
-          activity.paymentToken === paymentToken;
-        });
-      }
-      if (search) {
-        activities[0] = activities[0].filter(
-          (activity) =>
-            activity.eventType.includes(search) ||
-            activity.fromAccount.includes(search) ||
-            activity.toAccount.includes(search) ||
-            activity.asset.includes(search) ||
-            activity.paymentToken.includes(search),
-        );
-      }
-      return activities;
-    } catch (error) {
-      throw new Error(error);
-    }
-  }
-
-  async update(id: string, updateActivityDto: UpdateActivityDto) {
-    try {
-      const isUpdated = await this.activityRepository.update(
-        { id },
-        updateActivityDto,
-      );
-      if (!isUpdated) return null;
-      return isUpdated;
-    } catch (error) {
-      throw new Error(error);
-    }
-  }
-
-  async delete(id: string) {
-    try {
-      const deleted = await this.activityRepository.delete(id);
-      if (!deleted) return null;
-      return deleted;
-    } catch (error) {}
   }
 }

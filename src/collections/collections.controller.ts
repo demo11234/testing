@@ -7,10 +7,10 @@ import {
   Post,
   Query,
   Req,
-  Response,
   UseGuards,
   Response,
   Put,
+  Request,
 } from '@nestjs/common';
 import { ResponseMessage } from 'shared/ResponseMessage';
 import { ResponseStatusCode } from 'shared/ResponseStatusCode';
@@ -407,7 +407,7 @@ export class CollectionsController {
       );
     }
   }
-  
+
   /**
    * @description: This api adds or removes the collaborator
    * @param updateCollaboratorDto
@@ -466,8 +466,7 @@ export class CollectionsController {
       );
     }
   }
-  
-  
+
   /**
    * @description: getWatchCollections returns the collections present in current user watchlist
    * @returns: Collections

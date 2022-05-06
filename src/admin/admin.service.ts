@@ -5,6 +5,7 @@ import {
   Injectable,
   InternalServerErrorException,
   NotFoundException,
+  OnModuleInit,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -21,7 +22,7 @@ import { ResponseMessage } from 'shared/ResponseMessage';
 import { ResponseStatusCode } from 'shared/ResponseStatusCode';
 
 @Injectable()
-export class AdminService {
+export class AdminService implements OnModuleInit {
   constructor(
     @InjectRepository(Admin)
     private adminRepository: Repository<Admin>,
@@ -29,6 +30,23 @@ export class AdminService {
     private categoryRepository: Repository<Category>,
     private jwtService: JwtService,
   ) {}
+
+  async onModuleInit(): Promise<void> {
+    const isAdminPresent = await this.adminRepository.findOne({
+      username: process.env.ADMIN_USERNAME,
+    });
+
+    if (!isAdminPresent) {
+      const admin = {
+        firstName: process.env.ADMIN_FIRST_NAME,
+        lastName: process.env.ADMIN_LAST_NAME,
+        username: process.env.ADMIN_USERNAME,
+        password: process.env.ADMIN_PASSWORD,
+      };
+
+      await this.create(admin);
+    }
+  }
 
   /**
    *
@@ -50,7 +68,7 @@ export class AdminService {
     } catch (error) {
       if (error.code === ResponseStatusCode.UNIQUE_CONSTRAINTS)
         throw new ConflictException(ResponseMessage.UNIQUE_CONSTRAINTS_EMAIL);
-      else throw new InternalServerErrorException();
+      // else throw new InternalServerErrorException();
     }
   }
 

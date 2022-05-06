@@ -21,7 +21,7 @@ export class NotificationService {
    */
   async createNotification(walletAddress, user): Promise<any> {
     try {
-      const data = this.notificationRepository.save(walletAddress, user);
+      const data = await this.notificationRepository.save(walletAddress, user);
       return data;
     } catch (error) {
       throw new Error(error);

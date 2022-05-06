@@ -1,13 +1,16 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum } from 'class-validator';
+import { NftItem } from 'src/nft-item/entities/nft-item.entities';
 import { User } from 'src/user/entities/user.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { eventType } from '../enums/event-type.enum';
+import { eventActions, eventType } from '../enums/activity.enum';
 
 @Entity()
 export class Activity {
@@ -17,50 +20,67 @@ export class Activity {
 
   @Column()
   @ApiProperty()
+  @IsEnum(eventActions)
+  eventActions:
+    | eventActions.APPROVE
+    | eventActions.BID_ENTERED
+    | eventActions.BID_WITHDRAWN
+    | eventActions.CANCELLED
+    | eventActions.CREATED
+    | eventActions.OFFER_ENTERED
+    | eventActions.SUCCESSFUL
+    | eventActions.TRANSFER;
+
+  @Column()
+  @ApiProperty()
   @IsEnum(eventType)
   eventType:
-    | eventType.APPROVE
-    | eventType.BID_ENTERED
-    | eventType.BID_WITHDRAWN
-    | eventType.CANCELLED
-    | eventType.CREATED
-    | eventType.OFFER_ENTERED
-    | eventType.SUCCESSFUL
-    | eventType.TRANSFER;
+    | eventType.BIDS
+    | eventType.LISTING
+    | eventType.SALES
+    | eventType.TRANSFERS;
 
-  @Column()
-  @ApiProperty()
-  asset: string;
+  @OneToOne(() => NftItem)
+  @JoinColumn()
+  nftItem: NftItem;
 
-  @CreateDateColumn()
-  @ApiProperty()
-  createdDate: Date;
+  @OneToOne(() => User)
+  @JoinColumn()
+  fromAccount: User;
 
-  @Column()
-  @ApiProperty()
-  fromAccount: string;
-
-  @Column()
-  @ApiProperty()
-  toAccount: string;
+  @OneToOne(() => User)
+  @JoinColumn()
+  toAccount: User;
 
   @Column()
   @ApiProperty()
   isPrivate: boolean;
 
-  @Column()
-  @ApiProperty()
-  paymentToken: string;
-
-  @Column()
-  @ApiProperty()
-  quantity: number;
-
-  @Column()
+  @Column({ nullable: true })
   @ApiProperty()
   totalPrice: number;
 
   @Column()
   @ApiProperty()
-  collection: string;
+  collectionId: string;
+
+  @OneToOne(() => User)
+  @JoinColumn()
+  winnerAccount: User;
+
+  @CreateDateColumn()
+  @ApiProperty()
+  createdDate: Date;
 }
+
+//Filters:
+//eventType
+//Collection : asset(item) ---> collection(name)
+//Chain : asset(item) ---> chain(name)
+
+//fromAccount ---> User(OneToOne Relation)
+//toAccount ---> User(OneToOne Relation)
+
+//asset ---> Item(OneToOne Relation)
+
+//eventType ???
