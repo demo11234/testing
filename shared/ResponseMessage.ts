@@ -52,4 +52,7 @@ export const ResponseMessage = {
   BAD_REQUEST_OFFER_CREATION: 'Bad request for offer creation',
   BAD_REQUEST_OFFER_UPDATE: 'Bad request for offer update',
   OFFERS_DO_NOT_EXIST: 'Offers do not exist',
+  ITEM_NOT_FOUND: 'Item not found',
+  BAD_REQUEST: 'Bad request',
+  USER_DOES_NOT_OWN_ITEM: 'User does not own the item',
 };

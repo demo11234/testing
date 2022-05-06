@@ -336,6 +336,9 @@ export class UserController {
    */
   @ApiTags('User Module')
   @Get('getAllCategories')
+  @ApiOperation({
+    summary: 'Api request to fetch all categories',
+  })
   @ApiResponse({ description: 'Array of all categories' })
   async getAllCategories() {
     return this.userService.findAllCategories();

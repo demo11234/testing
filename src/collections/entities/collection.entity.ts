@@ -1,12 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum } from 'class-validator';
+import { IsArray, IsEnum } from 'class-validator';
+import { NftItem } from 'src/nft-item/entities/nft-item.entities';
 import { User } from 'src/user/entities/user.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinTable,
   ManyToMany,
+  ManyToOne,
+  OneToMany,
+  JoinTable,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -148,4 +151,7 @@ export class Collection {
   @UpdateDateColumn()
   @ApiProperty()
   updatedAt: Date;
+
+  @OneToMany(() => NftItem, (nftItem) => nftItem.collection)
+  nftItem: NftItem[]
 }
