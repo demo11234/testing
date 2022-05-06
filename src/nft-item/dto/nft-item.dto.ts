@@ -1,12 +1,19 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsBoolean, IsNumber, IsString, IsUrl } from 'class-validator';
+import {
+  IsArray,
+  IsBoolean,
+  IsNumber,
+  IsOptional,
+  IsString,
+  IsUrl,
+} from 'class-validator';
 import { Levels, Properties, Stats } from '../entities/nft-item.entities';
 // import { Stats } from '../entities/stats-entites';
 
 export class NftItemDto {
   @ApiProperty()
   @IsString()
-  @IsUrl()
+  @IsUrl(undefined, { message: 'file URL is not valid.' })
   fileUrl: string;
 
   @ApiProperty()
@@ -15,7 +22,7 @@ export class NftItemDto {
 
   @ApiProperty()
   @IsString()
-  @IsUrl()
+  @IsUrl(undefined, { message: 'external URL is not valid.' })
   externalUrl: string;
 
   @ApiProperty()
@@ -28,15 +35,18 @@ export class NftItemDto {
   // collection: Collection;
 
   @ApiProperty()
-  @IsArray()
+  //@IsArray()
+  @IsOptional()
   properties: Properties[];
 
   @ApiProperty()
-  @IsArray()
+  //@IsArray()
+  @IsOptional()
   levels: Levels[];
 
   @ApiProperty()
-  @IsArray()
+  //@IsArray()
+  @IsOptional()
   stats: Stats[];
 
   @ApiProperty()

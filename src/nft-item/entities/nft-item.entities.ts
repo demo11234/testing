@@ -14,6 +14,9 @@ export class NftItem {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @Column({ default: '' })
+  tokenId: string;
+
   @Column({ nullable: false })
   fileUrl: string;
 

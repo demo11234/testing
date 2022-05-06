@@ -72,7 +72,12 @@ async function bootstrap() {
   app.use(xssClean());
   app.use(hpp());
   app.useGlobalFilters(new HttpExceptionFilter());
-  app.useGlobalPipes(new ValidationPipe({ transform: true }));
+  app.useGlobalPipes(
+    new ValidationPipe({
+      enableDebugMessages: true,
+      disableErrorMessages: false,
+    }),
+  );
 
   // NOTE: Setup Swagger docs
   if (['dev', 'staging', 'uat'].includes(process.env.STAGE)) {

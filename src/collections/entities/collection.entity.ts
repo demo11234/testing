@@ -153,5 +153,5 @@ export class Collection {
   updatedAt: Date;
 
   @OneToMany(() => NftItem, (nftItem) => nftItem.collection)
-  nftItem: NftItem[]
+  nftItem: NftItem[];
 }
