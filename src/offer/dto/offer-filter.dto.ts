@@ -8,10 +8,6 @@ export class OfferFilterDto {
 
   @Column()
   @ApiPropertyOptional()
-  user: string;
-
-  @Column()
-  @ApiPropertyOptional()
   take: number;
 
   @Column()

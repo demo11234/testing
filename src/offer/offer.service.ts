@@ -56,28 +56,16 @@ export class OfferService {
   }
 
   async getOffers(offerFilerDto: OfferFilterDto): Promise<any> {
-    let offer;
-    if (offerFilerDto.item) {
-      offer = await this.offerRepository
-        .createQueryBuilder('offer')
-        .select('offer')
-        .from(Offer, 'offer')
-        .where('offer.item = :item', { item: offerFilerDto.item })
-        .andWhere('offer.isDeleted = false')
-        .take()
-        .skip()
-        .getOne();
-    } else {
-      offer = await this.offerRepository
-        .createQueryBuilder('offer')
-        .select('offer')
-        .from(Offer, 'offer')
-        .where('offer.owner = :owner', { owner: offerFilerDto.user })
-        .andWhere('offer.isDeleted = false')
-        .take()
-        .skip()
-        .getOne();
-    }
+    const offer = await this.offerRepository
+      .createQueryBuilder('offer')
+      .select('offer')
+      .from(Offer, 'offer')
+      .where('offer.item = :item', { item: offerFilerDto.item })
+      .andWhere('offer.isDeleted = false')
+      .take()
+      .skip()
+      .getOne();
+
     return offer;
   }
 }
