@@ -68,102 +68,98 @@ export class ActivityService {
       const { take, skip, collectionId, chain, eventType } =
         activityFilterInterface;
 
-      const eventTypeArray = [eventType];
-      const collectionIdArray = [collectionId];
-      const chainArray = [chain];
-
       let activity = [];
 
-      if (collectionId && chain && eventType) {
+      if (collectionId.length && chain.length && eventType.length) {
         activity = await this.activityRepository
           .createQueryBuilder('activity')
-          .where('activity.collectionId IN (:...collectionIdArray)', {
-            collectionIdArray,
+          .where('activity.collectionId IN (:...collectionId)', {
+            collectionId,
           })
-          .andWhere('activity.eventType IN (:...eventTypeArray)', {
-            eventTypeArray,
-          })
-          .leftJoinAndSelect('activity.nftItem, nftItem', 'nftItem')
-          .leftJoinAndSelect(
-            'nft_item.blockChain',
-            'chains',
-            'chains.id IN (:...chainArray)',
-            { chainArray },
-          )
-          .skip(skip)
-          .take(take)
-          .getMany();
-      } else if (collectionId && chain) {
-        activity = await this.activityRepository
-          .createQueryBuilder('activity')
-          .where('activity.collectionId IN (:...collectionIdArray)', {
-            collectionIdArray,
+          .andWhere('activity.eventType IN (:...eventType)', {
+            eventType,
           })
           .leftJoinAndSelect('activity.nftItem', 'nft_item')
           .leftJoinAndSelect(
             'nft_item.blockChain',
             'chains',
-            'chains.id IN (:...chainArray)',
-            { chainArray },
+            'chains.id IN (:...chain)',
+            { chain },
           )
           .skip(skip)
           .take(take)
           .getMany();
-      } else if (chain && eventType) {
+      } else if (collectionId.length && chain.length) {
         activity = await this.activityRepository
           .createQueryBuilder('activity')
-          .where('activity.eventType IN (:...eventTypeArray)', {
-            eventTypeArray,
+          .where('activity.collectionId IN (:...collectionId)', {
+            collectionId,
           })
           .leftJoinAndSelect('activity.nftItem', 'nft_item')
           .leftJoinAndSelect(
             'nft_item.blockChain',
             'chains',
-            'chains.id IN (:...chainArray)',
-            { chainArray },
+            'chains.id IN (:...chain)',
+            { chain },
           )
           .skip(skip)
           .take(take)
           .getMany();
-      } else if (eventType && collectionId) {
+      } else if (chain.length && eventType.length) {
         activity = await this.activityRepository
           .createQueryBuilder('activity')
-          .where('activity.collectionId IN (:...collectionIdArray)', {
-            collectionIdArray,
+          .where('activity.eventType IN (:...eventType)', {
+            eventType,
           })
-          .andWhere('activity.eventType IN (:...eventTypeArray)', {
-            eventTypeArray,
+          .leftJoinAndSelect('activity.nftItem', 'nft_item')
+          .leftJoinAndSelect(
+            'nft_item.blockChain',
+            'chains',
+            'chains.id IN (:...chain)',
+            { chain },
+          )
+          .skip(skip)
+          .take(take)
+          .getMany();
+      } else if (eventType.length && collectionId.length) {
+        activity = await this.activityRepository
+          .createQueryBuilder('activity')
+          .where('activity.collectionId IN (:...collectionId)', {
+            collectionId,
+          })
+          .andWhere('activity.eventType IN (:...eventType)', {
+            eventType,
           })
           .skip(skip)
           .take(take)
           .getMany();
-      } else if (collectionId) {
+      } else if (collectionId.length) {
         activity = await this.activityRepository
           .createQueryBuilder('activity')
-          .where('activity.collectionId IN (:...collectionIdArray)', {
-            collectionIdArray,
+          .where('activity.collectionId IN (:...collectionId)', {
+            collectionId,
           })
           .skip(skip)
           .take(take)
           .getMany();
-      } else if (chain) {
+      } else if (chain.length) {
         activity = await this.activityRepository
           .createQueryBuilder('activity')
           .leftJoinAndSelect('activity.nftItem', 'nft_item')
           .leftJoinAndSelect(
             'nft_item.blockChain',
             'chains',
-            'chains.id IN (:...chainArray)',
-            { chainArray },
+            'chains.id IN (:...chain)',
+            { chain },
           )
           .skip(skip)
           .take(take)
           .getMany();
-      } else if (eventType) {
+      } else if (eventType.length) {
         activity = await this.activityRepository
           .createQueryBuilder('activity')
-          .where('activity.eventType IN (:...eventTypeArray)', {
-            eventTypeArray,
+          .where('activity.eventType IN (:...eventType)', {
+            eventType,
           })
           .skip(skip)
           .take(take)

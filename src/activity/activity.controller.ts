@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Query, Response } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  Response,
+} from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ResponseMessage } from 'shared/ResponseMessage';
 import { ResponseStatusCode } from 'shared/ResponseStatusCode';
@@ -18,7 +26,7 @@ export class ActivityController {
    * @returns: All activities of a collection
    * @author: Ansh Arora
    */
-  @Get()
+  @Post()
   @ApiTags('Activity Module')
   @ApiOperation({
     summary: 'Find All Activities of a collection',
@@ -32,7 +40,7 @@ export class ActivityController {
     description: ResponseMessage.ACTIVITIES_DO_NOT_EXIST,
   })
   async findAll(
-    @Query() activityFilterDto: ActivityFilterDto,
+    @Body() activityFilterDto: ActivityFilterDto,
     @Response() response,
   ) {
     try {
