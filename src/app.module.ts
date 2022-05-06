@@ -22,6 +22,7 @@ import { TokenModule } from './token/token.module';
 import { CollectionsModule } from './collections/collections.module';
 import { UtilsModule } from './utils/utils.module';
 import { NotificationModule } from './notification/notification.module';
+import { OfferModule } from './offer/offer.module';
 
 @Module({
   imports: [
@@ -55,6 +56,7 @@ import { NotificationModule } from './notification/notification.module';
     NotificationModule,
     CollectionsModule,
     UtilsModule,
+    OfferModule,
   ],
   controllers: [AppController],
   providers: [

@@ -1,9 +1,11 @@
 import { Exclude } from 'class-transformer';
+import { Offer } from 'src/offer/entities/offer.entity';
 
 import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -55,6 +57,9 @@ export class User {
 
   @Column({ default: '' })
   website: string;
+
+  @OneToMany(() => Offer, (offer) => offer.owner)
+  offers: Offer;
 
   @CreateDateColumn()
   createdAt: Date;
