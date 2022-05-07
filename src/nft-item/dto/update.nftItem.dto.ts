@@ -1,12 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
+  ArrayMinSize,
   IsArray,
   IsBoolean,
   IsOptional,
   IsString,
   IsUrl,
+  ValidateNested,
 } from 'class-validator';
 import { Levels, Properties, Stats } from '../entities/nft-item.entities';
+import { Type as ValidateType } from 'class-transformer';
 
 export class UpdateNftItemDto {
   @ApiProperty()
@@ -33,18 +36,21 @@ export class UpdateNftItemDto {
   @IsString()
   collectionId: string;
 
-  @ApiProperty()
+  @ApiProperty({ description: 'properties', type: [Properties] })
   @IsArray()
+  @ArrayMinSize(1)
   @IsOptional()
+  @ValidateNested()
+  @ValidateType(() => Properties)
   properties: Properties[];
 
-  @ApiProperty()
-  @IsArray()
+  @ApiProperty({ description: 'Levels', type: [Levels] })
+  //@IsArray()
   @IsOptional()
   levels: Levels[];
 
-  @ApiProperty()
-  @IsArray()
+  @ApiProperty({ description: 'Stats', type: [Stats] })
+  //@IsArray()
   @IsOptional()
   stats: Stats[];
 
