@@ -1,61 +1,68 @@
-import { ApiProperty } from '@nestjs/swagger'
-import { IsArray, IsBoolean, IsNumber, IsString, IsUrl } from 'class-validator';
-import { Chains } from 'src/chains/entities/chains.entity';
-import { Collection } from 'src/collections/entities/collection.entity';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
+import { IsArray, IsBoolean, IsNumber, IsString, IsUrl, IsOptional} from 'class-validator';
 import { Levels, Properties, Stats } from '../entities/nft-item.entities';
-// import { Stats } from '../entities/stats-entites';
 
-export class NftItemDto {
-  @ApiProperty()
+
+export class CreateNftItemDto {
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsString()
   @IsUrl()
   fileUrl: string;
 
   @ApiProperty()
+  @IsOptional()
   @IsString()
   fileName: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsString()
   @IsUrl()
-  externalUrl: string;
+  externalUrl?: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   @IsString()
   description: string;
 
   @ApiProperty()
   @IsString()
   collectionId: string;
-  // collection: Collection;
 
-  @ApiProperty()
+  @ApiPropertyOptional({type: [Properties]})
+  @IsOptional()
   @IsArray()
-  properties: Properties[];
+  properties?: Properties[];
 
-  @ApiProperty()
+  @ApiPropertyOptional({type: [Levels]})
+  @IsOptional()
   @IsArray()
-  levels: Levels[];
+  levels?: Levels[];
 
-  @ApiProperty()
+  @ApiPropertyOptional({type: [Stats]})
+  @IsOptional()
   @IsArray()
-  stats: Stats[]
+  stats?: Stats[]
 
-  @ApiProperty()
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsBoolean()
-  isLockable: boolean;
+  isLockable?: boolean;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsString()
-  lockableContent: string;
+  lockableContent?: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsBoolean()
-  isExplicit: boolean;
+  isExplicit?: boolean;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsNumber()
-  supply: number;
+  supply?: number;
 
   @ApiProperty()
   @IsString()

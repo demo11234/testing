@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsEnum, IsNotEmpty, IsNumberString, IsOptional, IsPositive, IsString } from 'class-validator';
 import { StatusEnum } from '../enum/filter.status.enum';
 
 export class FilterDto {
@@ -10,28 +10,35 @@ export class FilterDto {
   @IsOptional()
   walletAddress: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional({ description: "give single or multiple input from 'new', 'buynow', 'onAuction', 'hasOffer' seprated by ' , '" })
   @IsOptional()
-  @IsEnum(StatusEnum)
-  status?: StatusEnum;
+  // @IsEnum(StatusEnum)
+  status?: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   @IsOptional()
-  price?: number;
+  @IsString()
+  priceType?:string;
 
-  @ApiProperty()
+  @ApiPropertyOptional({ description: "give price value range seprated by ' , '  eg.(1, 10) " })
   @IsOptional()
+  @IsString()
+  priceRange?: string;
+
+  @ApiPropertyOptional({ description: "give single collection id or multiple seprated by ' , '" })
+  @IsOptional()
+  @ApiProperty()
   collectionsId?: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional({ description: "give single chain id or multiple seprated by ' , '" })
   @IsOptional()
   chainsId?: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   @IsOptional()
   categories?: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   @IsOptional()
   onSale?: string;
 
@@ -44,4 +51,14 @@ export class FilterDto {
   @IsOptional()
   @IsString()
   order?: string;
+
+  @ApiPropertyOptional({ description: "no. of records per page" })
+  @IsOptional()
+  @IsNumberString({ message: "value must greater than 0" })
+  limit?: string;
+  
+  @ApiPropertyOptional({ description: "page no. to view" })
+  @IsOptional()
+  @IsNumberString({ message: "value must greater than 0" })
+  page?: string;
 }

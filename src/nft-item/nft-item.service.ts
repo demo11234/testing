@@ -3,11 +3,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ResponseMessage } from 'shared/ResponseMessage';
 import { Chains } from 'src/chains/entities/chains.entity';
 import { Collection } from 'src/collections/entities/collection.entity';
-import { ILike, LessThan, Like, MoreThan, Repository } from 'typeorm';
+import { ILike, In, LessThan, Like, MoreThan, Repository } from 'typeorm';
 import { FilterDto } from './dto/filter.dto';
-import { NftItemDto } from './dto/nft-item.dto';
+import { CreateNftItemDto } from './dto/nft-item.dto';
 import { UpdateNftItemDto } from './dto/update.nftItem.dto';
 import { NftItem } from './entities/nft-item.entities';
+import { Between } from "typeorm";
 
 @Injectable()
 export class NftItemService {
@@ -29,11 +30,12 @@ export class NftItemService {
    * @returns: create Item
    * @author: vipin
    */
-    async createNftItem (user, nftItemDto: NftItemDto): Promise<any>{
+    async createNftItem (user, nftItemDto: CreateNftItemDto): Promise<any>{
         try {
             let nftItem = new NftItem()
             nftItem.walletAddress = user.walletAddress
             nftItem.originalOwner = user.walletAddress
+            nftItem.owner = user.walletAddress
             const collection = await this.collectionRepository.findOne({
                 where: { id: nftItemDto.collectionId },
             });
@@ -55,9 +57,9 @@ export class NftItemService {
             nftItem.isLockable = nftItemDto.isLockable
             nftItem.lockableContent = nftItemDto.lockableContent
             nftItem.fileName = nftItemDto.fileName
+            nftItem.timeStamp = Date.now()
 
             const data = await this.nftItemRepository.save(nftItem);
-
             if (data) return data;
         } catch (error) {
             console.log(error)
@@ -66,20 +68,60 @@ export class NftItemService {
     }
 
     /**
-   * @description: This api find item and returns status
-   * @param filterDto
-   * @returns: find Item
+   * @description: This api fetch item and returns status
+   * @param FilterDto
+   * @returns: fetch Item with filters
    * @author: vipin
    */
-    async findNftItems(filterDto: FilterDto): Promise<any>{
+    async fetchNftItems(filterDto: FilterDto): Promise<any>{
         try{
-            const {walletAddress, sortBy, order: orderBy} = filterDto
-            const where: {} | any = {};
+            const {
+                walletAddress, collectionsId, chainsId, categories,priceType,
+                status, priceRange, sortBy, limit, page, order: orderBy
+            } = filterDto
+            let where: any = { walletAddress };
+            
+            if(collectionsId){
+                const collectionId = collectionsId.split(',')
+                let x = collectionId.map(s=>s.trim())
+                where.collection = collectionsId ? { id: In (x) } : where;
+            }
 
-            // if(status){
-            //     // const new = Date.now() - 1000*60*60*24
+            if(chainsId){
+                const chainId = chainsId.split(',')
+                let x = chainId.map(s=>s.trim())
+                where.blockChain = chainsId  ?  { id: In (x)  } : where;
+            }
+            // let a = []
+            if(status){
+                
+                const statusArr = status.split(',')
+                let x = statusArr.map(s=>s.trim())
+                console.log(x)
+                if (x.includes('new')){
+                    const BetweenDates = () => Between( Date.now() - 1000*60*60*24*1, Date.now() );
+                    where.timeStamp = status  ?  BetweenDates() : where;
+                }
+                // if (x.includes('buynow')){
+                //     a.push('buynow') 
+                // }
+                // if (x.includes('onAuction')){
+                //     a.push('onAuction')
+                // }
+                // if (x.includes('hasOffer')){
+                //     a.push('hasOffer')
+                // }
+                // return a;
+            }
 
-            //     where.createdAt = ILike(`%${"2022-05-04T11:16:36.725Z"}%`);
+            if(categories){
+                where.collection = categories ? {categoryID: categories} : where;
+            }
+
+            // if(priceType){
+            //     const priceValue = priceRange.split(',')
+            //     let x = priceValue.map(s=>s.trim())
+            //     where.blockChain = priceRange  ? { usdPrice: Between(x[0], x[1]) } : where;
             // }
 
             let order = {};
@@ -95,15 +137,16 @@ export class NftItemService {
                     order["id"] = "ASC";
                 }
             }
-            where.walletAddress = ILike(`%${walletAddress}%`);
-
             const data = await this.nftItemRepository.find({
                 where,
                 order,
                 relations: ["collection", "blockChain"],
+                skip: (+page - 1) * +limit,
+                take: +limit,
             })
             return data;
         }catch (error){
+            console.log(error)
             throw new Error(error);
         }
     }
@@ -137,6 +180,7 @@ export class NftItemService {
             if (update)
             return update
         }catch (error) {
+            console.log(error)
             throw new Error(error);
         }
     }
