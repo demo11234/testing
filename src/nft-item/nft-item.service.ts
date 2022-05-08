@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ResponseMessage } from 'shared/ResponseMessage';
 import { Chains } from 'src/chains/entities/chains.entity';
 import { Collection } from 'src/collections/entities/collection.entity';
 import { ILike, In, LessThan, Like, MoreThan, Repository } from 'typeorm';
@@ -12,18 +11,16 @@ import { Between } from "typeorm";
 
 @Injectable()
 export class NftItemService {
-    constructor(
-        
-        @InjectRepository(Collection)
-        private readonly collectionRepository: Repository<Collection>,
-        @InjectRepository(NftItem)
-        private readonly nftItemRepository: Repository<NftItem>,
-        @InjectRepository(Chains)
-        private chainsRepository: Repository<Chains>,
+  constructor(
+    @InjectRepository(Collection)
+    private readonly collectionRepository: Repository<Collection>,
+    @InjectRepository(NftItem)
+    private readonly nftItemRepository: Repository<NftItem>,
+    @InjectRepository(Chains)
+    private chainsRepository: Repository<Chains>,
+  ) {}
 
-    ){}
-
-    /**
+  /**
    * @description: This api create the item and returns status
    * @param NftItemDto
    * @param user
@@ -65,7 +62,7 @@ export class NftItemService {
             console.log(error)
             throw new Error(error);
         }
-    }
+  }
 
     /**
    * @description: This api fetch item and returns status
@@ -149,9 +146,9 @@ export class NftItemService {
             console.log(error)
             throw new Error(error);
         }
-    }
-    
-    /**
+      }
+
+  /**
    * @description: This api updates the item and returns status
    * @param id
    * @param UpdateNftItemDto
@@ -185,12 +182,44 @@ export class NftItemService {
         }
     }
 
-    async findOne(id: string): Promise<any>{
-        try{
-            const item = await this.nftItemRepository.findOne({id})
-            if (item) return item
-        }catch (error) {
-            throw new Error(error);
-        }
+  async findOne(id: string): Promise<any> {
+    try {
+      const item = await this.nftItemRepository.findOne({ id });
+      if (item) return item;
+    } catch (error) {
+      throw new Error(error);
     }
+  }
+  /**
+   * @description Creates unique tokenId for an item
+   * @param walletAddress walletAdrress is in HEX
+   * @param index should be in integer
+   * @param supply integer
+   * @returns generateToken("0x287A135702555F69BA6eE961f69ee60Fbb87A0f8", 2, 123);
+   * expected output
+   *  18308202764175312363921158875842719186563004225019719481464309476731798945915
+   * @author mohan
+   */
+  async generateToken(walletAddress, index, supply): Promise<string> {
+    // walletAddrress to binary
+    // walletAddress = walletAddress.replace("0x", "");
+    const binaryWalletaddress = parseInt(walletAddress, 16)
+      .toString(2)
+      .padStart(160, '0');
+
+    //Index to binary
+    const binaryIndex = index.toString(2).padStart(56, '0');
+
+    //Supply to binary
+    const binarySupply = supply.toString(2).padStart(40, '0');
+
+    //joining walletaddress + Index + Supply
+    const binaryToken = binaryWalletaddress + binaryIndex + binarySupply;
+
+    //console.log(binaryToken);
+
+    const decimalToken = BigInt(parseInt(binaryToken, 2));
+
+    return decimalToken.toString();
+  }
 }

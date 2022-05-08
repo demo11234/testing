@@ -3,7 +3,6 @@ import { IsArray, IsEnum, IsNotEmpty, IsNumberString, IsOptional, IsPositive, Is
 import { StatusEnum } from '../enum/filter.status.enum';
 
 export class FilterDto {
-
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
@@ -42,12 +41,12 @@ export class FilterDto {
   @IsOptional()
   onSale?: string;
 
-  @ApiPropertyOptional({ enum: { date: "date" } })
+  @ApiPropertyOptional({ enum: { date: 'date' } })
   @IsOptional()
   @IsString()
   sortBy?: string;
 
-  @ApiPropertyOptional({ enum: { asc: "asc", desc: "desc" } })
+  @ApiPropertyOptional({ enum: { asc: 'asc', desc: 'desc' } })
   @IsOptional()
   @IsString()
   order?: string;

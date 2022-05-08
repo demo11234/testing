@@ -1,14 +1,20 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Chains } from 'src/chains/entities/chains.entity';
 import { Collection } from 'src/collections/entities/collection.entity';
-import { CreateDateColumn, ManyToOne, OneToMany, Column, Entity, UpdateDateColumn } from 'typeorm';
+import {
+  CreateDateColumn,
+  ManyToOne,
+  Column,
+  Entity,
+  UpdateDateColumn,
+} from 'typeorm';
 import { PrimaryGeneratedColumn, JoinColumn } from 'typeorm';
 
 @Entity()
 export class NftItem {
   @ApiProperty()
   @PrimaryGeneratedColumn('uuid')
-  id: string
+  id: string;
 
   @ApiProperty()
   @Column({nullable: false})
@@ -54,7 +60,7 @@ export class NftItem {
   @Column({ default: 1 })
   supply: number;
 
-  @ManyToOne(()=> Chains, (chains) => chains.nftChainName)
+  @ManyToOne(() => Chains, (chains) => chains.nftChainName)
   @JoinColumn()
   blockChain: Chains;
 

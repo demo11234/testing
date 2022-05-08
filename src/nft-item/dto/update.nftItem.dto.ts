@@ -40,7 +40,7 @@ export class UpdateNftItemDto {
   @ApiPropertyOptional({type: [Stats]})
   @IsArray()
   @IsOptional()
-  stats?: Stats[]
+  stats?: Stats[];
 
   @ApiPropertyOptional()
   @IsBoolean()
@@ -58,3 +58,4 @@ export class UpdateNftItemDto {
   isExplicit?: boolean;
 
 }
+

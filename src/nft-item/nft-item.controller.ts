@@ -1,5 +1,21 @@
-import { Body, Controller, Get, Post, Request, Response, Param, Patch, UseGuards, Query} from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Request,
+  Response,
+  Param,
+  Patch,
+  UseGuards,
+  Query,
+} from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { ResponseMessage } from 'shared/ResponseMessage';
 import { ResponseStatusCode } from 'shared/ResponseStatusCode';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
@@ -11,12 +27,12 @@ import { NftItemService } from './nft-item.service';
 
 @Controller('nft-item')
 export class NftItemController {
-    constructor(
-      private readonly nftItemService: NftItemService,
-      private readonly responseModel: ResponseModel,
-    ) {}
+  constructor(
+    private readonly nftItemService: NftItemService,
+    private readonly responseModel: ResponseModel,
+  ) {}
 
-    /**
+  /**
    * @description: This api create the item and returns status
    * @param CreateNftItemDto
    * @returns: create Item
@@ -57,15 +73,15 @@ export class NftItemController {
           true,
           response,
         );
-      }catch (error){
-        return this.responseModel.response(
-          error,
-          ResponseStatusCode.INTERNAL_SERVER_ERROR,
-          false,
-          response,
-        );
-      }
+    } catch (error) {
+      return this.responseModel.response(
+        error,
+        ResponseStatusCode.INTERNAL_SERVER_ERROR,
+        false,
+        response,
+      );
     }
+  }
 
     /**
    * @description: This api fetch item and returns status
@@ -110,17 +126,16 @@ export class NftItemController {
           );
         };
       }catch (error){
-        console.log(error)
-        return this.responseModel.response(
-          error,
-          ResponseStatusCode.INTERNAL_SERVER_ERROR,
-          false,
-          response,
-        );
-      }
+      return this.responseModel.response(
+        error,
+        ResponseStatusCode.INTERNAL_SERVER_ERROR,
+        false,
+        response,
+      );
     }
+  }
 
-    /**
+  /**
    * @description: This api updates the item and returns status
    * @param id
    * @param UpdateNftItemDto
@@ -162,29 +177,32 @@ export class NftItemController {
           false,
           response,
         );
-        if (req.user.walletAddress === item.walletAddress) {
-          const updateItem = await this.nftItemService.updateNftItems(id, updateNftItemDto);
-          return this.responseModel.response(
-            updateItem,
-            ResponseStatusCode.OK,
-            true,
-            response,
-          );
-        } else {
-          return this.responseModel.response(
-            ResponseMessage.USER_DOES_NOT_OWN_ITEM,
-            ResponseStatusCode.BAD_REQUEST,
-            false,
-            response,
-          );
-        }
-      } catch (error){
+      if (req.user.walletAddress === item.walletAddress) {
+        const updateItem = await this.nftItemService.updateNftItems(
+          id,
+          updateNftItemDto,
+        );
         return this.responseModel.response(
-          error,
-          ResponseStatusCode.INTERNAL_SERVER_ERROR,
+          updateItem,
+          ResponseStatusCode.OK,
+          true,
+          response,
+        );
+      } else {
+        return this.responseModel.response(
+          ResponseMessage.USER_DOES_NOT_OWN_ITEM,
+          ResponseStatusCode.BAD_REQUEST,
           false,
           response,
         );
-      }     
+      }
+    } catch (error) {
+      return this.responseModel.response(
+        error,
+        ResponseStatusCode.INTERNAL_SERVER_ERROR,
+        false,
+        response,
+      );
     }
+  }
 }

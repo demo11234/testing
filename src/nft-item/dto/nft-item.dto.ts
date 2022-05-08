@@ -42,7 +42,7 @@ export class CreateNftItemDto {
   @ApiPropertyOptional({type: [Stats]})
   @IsOptional()
   @IsArray()
-  stats?: Stats[]
+  stats?: Stats[];
 
   @ApiPropertyOptional()
   @IsOptional()
@@ -67,5 +67,4 @@ export class CreateNftItemDto {
   @ApiProperty()
   @IsString()
   blockChainId: string;
-
 }
