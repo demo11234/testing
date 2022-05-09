@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsEnum } from 'class-validator';
+import { IsEnum } from 'class-validator';
 import { NftItem } from 'src/nft-item/entities/nft-item.entities';
 import { User } from 'src/user/entities/user.entity';
 import {
@@ -12,6 +12,7 @@ import {
   JoinTable,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
+  JoinColumn,
 } from 'typeorm';
 import { displayTheme } from '../enums/display-themes.enum';
 
@@ -37,11 +38,7 @@ export class Collection {
   })
   watchlist: User[];
 
-  @ManyToMany(() => User)
-  @ApiProperty()
-  collaborators: string[];
-
-  @Column({ length: 50 })
+  @Column({ length: 50, nullable: true })
   @ApiProperty()
   banner: string;
 
@@ -61,7 +58,7 @@ export class Collection {
   @ApiProperty()
   paymentToken: string;
 
-  @Column({ nullable: true })
+  @Column({ default: true })
   @ApiProperty()
   explicitOrSensitiveContent: boolean;
 
@@ -97,13 +94,19 @@ export class Collection {
   @ApiProperty()
   telegramLink: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, type: 'decimal' })
   @ApiProperty()
   earningFee: number;
 
   @Column({ nullable: true })
   @ApiProperty()
   earningWalletAddress: string;
+
+  @ManyToMany(() => User, (user) => user.collaboratedCollection, {
+    eager: false,
+  })
+  @JoinColumn()
+  collaborators: User[];
 
   @Column({ length: 100, default: displayTheme.CONTAINED })
   @ApiProperty()
@@ -113,12 +116,11 @@ export class Collection {
     | displayTheme.COVERED
     | displayTheme.PADDED;
 
-  // @ManyToOne((_type) => User, (user) => user.collections, {
-  // eager: false,
-  // })
-  @Column({ nullable: true })
-  @ApiProperty()
-  owner: string;
+  @ManyToOne(() => User, (user) => user.collections, {
+    eager: false,
+  })
+  @JoinColumn()
+  owner: User;
 
   @Column({ default: false })
   @ApiProperty()

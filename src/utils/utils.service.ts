@@ -10,7 +10,7 @@ export class UtilsService {
     private readonly collectionRepository: Repository<Collection>,
   ) {}
 
-  async createDefault(owner: string, name: string, logo: string) {
+  async createDefault(owner: User, name: string, logo: string) {
     try {
       let collection = new Collection();
       collection.logo = logo;

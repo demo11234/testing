@@ -26,10 +26,7 @@ export class CollectionsService {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  async create(
-    walletAddress: string,
-    createCollectionDto: CreateCollectionsDto,
-  ): Promise<any> {
+  async create(owner: User, createCollectionDto: CreateCollectionsDto) {
     try {
       let collection = new Collection();
       collection.logo = createCollectionDto.logo;
@@ -50,14 +47,26 @@ export class CollectionsService {
       collection.displayTheme = createCollectionDto.displayTheme;
       collection.explicitOrSensitiveContent =
         createCollectionDto.explicitOrSensitiveContent;
-      collection.owner = walletAddress;
+      collection.owner = owner;
 
       collection = await this.collectionRepository.save(collection);
       return collection;
     } catch (error) {
+      console.log(error);
       if (error.code === ResponseStatusCode.UNIQUE_CONSTRAINTS)
         throw new ConflictException(ResponseMessage.UNIQUE_CONSTRAINTS_NAME);
       else throw new InternalServerErrorException();
+    }
+  }
+
+  async findByOwnerOrCollaborator(id: string): Promise<any> {
+    try {
+      const collections = await this.collectionRepository.find({
+        where: { owner: id },
+      });
+      return collections;
+    } catch (error) {
+      return { msg: ResponseMessage.INTERNAL_SERVER_ERROR };
     }
   }
 
