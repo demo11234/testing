@@ -68,8 +68,11 @@ export class CollectionsController {
     @Response() response,
   ) {
     try {
-      const collection = await this.collectionService.create(
+      const owner = await this.userService.findUserByWalletAddress(
         request.user.walletAddress,
+      );
+      const collection = await this.collectionService.create(
+        owner,
         createCollectionDto,
       );
       if (collection) {
@@ -148,12 +151,52 @@ export class CollectionsController {
   }
 
   /**
+   * @description: This apis returns all collections by owner
+   * @returns: All collections by owner
+   * @author: Ansh Arora
+   */
+  @Get('/getByUserId/:id')
+  @ApiTags('Collection Module')
+  @ApiOperation({
+    summary: 'Find All Collections by owner',
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.OK,
+    description: 'Returns All Collections by owner',
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.NOT_FOUND,
+    description: ResponseMessage.COLLECTIONS_DO_NOT_EXIST,
+  })
+  async findAllByOwner(@Param('id') id: string, @Response() response) {
+    try {
+      console.log('This is controller', id);
+      const collections =
+        await this.collectionService.findByOwnerOrCollaborator(id);
+      return this.responseModel.response(
+        collections,
+        ResponseStatusCode.OK,
+        true,
+        response,
+      );
+    } catch (error) {
+      console.log('error in controller', error);
+      return this.responseModel.response(
+        error,
+        ResponseStatusCode.INTERNAL_SERVER_ERROR,
+        false,
+        response,
+      );
+    }
+  }
+
+  /**
    * @description: This api finds single collection using id
    * @param id
    * @returns: Single collection that matches the id
    * @author: Ansh Arora
    */
-  @Get(':id')
+  @Get('/:id')
   @UseGuards(JwtAuthGuard)
   @ApiTags('Collection Module')
   @ApiOperation({

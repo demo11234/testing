@@ -38,7 +38,7 @@ export class UserService implements OnModuleInit {
         walletAddress: process.env.MINTING_ACCOUNT_ADDRESS,
       });
       if (nftAccount) {
-        throw new Error('Already exists');
+        return;
       }
       const user = new User();
       user.userName = process.env.MINTING_ACCOUNT_USERNAME;

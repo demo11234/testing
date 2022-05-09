@@ -1,9 +1,13 @@
 import { Exclude } from 'class-transformer';
+import { Collection } from 'src/collections/entities/collection.entity';
 
 import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  ManyToMany,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -61,4 +65,16 @@ export class User {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @OneToMany(() => Collection, (collection) => collection.owner, {
+    eager: false,
+  })
+  @JoinColumn()
+  collections: Collection[];
+
+  @ManyToMany(() => Collection, (collection) => collection.collaborators, {
+    eager: false,
+  })
+  @JoinColumn()
+  collaboratedCollection: Collection[];
 }
