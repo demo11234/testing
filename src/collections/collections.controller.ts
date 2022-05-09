@@ -41,68 +41,68 @@ export class CollectionsController {
     private readonly responseModel: ResponseModel,
   ) {}
 
-  // /**
-  //  * @description: 'This api creates new collection'
-  //  * @param createCollectionDto
-  //  * @returns: Created Collection
-  //  * @author: Ansh Arora
-  //  */
-  // @Post('create')
-  // @ApiTags('Collection Module')
-  // @UseGuards(JwtAuthGuard)
-  // @ApiOperation({
-  //   summary: 'Creates a new Collection owned by user who is logged in',
-  // })
-  // @ApiResponse({
-  //   status: ResponseStatusCode.CREATED,
-  //   description: ResponseMessage.COLLECTION_CREATED,
-  // })
-  // @ApiResponse({
-  //   status: ResponseStatusCode.CONFLICT,
-  //   description: ResponseMessage.COLLECTION_CREATION_FAILED,
-  // })
-  // @ApiResponse({
-  //   status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
-  //   description: ResponseMessage.INTERNAL_SERVER_ERROR,
-  // })
-  // @ApiBearerAuth()
-  // async create(
-  //   @Body() createCollectionDto: CreateCollectionsDto,
-  //   @Req() req,
-  //   @Response() response,
-  // ): Promise<any> {
-  //   try {
-  //     const owner = await this.userService.findUserByWalletAddress(
-  //       request.user.walletAddress,
-  //     );
-  //     const collection = await this.collectionService.create(
-  //       owner,
-  //       createCollectionDto,
-  //     );
-  //     if (collection) {
-  //       return this.responseModel.response(
-  //         collection,
-  //         ResponseStatusCode.CREATED,
-  //         true,
-  //         response,
-  //       );
-  //     } else {
-  //       return this.responseModel.response(
-  //         ResponseMessage.COLLECTION_CREATION_FAILED,
-  //         ResponseStatusCode.CONFLICT,
-  //         false,
-  //         response,
-  //       );
-  //     }
-  //   } catch (error) {
-  //     return this.responseModel.response(
-  //       error,
-  //       ResponseStatusCode.INTERNAL_SERVER_ERROR,
-  //       false,
-  //       response,
-  //     );
-  //   }
-  // }
+  /**
+   * @description: 'This api creates new collection'
+   * @param createCollectionDto
+   * @returns: Created Collection
+   * @author: Ansh Arora
+   */
+  @Post('create')
+  @ApiTags('Collection Module')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({
+    summary: 'Creates a new Collection owned by user who is logged in',
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.CREATED,
+    description: ResponseMessage.COLLECTION_CREATED,
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.CONFLICT,
+    description: ResponseMessage.COLLECTION_CREATION_FAILED,
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
+    description: ResponseMessage.INTERNAL_SERVER_ERROR,
+  })
+  @ApiBearerAuth()
+  async create(
+    @Body() createCollectionDto: CreateCollectionsDto,
+    @Req() req,
+    @Response() response,
+  ): Promise<any> {
+    try {
+      const owner = await this.userService.findUserByWalletAddress(
+        req.user.walletAddress,
+      );
+      const collection = await this.collectionService.create(
+        owner,
+        createCollectionDto,
+      );
+      if (collection) {
+        return this.responseModel.response(
+          collection,
+          ResponseStatusCode.CREATED,
+          true,
+          response,
+        );
+      } else {
+        return this.responseModel.response(
+          ResponseMessage.COLLECTION_CREATION_FAILED,
+          ResponseStatusCode.CONFLICT,
+          false,
+          response,
+        );
+      }
+    } catch (error) {
+      return this.responseModel.response(
+        error,
+        ResponseStatusCode.INTERNAL_SERVER_ERROR,
+        false,
+        response,
+      );
+    }
+  }
 
   /**
    * @description: This apis returns all collections
@@ -593,15 +593,15 @@ export class CollectionsController {
     @Response() response,
   ): Promise<any> {
     try {
-        const result = await this.collectionService.checkUniqueCollection(
-          uniquCollectionCheck,
-        );
-        return this.responseModel.response(
-          result,
-          ResponseStatusCode.OK,
-          true,
-          response,
-        );
+      const result = await this.collectionService.checkUniqueCollection(
+        uniquCollectionCheck,
+      );
+      return this.responseModel.response(
+        result,
+        ResponseStatusCode.OK,
+        true,
+        response,
+      );
     } catch (error) {
       return this.responseModel.response(
         error,
