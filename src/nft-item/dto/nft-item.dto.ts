@@ -1,13 +1,23 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
-import { IsArray, IsBoolean, IsNumber, IsString, IsUrl, IsOptional} from 'class-validator';
-import { Levels, Properties, Stats } from '../entities/nft-item.entities';
 
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import {
+  ArrayMinSize,
+  IsArray,
+  IsBoolean,
+  IsNumber,
+  IsOptional,
+  IsString,
+  IsUrl,
+  ValidateNested,
+} from 'class-validator';
+import { Levels, Properties, Stats } from '../entities/nft-item.entities';
+import { Type as ValidateType } from 'class-transformer';
 
 export class CreateNftItemDto {
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()
-  @IsUrl()
+  @IsUrl(undefined, { message: 'file URL is not valid.' })
   fileUrl: string;
 
   @ApiProperty()
@@ -18,8 +28,9 @@ export class CreateNftItemDto {
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()
-  @IsUrl()
-  externalUrl?: string;
+
+  @IsUrl(undefined, { message: 'external URL is not valid.' })
+  externalUrl: string;
 
   @ApiPropertyOptional()
   @IsString()
@@ -29,20 +40,27 @@ export class CreateNftItemDto {
   @IsString()
   collectionId: string;
 
-  @ApiPropertyOptional({type: [Properties]})
-  @IsOptional()
+  @ApiProperty({ description: 'properties', type: [Properties] })
   @IsArray()
-  properties?: Properties[];
+  @ArrayMinSize(1)
+  @IsOptional()
+  @ValidateNested()
+  @ValidateType(() => Properties)
+  properties: Properties[];
 
-  @ApiPropertyOptional({type: [Levels]})
+  @ApiProperty({ description: 'Levels', type: [Levels] })
+  //@IsArray()
   @IsOptional()
-  @IsArray()
-  levels?: Levels[];
+  @ValidateNested()
+  @ValidateType(() => Levels)
+  levels: Levels[];
 
-  @ApiPropertyOptional({type: [Stats]})
+  @ApiProperty({ description: 'Stats', type: [Stats] })
+  //@IsArray()
   @IsOptional()
-  @IsArray()
-  stats?: Stats[];
+  @ValidateNested()
+  @ValidateType(() => Stats)
+  stats: Stats[];
 
   @ApiPropertyOptional()
   @IsOptional()

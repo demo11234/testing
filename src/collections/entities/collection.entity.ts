@@ -47,7 +47,7 @@ export class Collection {
 
   @Column({ nullable: true })
   @ApiProperty()
-  categoryID: string;
+  categoryId: string;
 
   @Column({ nullable: true })
   @ApiProperty()
@@ -153,5 +153,5 @@ export class Collection {
   updatedAt: Date;
 
   @OneToMany(() => NftItem, (nftItem) => nftItem.collection)
-  nftItem: NftItem[]
+  nftItem: NftItem[];
 }

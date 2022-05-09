@@ -9,6 +9,8 @@ import {
   Patch,
   UseGuards,
   Query,
+  ValidationPipe,
+  UsePipes,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -26,6 +28,7 @@ import { UpdateNftItemDto } from './dto/update.nftItem.dto';
 import { NftItemService } from './nft-item.service';
 
 @Controller('nft-item')
+@UsePipes(ValidationPipe)
 export class NftItemController {
   constructor(
     private readonly nftItemService: NftItemService,
@@ -67,6 +70,7 @@ export class NftItemController {
           nftItemDto,
           );
         if (create) 
+
         return this.responseModel.response(
           create,
           ResponseStatusCode.OK,
