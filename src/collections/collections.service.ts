@@ -275,20 +275,20 @@ export class CollectionsService {
   ): Promise<any> {
     let result = false;
     try {
-      if(uniqueCollectionCheck.name){
+      if (uniqueCollectionCheck.name) {
         const collectionByName = await this.collectionRepository.findOne({
           name: uniqueCollectionCheck.name,
         });
         result = !!collectionByName;
       }
-      
-      if(uniqueCollectionCheck.url){
+
+      if (uniqueCollectionCheck.url) {
         const collectionByUrl = await this.collectionRepository.findOne({
           url: uniqueCollectionCheck.url,
         });
         result = !!collectionByUrl;
       }
-      
+
       return result;
     } catch (error) {
       console.log(error);
