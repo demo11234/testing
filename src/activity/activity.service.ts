@@ -77,36 +77,46 @@ export class ActivityService {
     activityFilterInterface: ActivityFilterInterface,
   ): Promise<Activity[]> {
     try {
-      const { take, skip, collectionId, chain, eventType } =
-        activityFilterInterface;
+      const { collectionId, chain, eventType } = activityFilterInterface;
+
+      let { take, skip } = activityFilterInterface;
+
+      take = take ? take : 0;
+      skip = skip ? skip : 0;
 
       let activity = await this.activityRepository.createQueryBuilder(
         'activity',
       );
 
-      if (collectionId.length) {
+      if (collectionId) {
+        let collectionIdArray: any = collectionId;
+        collectionIdArray = JSON.parse(collectionIdArray);
         activity = await activity.where(
-          'activity.collectionId IN (:...collectionId)',
-          { collectionId },
+          'activity.collectionId IN (:...collectionIdArray)',
+          { collectionIdArray },
         );
       }
 
-      if (chain.length) {
-        activity = await activity.andWhere(
-          'activity.eventType IN (:...eventType)',
-          { eventType },
-        );
-      }
-
-      if (eventType.length) {
+      if (chain) {
+        let chainArray: any = chain;
+        chainArray = JSON.parse(chainArray);
         activity = await activity
           .leftJoinAndSelect('activity.nftItem', 'nft_item')
           .leftJoinAndSelect(
             'nft_item.blockChain',
             'chains',
-            'chains.id IN (:...chain)',
-            { chain },
+            'chains.id IN (:...chainArray)',
+            { chainArray },
           );
+      }
+
+      if (eventType) {
+        let eventTypeArray: any = eventType;
+        eventTypeArray = JSON.parse(eventTypeArray);
+        activity = await activity.andWhere(
+          'activity.eventType IN (:...eventTypeArray)',
+          { eventTypeArray },
+        );
       }
 
       return activity

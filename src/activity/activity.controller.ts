@@ -40,7 +40,7 @@ export class ActivityController {
     description: ResponseMessage.ACTIVITIES_DO_NOT_EXIST,
   })
   async findAll(
-    @Body() activityFilterDto: ActivityFilterDto,
+    @Query() activityFilterDto: ActivityFilterDto,
     @Response() response,
   ) {
     try {
