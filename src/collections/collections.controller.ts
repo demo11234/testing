@@ -41,68 +41,68 @@ export class CollectionsController {
     private readonly responseModel: ResponseModel,
   ) {}
 
-  /**
-   * @description: 'This api creates new collection'
-   * @param createCollectionDto
-   * @returns: Created Collection
-   * @author: Ansh Arora
-   */
-  @Post('create')
-  @ApiTags('Collection Module')
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({
-    summary: 'Creates a new Collection owned by user who is logged in',
-  })
-  @ApiResponse({
-    status: ResponseStatusCode.CREATED,
-    description: ResponseMessage.COLLECTION_CREATED,
-  })
-  @ApiResponse({
-    status: ResponseStatusCode.CONFLICT,
-    description: ResponseMessage.COLLECTION_CREATION_FAILED,
-  })
-  @ApiResponse({
-    status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
-    description: ResponseMessage.INTERNAL_SERVER_ERROR,
-  })
-  @ApiBearerAuth()
-  async create(
-    @Body() createCollectionDto: CreateCollectionsDto,
-    @Req() req,
-    @Response() response,
-  ): Promise<any> {
-    try {
-      const owner = await this.userService.findUserByWalletAddress(
-        request.user.walletAddress,
-      );
-      const collection = await this.collectionService.create(
-        owner,
-        createCollectionDto,
-      );
-      if (collection) {
-        return this.responseModel.response(
-          collection,
-          ResponseStatusCode.CREATED,
-          true,
-          response,
-        );
-      } else {
-        return this.responseModel.response(
-          ResponseMessage.COLLECTION_CREATION_FAILED,
-          ResponseStatusCode.CONFLICT,
-          false,
-          response,
-        );
-      }
-    } catch (error) {
-      return this.responseModel.response(
-        error,
-        ResponseStatusCode.INTERNAL_SERVER_ERROR,
-        false,
-        response,
-      );
-    }
-  }
+  // /**
+  //  * @description: 'This api creates new collection'
+  //  * @param createCollectionDto
+  //  * @returns: Created Collection
+  //  * @author: Ansh Arora
+  //  */
+  // @Post('create')
+  // @ApiTags('Collection Module')
+  // @UseGuards(JwtAuthGuard)
+  // @ApiOperation({
+  //   summary: 'Creates a new Collection owned by user who is logged in',
+  // })
+  // @ApiResponse({
+  //   status: ResponseStatusCode.CREATED,
+  //   description: ResponseMessage.COLLECTION_CREATED,
+  // })
+  // @ApiResponse({
+  //   status: ResponseStatusCode.CONFLICT,
+  //   description: ResponseMessage.COLLECTION_CREATION_FAILED,
+  // })
+  // @ApiResponse({
+  //   status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
+  //   description: ResponseMessage.INTERNAL_SERVER_ERROR,
+  // })
+  // @ApiBearerAuth()
+  // async create(
+  //   @Body() createCollectionDto: CreateCollectionsDto,
+  //   @Req() req,
+  //   @Response() response,
+  // ): Promise<any> {
+  //   try {
+  //     const owner = await this.userService.findUserByWalletAddress(
+  //       request.user.walletAddress,
+  //     );
+  //     const collection = await this.collectionService.create(
+  //       owner,
+  //       createCollectionDto,
+  //     );
+  //     if (collection) {
+  //       return this.responseModel.response(
+  //         collection,
+  //         ResponseStatusCode.CREATED,
+  //         true,
+  //         response,
+  //       );
+  //     } else {
+  //       return this.responseModel.response(
+  //         ResponseMessage.COLLECTION_CREATION_FAILED,
+  //         ResponseStatusCode.CONFLICT,
+  //         false,
+  //         response,
+  //       );
+  //     }
+  //   } catch (error) {
+  //     return this.responseModel.response(
+  //       error,
+  //       ResponseStatusCode.INTERNAL_SERVER_ERROR,
+  //       false,
+  //       response,
+  //     );
+  //   }
+  // }
 
   /**
    * @description: This apis returns all collections
@@ -508,64 +508,64 @@ export class CollectionsController {
     }
   }
 
-  /**
-   * @description: This api adds or removes the collaborator
-   * @param updateCollaboratorDto
-   * @returns: Status on add or removal of collaborator
-   * @author: Ansh Arora
-   */
-  @Patch()
-  @UseGuards(JwtAuthGuard)
-  @ApiTags('Collection Module')
-  @ApiOperation({
-    summary: 'Adds or removes the collaborator from the collection',
-  })
-  @ApiResponse({
-    status: ResponseStatusCode.OK,
-    description: ResponseMessage.COLLABORATOR_ADDED,
-  })
-  @ApiResponse({
-    status: ResponseStatusCode.OK,
-    description: ResponseMessage.COLLABORATOR_REMOVED,
-  })
-  @ApiResponse({
-    status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
-    description: ResponseMessage.INTERNAL_SERVER_ERROR,
-  })
-  async updateCollaborator(
-    @Param() updateCollaboratorDto: UpdateCollaboratorDto,
-    @Req() req,
-    @Response() response,
-  ): Promise<any> {
-    try {
-      const owner = req.user;
-      await this.collectionService.updateCollaborator(
-        updateCollaboratorDto,
-        owner,
-      );
-      if (updateCollaboratorDto.updateType === collaboratorUpdateType.ADD) {
-        return this.responseModel.response(
-          ResponseMessage.COLLABORATOR_ADDED,
-          ResponseStatusCode.OK,
-          true,
-          response,
-        );
-      }
-      return this.responseModel.response(
-        ResponseMessage.COLLABORATOR_REMOVED,
-        ResponseStatusCode.OK,
-        true,
-        response,
-      );
-    } catch (error) {
-      return this.responseModel.response(
-        error,
-        ResponseStatusCode.INTERNAL_SERVER_ERROR,
-        false,
-        response,
-      );
-    }
-  }
+  // /**
+  //  * @description: This api adds or removes the collaborator
+  //  * @param updateCollaboratorDto
+  //  * @returns: Status on add or removal of collaborator
+  //  * @author: Ansh Arora
+  //  */
+  // @Patch()
+  // @UseGuards(JwtAuthGuard)
+  // @ApiTags('Collection Module')
+  // @ApiOperation({
+  //   summary: 'Adds or removes the collaborator from the collection',
+  // })
+  // @ApiResponse({
+  //   status: ResponseStatusCode.OK,
+  //   description: ResponseMessage.COLLABORATOR_ADDED,
+  // })
+  // @ApiResponse({
+  //   status: ResponseStatusCode.OK,
+  //   description: ResponseMessage.COLLABORATOR_REMOVED,
+  // })
+  // @ApiResponse({
+  //   status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
+  //   description: ResponseMessage.INTERNAL_SERVER_ERROR,
+  // })
+  // async updateCollaborator(
+  //   @Param() updateCollaboratorDto: UpdateCollaboratorDto,
+  //   @Req() req,
+  //   @Response() response,
+  // ): Promise<any> {
+  //   try {
+  //     const owner = req.user;
+  //     await this.collectionService.updateCollaborator(
+  //       updateCollaboratorDto,
+  //       owner,
+  //     );
+  //     if (updateCollaboratorDto.updateType === collaboratorUpdateType.ADD) {
+  //       return this.responseModel.response(
+  //         ResponseMessage.COLLABORATOR_ADDED,
+  //         ResponseStatusCode.OK,
+  //         true,
+  //         response,
+  //       );
+  //     }
+  //     return this.responseModel.response(
+  //       ResponseMessage.COLLABORATOR_REMOVED,
+  //       ResponseStatusCode.OK,
+  //       true,
+  //       response,
+  //     );
+  //   } catch (error) {
+  //     return this.responseModel.response(
+  //       error,
+  //       ResponseStatusCode.INTERNAL_SERVER_ERROR,
+  //       false,
+  //       response,
+  //     );
+  //   }
+  // }
 
   /**
    * @description checkUniqueCollection checks collection with unique name and url
