@@ -1,6 +1,5 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsArray, IsEnum, IsOptional, IsString } from 'class-validator';
-import { User } from 'src/user/entities/user.entity';
 import { displayTheme } from '../enums/display-themes.enum';
 
 export class UpdateCollectionsDto {
@@ -13,12 +12,12 @@ export class UpdateCollectionsDto {
   @IsString()
   logo: string;
 
-  @ApiProperty({ description: 'Feature image for collection' })
+  @ApiPropertyOptional({ description: 'Feature image for collection' })
   @IsString()
   @IsOptional()
   featureImage: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Banner for collection',
     maxLength: 50,
   })
@@ -35,67 +34,66 @@ export class UpdateCollectionsDto {
   @IsString()
   name: string;
 
-  @ApiProperty({ description: 'Collection url' })
+  @ApiPropertyOptional({ description: 'Collection url' })
   @IsString()
   @IsOptional()
   url: string;
 
-  @ApiProperty({ description: 'Description about collection', maxLength: 1000 })
+  @ApiPropertyOptional({
+    description: 'Description about collection',
+    maxLength: 1000,
+  })
   @IsString()
   @IsOptional()
   description: string;
 
-  @ApiProperty({
-    description: 'Category assigned to the collection',
-    maxLength: 50,
-  })
+  @ApiPropertyOptional({ description: 'Category for this collection' })
   @IsString()
   @IsOptional()
   categoryId: string;
 
-  @ApiProperty({ description: 'Url of website', maxLength: 1000 })
+  @ApiPropertyOptional({ description: 'Url of website', maxLength: 1000 })
   @IsString()
   @IsOptional()
   websiteLink: string;
 
-  @ApiProperty({ description: 'Discord Link', maxLength: 1000 })
+  @ApiPropertyOptional({ description: 'Discord Link', maxLength: 1000 })
   @IsString()
   @IsOptional()
   discordLink: string;
 
-  @ApiProperty({ description: 'Instagram Link', maxLength: 1000 })
+  @ApiPropertyOptional({ description: 'Instagram Link', maxLength: 1000 })
   @IsString()
   @IsOptional()
   instagramLink: string;
 
-  @ApiProperty({ description: 'Medium Link', maxLength: 1000 })
+  @ApiPropertyOptional({ description: 'Medium Link', maxLength: 1000 })
   @IsString()
   @IsOptional()
   mediumLink: string;
 
-  @ApiProperty({ description: 'Telegram Link', maxLength: 1000 })
+  @ApiPropertyOptional({ description: 'Telegram Link', maxLength: 1000 })
   @IsString()
   @IsOptional()
   telegramLink: string;
 
-  @ApiProperty({ description: 'Earning fee for Creator' })
+  @ApiPropertyOptional({ description: 'Earning fee for Creator' })
   @IsOptional()
   earningFee: number;
 
-  @ApiProperty({ description: 'Collaborators on  the collection' })
-  @IsOptional()
-  @IsArray()
-  collaborators: string[];
-
-  @ApiProperty({ description: 'Blockchain to be used in the collection' })
+  @ApiPropertyOptional({
+    description: 'Blockchain to be used in the collection',
+  })
   @IsOptional()
   blockchain: string;
 
-  @ApiProperty({ description: 'Payment token to be used in the collection' })
+  @ApiPropertyOptional({
+    description: 'Payment token to be used in the collection',
+  })
   @IsOptional()
   paymentToken: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Display theme for the collection',
     default: displayTheme.CONTAINED,
   })
@@ -106,7 +104,7 @@ export class UpdateCollectionsDto {
     | displayTheme.COVERED
     | displayTheme.PADDED;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Whether explicit or sensitive content',
     default: false,
   })

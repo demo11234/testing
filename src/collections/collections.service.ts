@@ -1,12 +1,19 @@
-import { Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { CreateCollectionsDto } from './dto/create-collections.dto';
 import { UpdateCollectionsDto } from './dto/update-collection.dto';
 import { Collection } from './entities/collection.entity';
 import { FilterDto } from './dto/filter.dto';
+import { UpdateCollaboratorDto } from './dto/update-collaborator.dto';
+import { collaboratorUpdateType } from './enums/collaborator-update-type.enum';
 import { ResponseMessage } from 'shared/ResponseMessage';
 import { User } from '../../src/user/entities/user.entity';
+import { ResponseStatusCode } from 'shared/ResponseStatusCode';
 // import { UserRepository } from 'src/user/repositories/user.repository';
 
 @Injectable()
@@ -21,7 +28,7 @@ export class CollectionsService {
   async create(
     walletAddress: string,
     createCollectionDto: CreateCollectionsDto,
-  ) {
+  ): Promise<any> {
     try {
       let collection = new Collection();
       collection.logo = createCollectionDto.logo;
@@ -31,7 +38,7 @@ export class CollectionsService {
       collection.url = createCollectionDto.url;
       collection.description = createCollectionDto.description;
       collection.websiteLink = createCollectionDto.websiteLink;
-      collection.categoryID = createCollectionDto.categoryId;
+      collection.categoryId = createCollectionDto.categoryId;
       collection.discordLink = createCollectionDto.discordLink;
       collection.instagramLink = createCollectionDto.instagramLink;
       collection.mediumLink = createCollectionDto.mediumLink;
@@ -47,89 +54,158 @@ export class CollectionsService {
       collection = await this.collectionRepository.save(collection);
       return collection;
     } catch (error) {
-      throw new Error(error);
+      if (error.code === ResponseStatusCode.UNIQUE_CONSTRAINTS)
+        throw new ConflictException(ResponseMessage.UNIQUE_CONSTRAINTS_NAME);
+      else throw new InternalServerErrorException();
     }
   }
 
-  async findAll(filterDto: FilterDto): Promise<[Collection[], number]> {
+  async findAll(filterDto: FilterDto): Promise<any> {
     try {
-      const {
-        take,
-        skip,
-        earningWalletAddress,
-        name,
-        status,
-        isVerified,
-        search,
-      } = filterDto;
+      const { take, skip } = filterDto;
+      const filter = {
+        earningWalletAddress: '',
+        name: '',
+        isVerified: null,
+        status: '',
+      };
+      if (filterDto.earningWalletAddress) {
+        filterDto.earningWalletAddress = filter.earningWalletAddress;
+      } else {
+        delete filter.earningWalletAddress;
+      }
+      if (filterDto.name) {
+        filterDto.name = filter.name;
+      } else {
+        delete filter.name;
+      }
+      if (filterDto.status) {
+        filterDto.status = filter.status;
+      } else {
+        delete filter.status;
+      }
+
+      if (filterDto.isVerified) {
+        filterDto.isVerified = filter.isVerified;
+      } else {
+        delete filter.isVerified;
+      }
+
       const collections = await this.collectionRepository.findAndCount({
         take,
         skip,
+        where: filter,
       });
-      if (collections[0]) {
+      if (!collections[0]) return null;
+      collections[0] = collections[0].filter((collection) => {
+        collection.isDeleted === false;
+      });
+      if (earningWalletAddress) {
         collections[0] = collections[0].filter((collection) => {
-          collection.isDeleted === false;
+          collection.earningWalletAddress === earningWalletAddress;
         });
-        if (earningWalletAddress) {
-          collections[0] = collections[0].filter((collection) => {
-            collection.earningWalletAddress === earningWalletAddress;
-          });
-        }
-        if (name) {
-          collections[0] = collections[0].filter((collection) => {
-            collection.name === name;
-          });
-        }
-        if (status) {
-          collections[0] = collections[0].filter((collection) => {
-            collection.status.toString() === status;
-          });
-        }
+      }
+      if (name) {
+        collections[0] = collections[0].filter((collection) => {
+          collection.name === name;
+        });
+      }
+      if (status) {
+        collections[0] = collections[0].filter((collection) => {
+          collection.status.toString() === status;
+        });
+      }
 
-        if (isVerified) {
-          collections[0] = collections[0].filter((collection) => {
-            collection.isVerified === isVerified;
-          });
-        }
-        if (search) {
-          collections[0] = collections[0].filter(
-            (collection) =>
-              collection.name.includes(search) ||
-              collection.description.includes(search) ||
-              collection.displayTheme.includes(search),
-          );
-        }
-        return collections;
-      } else throw new Error(ResponseMessage.COLLECTIONS_DO_NOT_EXIST);
+      if (isVerified) {
+        collections[0] = collections[0].filter((collection) => {
+          collection.isVerified === isVerified;
+        });
+      }
+      if (search) {
+        collections[0] = collections[0].filter(
+          (collection) =>
+            collection.name.includes(search) ||
+            collection.description.includes(search) ||
+            collection.displayTheme.includes(search),
+        );
+      }
+      return collections;
     } catch (error) {
-      throw new Error(error);
+      return { msg: ResponseMessage.INTERNAL_SERVER_ERROR };
     }
   }
 
-  async findOne(id: string, owner: string) {
+  async findOne(id: string, owner: string): Promise<Collection> {
     try {
       const collection = await this.collectionRepository.findOne({
         where: [{ id: id, isDeleted: false, owner: owner }],
       });
       if (collection) return collection;
       else {
-        throw new Error(ResponseMessage.COLLECTION_DOES_NOT_EXIST);
+        return { msg: ResponseMessage.COLLECTION_DOES_NOT_EXIST };
       }
+    } catch (error) {
+      return { msg: ResponseMessage.INTERNAL_SERVER_ERROR };
+    }
+  }
+
+  async update(
+    id: string,
+    updateCollectionDto: UpdateCollectionsDto,
+  ): Promise<any> {
+    try {
+      console.log('inside service', updateCollectionDto);
+      const isUpdated = await this.collectionRepository.update(
+        { id },
+        updateCollectionDto,
+      );
+      if (!isUpdated) return null;
+      return isUpdated;
     } catch (error) {
       throw new Error(error);
     }
   }
 
-  async update(id: string, updateCollectionDto: UpdateCollectionsDto) {
+  async delete(id: string): Promise<any> {
+    const collection = await this.collectionRepository.findOne(id);
+    collection.isDeleted = true;
+    await this.collectionRepository.update(id, collection);
+    return null;
+  }
+
+  async updateCollaborator(
+    updateCollaboratorDto: UpdateCollaboratorDto,
+    owner: string,
+  ): Promise<any> {
     try {
-      const isUpdated = await this.collectionRepository.update(
-        { id },
-        updateCollectionDto,
+      const collection = await this.collectionRepository.findOne({
+        where: [
+          {
+            id: updateCollaboratorDto.collecionId,
+            isDeleted: false,
+            owner: owner,
+          },
+        ],
+      });
+      if (updateCollaboratorDto.updateType === collaboratorUpdateType.ADD) {
+        collection.collaborators.push(updateCollaboratorDto.updateType);
+        await this.collectionRepository.update(
+          updateCollaboratorDto.collecionId,
+          collection,
+        );
+      }
+      const toBeRemoved: number = collection.collaborators.indexOf(
+        updateCollaboratorDto.collaboratorWalletId,
       );
-      if (isUpdated)
-        return { status: 200, msg: 'Collection updated succesfully' };
+      collection.collaborators.splice(toBeRemoved, 1);
+      await this.collectionRepository.update(
+        updateCollaboratorDto.collecionId,
+        collection,
+      );
+      return { status: 200, msg: 'Collection updated succesfully' };
     } catch (error) {
-      throw new Error(error);
+      console.log('error', error);
+      return { msg: ResponseMessage.INTERNAL_SERVER_ERROR };
     }
   }
 

@@ -41,7 +41,7 @@ export class AdminService implements OnModuleInit {
         firstName: process.env.ADMIN_FIRST_NAME,
         lastName: process.env.ADMIN_LAST_NAME,
         username: process.env.ADMIN_USERNAME,
-        password: process.env.ADMIN_PASSWORD
+        password: process.env.ADMIN_PASSWORD,
       };
 
       await this.create(admin);
@@ -68,7 +68,7 @@ export class AdminService implements OnModuleInit {
     } catch (error) {
       if (error.code === ResponseStatusCode.UNIQUE_CONSTRAINTS)
         throw new ConflictException(ResponseMessage.UNIQUE_CONSTRAINTS_EMAIL);
-      else throw new InternalServerErrorException();
+      // else throw new InternalServerErrorException();
     }
   }
 

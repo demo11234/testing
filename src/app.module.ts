@@ -23,6 +23,7 @@ import { CollectionsModule } from './collections/collections.module';
 import { UtilsModule } from './utils/utils.module';
 import { NotificationModule } from './notification/notification.module';
 import { OfferModule } from './offer/offer.module';
+import { ActivityModule } from './activity/activity.module';
 import { NftItemModule } from './nft-item/nft-item.module';
 import { ServicesModule } from './services/services.module';
 import { ScheduleModule } from '@nestjs/schedule';
@@ -62,6 +63,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     CollectionsModule,
     UtilsModule,
     OfferModule,
+    ActivityModule,
     NftItemModule,
     ServicesModule,
   ],

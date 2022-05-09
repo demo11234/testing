@@ -171,7 +171,7 @@ export class TokenController {
    * @returns it will return details of all tokens
    * @author Jeetanshu Srivastava
    */
-  @Post('/user/:chainId')
+  @Get('/user/:chainId')
   @ApiTags('Tokens')
   @ApiOperation({
     summary: 'Get all the Tokens and their details',

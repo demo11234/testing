@@ -1,65 +1,72 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
+  ArrayMinSize,
   IsArray,
   IsBoolean,
   IsOptional,
   IsString,
   IsUrl,
+  ValidateNested,
 } from 'class-validator';
 import { Levels, Properties, Stats } from '../entities/nft-item.entities';
+import { Type as ValidateType } from 'class-transformer';
 
 export class UpdateNftItemDto {
   @ApiProperty()
   @IsString()
   @IsUrl()
-  fileUrl: string;
+  fileUrl?: string;
 
   @ApiProperty()
   @IsString()
-  fileName: string;
+  fileName?: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   @IsString()
   @IsUrl()
   @IsOptional()
-  externalUrl: string;
+  externalUrl?: string;
+
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  description?: string;
 
   @ApiProperty()
   @IsString()
-  @IsOptional()
-  description: string;
+  collectionId?: string;
 
-  @ApiProperty()
-  @IsString()
-  collectionId: string;
-
-  @ApiProperty()
+  @ApiPropertyOptional({ description: 'properties', type: [Properties] })
   @IsArray()
+  @ArrayMinSize(1)
   @IsOptional()
-  properties: Properties[];
+  @ValidateNested()
+  @ValidateType(() => Properties)
+  properties?: Properties[];
 
-  @ApiProperty()
-  @IsArray()
+  @ApiPropertyOptional({ description: 'Levels', type: [Levels] })
+  //@IsArray()
   @IsOptional()
-  levels: Levels[];
+  levels?: Levels[];
 
-  @ApiProperty()
-  @IsArray()
+  @ApiPropertyOptional({ description: 'Stats', type: [Stats] })
+  //@IsArray()
   @IsOptional()
-  stats: Stats[];
+  stats?: Stats[];
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   @IsBoolean()
   @IsOptional()
-  isLockable: boolean;
+  isLockable?: boolean;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   @IsString()
   @IsOptional()
-  lockableContent: string;
+  lockableContent?: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   @IsBoolean()
   @IsOptional()
-  isExplicit: boolean;
+  isExplicit?: boolean;
 }
+

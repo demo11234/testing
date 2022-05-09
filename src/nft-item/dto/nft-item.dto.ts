@@ -1,59 +1,86 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsBoolean, IsNumber, IsString, IsUrl } from 'class-validator';
-import { Levels, Properties, Stats } from '../entities/nft-item.entities';
-// import { Stats } from '../entities/stats-entites';
 
-export class NftItemDto {
-  @ApiProperty()
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import {
+  ArrayMinSize,
+  IsArray,
+  IsBoolean,
+  IsNumber,
+  IsOptional,
+  IsString,
+  IsUrl,
+  ValidateNested,
+} from 'class-validator';
+import { Levels, Properties, Stats } from '../entities/nft-item.entities';
+import { Type as ValidateType } from 'class-transformer';
+
+export class CreateNftItemDto {
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsString()
-  @IsUrl()
+  @IsUrl(undefined, { message: 'file URL is not valid.' })
   fileUrl: string;
 
   @ApiProperty()
+  @IsOptional()
   @IsString()
   fileName: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsString()
-  @IsUrl()
+
+  @IsUrl(undefined, { message: 'external URL is not valid.' })
   externalUrl: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   @IsString()
   description: string;
 
   @ApiProperty()
   @IsString()
   collectionId: string;
-  // collection: Collection;
 
-  @ApiProperty()
+  @ApiProperty({ description: 'properties', type: [Properties] })
   @IsArray()
+  @ArrayMinSize(1)
+  @IsOptional()
+  @ValidateNested()
+  @ValidateType(() => Properties)
   properties: Properties[];
 
-  @ApiProperty()
-  @IsArray()
+  @ApiProperty({ description: 'Levels', type: [Levels] })
+  //@IsArray()
+  @IsOptional()
+  @ValidateNested()
+  @ValidateType(() => Levels)
   levels: Levels[];
 
-  @ApiProperty()
-  @IsArray()
+  @ApiProperty({ description: 'Stats', type: [Stats] })
+  //@IsArray()
+  @IsOptional()
+  @ValidateNested()
+  @ValidateType(() => Stats)
   stats: Stats[];
 
-  @ApiProperty()
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsBoolean()
-  isLockable: boolean;
+  isLockable?: boolean;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsString()
-  lockableContent: string;
+  lockableContent?: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsBoolean()
-  isExplicit: boolean;
+  isExplicit?: boolean;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsNumber()
-  supply: number;
+  supply?: number;
 
   @ApiProperty()
   @IsString()
