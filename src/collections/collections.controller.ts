@@ -73,7 +73,7 @@ export class CollectionsController {
   ): Promise<any> {
     try {
       const owner = await this.userService.findUserByWalletAddress(
-        request.user.walletAddress,
+        req.user.walletAddress,
       );
       const collection = await this.collectionService.create(
         owner,
@@ -508,64 +508,64 @@ export class CollectionsController {
     }
   }
 
-  /**
-   * @description: This api adds or removes the collaborator
-   * @param updateCollaboratorDto
-   * @returns: Status on add or removal of collaborator
-   * @author: Ansh Arora
-   */
-  @Patch()
-  @UseGuards(JwtAuthGuard)
-  @ApiTags('Collection Module')
-  @ApiOperation({
-    summary: 'Adds or removes the collaborator from the collection',
-  })
-  @ApiResponse({
-    status: ResponseStatusCode.OK,
-    description: ResponseMessage.COLLABORATOR_ADDED,
-  })
-  @ApiResponse({
-    status: ResponseStatusCode.OK,
-    description: ResponseMessage.COLLABORATOR_REMOVED,
-  })
-  @ApiResponse({
-    status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
-    description: ResponseMessage.INTERNAL_SERVER_ERROR,
-  })
-  async updateCollaborator(
-    @Param() updateCollaboratorDto: UpdateCollaboratorDto,
-    @Req() req,
-    @Response() response,
-  ): Promise<any> {
-    try {
-      const owner = req.user;
-      await this.collectionService.updateCollaborator(
-        updateCollaboratorDto,
-        owner,
-      );
-      if (updateCollaboratorDto.updateType === collaboratorUpdateType.ADD) {
-        return this.responseModel.response(
-          ResponseMessage.COLLABORATOR_ADDED,
-          ResponseStatusCode.OK,
-          true,
-          response,
-        );
-      }
-      return this.responseModel.response(
-        ResponseMessage.COLLABORATOR_REMOVED,
-        ResponseStatusCode.OK,
-        true,
-        response,
-      );
-    } catch (error) {
-      return this.responseModel.response(
-        error,
-        ResponseStatusCode.INTERNAL_SERVER_ERROR,
-        false,
-        response,
-      );
-    }
-  }
+  // /**
+  //  * @description: This api adds or removes the collaborator
+  //  * @param updateCollaboratorDto
+  //  * @returns: Status on add or removal of collaborator
+  //  * @author: Ansh Arora
+  //  */
+  // @Patch()
+  // @UseGuards(JwtAuthGuard)
+  // @ApiTags('Collection Module')
+  // @ApiOperation({
+  //   summary: 'Adds or removes the collaborator from the collection',
+  // })
+  // @ApiResponse({
+  //   status: ResponseStatusCode.OK,
+  //   description: ResponseMessage.COLLABORATOR_ADDED,
+  // })
+  // @ApiResponse({
+  //   status: ResponseStatusCode.OK,
+  //   description: ResponseMessage.COLLABORATOR_REMOVED,
+  // })
+  // @ApiResponse({
+  //   status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
+  //   description: ResponseMessage.INTERNAL_SERVER_ERROR,
+  // })
+  // async updateCollaborator(
+  //   @Param() updateCollaboratorDto: UpdateCollaboratorDto,
+  //   @Req() req,
+  //   @Response() response,
+  // ): Promise<any> {
+  //   try {
+  //     const owner = req.user;
+  //     await this.collectionService.updateCollaborator(
+  //       updateCollaboratorDto,
+  //       owner,
+  //     );
+  //     if (updateCollaboratorDto.updateType === collaboratorUpdateType.ADD) {
+  //       return this.responseModel.response(
+  //         ResponseMessage.COLLABORATOR_ADDED,
+  //         ResponseStatusCode.OK,
+  //         true,
+  //         response,
+  //       );
+  //     }
+  //     return this.responseModel.response(
+  //       ResponseMessage.COLLABORATOR_REMOVED,
+  //       ResponseStatusCode.OK,
+  //       true,
+  //       response,
+  //     );
+  //   } catch (error) {
+  //     return this.responseModel.response(
+  //       error,
+  //       ResponseStatusCode.INTERNAL_SERVER_ERROR,
+  //       false,
+  //       response,
+  //     );
+  //   }
+  // }
 
   /**
    * @description checkUniqueCollection checks collection with unique name and url
@@ -593,15 +593,15 @@ export class CollectionsController {
     @Response() response,
   ): Promise<any> {
     try {
-        const result = await this.collectionService.checkUniqueCollection(
-          uniquCollectionCheck,
-        );
-        return this.responseModel.response(
-          result,
-          ResponseStatusCode.OK,
-          true,
-          response,
-        );
+      const result = await this.collectionService.checkUniqueCollection(
+        uniquCollectionCheck,
+      );
+      return this.responseModel.response(
+        result,
+        ResponseStatusCode.OK,
+        true,
+        response,
+      );
     } catch (error) {
       return this.responseModel.response(
         error,
