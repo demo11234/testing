@@ -9,28 +9,30 @@ export class FilterDto {
   @IsOptional()
   walletAddress: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   @IsOptional()
   @IsEnum(StatusEnum)
   status?: StatusEnum;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   @IsOptional()
   price?: number;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
+  // @IsArray()
   @IsOptional()
+  @ApiProperty()
   collectionsId?: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   @IsOptional()
   chainsId?: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   @IsOptional()
   categories?: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   @IsOptional()
   onSale?: string;
 

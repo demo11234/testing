@@ -15,26 +15,26 @@ export class UpdateNftItemDto {
   @ApiProperty()
   @IsString()
   @IsUrl()
-  fileUrl: string;
+  fileUrl?: string;
 
   @ApiProperty()
   @IsString()
-  fileName: string;
+  fileName?: string;
 
   @ApiProperty()
   @IsString()
   @IsUrl()
   @IsOptional()
-  externalUrl: string;
+  externalUrl?: string;
 
   @ApiProperty()
   @IsString()
   @IsOptional()
-  description: string;
+  description?: string;
 
   @ApiProperty()
   @IsString()
-  collectionId: string;
+  collectionId?: string;
 
   @ApiProperty({ description: 'properties', type: [Properties] })
   @IsArray()
@@ -42,30 +42,30 @@ export class UpdateNftItemDto {
   @IsOptional()
   @ValidateNested()
   @ValidateType(() => Properties)
-  properties: Properties[];
+  properties?: Properties[];
 
   @ApiProperty({ description: 'Levels', type: [Levels] })
   //@IsArray()
   @IsOptional()
-  levels: Levels[];
+  levels?: Levels[];
 
   @ApiProperty({ description: 'Stats', type: [Stats] })
   //@IsArray()
   @IsOptional()
-  stats: Stats[];
+  stats?: Stats[];
 
   @ApiProperty()
   @IsBoolean()
   @IsOptional()
-  isLockable: boolean;
+  isLockable?: boolean;
 
   @ApiProperty()
   @IsString()
   @IsOptional()
-  lockableContent: string;
+  lockableContent?: string;
 
   @ApiProperty()
   @IsBoolean()
   @IsOptional()
-  isExplicit: boolean;
+  isExplicit?: boolean;
 }

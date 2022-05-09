@@ -100,10 +100,8 @@ export class Levels {
   @IsString()
   name: string;
   @ApiProperty()
-  @IsString()
   value: number;
   @ApiProperty()
-  @IsString()
   maxValue: number;
 }
 
@@ -112,9 +110,7 @@ export class Stats {
   @IsString()
   name: string;
   @ApiProperty()
-  @IsString()
   value: number;
   @ApiProperty()
-  @IsString()
   maxValue: number;
 }
