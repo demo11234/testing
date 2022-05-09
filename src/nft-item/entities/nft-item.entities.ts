@@ -1,3 +1,5 @@
+import { ApiProperty } from '@nestjs/swagger';
+import { IsString } from 'class-validator';
 import { Chains } from 'src/chains/entities/chains.entity';
 import { Collection } from 'src/collections/entities/collection.entity';
 import {
@@ -13,6 +15,9 @@ import { PrimaryGeneratedColumn, JoinColumn } from 'typeorm';
 export class NftItem {
   @PrimaryGeneratedColumn('uuid')
   id: string;
+
+  @Column({ default: '' })
+  tokenId: string;
 
   @Column({ nullable: false })
   fileUrl: string;
@@ -75,19 +80,37 @@ export class NftItem {
   updatedAt: Date;
 }
 
+// export class Properties {
+//   type: string;
+//   name: string;
+// }
+
 export class Properties {
+  @ApiProperty()
+  @IsString()
   type: string;
+
+  @ApiProperty()
+  @IsString()
   name: string;
 }
 
 export class Levels {
+  @ApiProperty()
+  @IsString()
   name: string;
+  @ApiProperty()
   value: number;
+  @ApiProperty()
   maxValue: number;
 }
 
 export class Stats {
+  @ApiProperty()
+  @IsString()
   name: string;
+  @ApiProperty()
   value: number;
+  @ApiProperty()
   maxValue: number;
 }
