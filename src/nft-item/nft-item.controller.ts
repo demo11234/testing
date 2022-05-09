@@ -9,6 +9,8 @@ import {
   Patch,
   UseGuards,
   Query,
+  ValidationPipe,
+  UsePipes,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -22,12 +24,13 @@ import { ActivityService } from 'src/activity/activity.service';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { ResponseModel } from 'src/responseModel';
 import { FilterDto } from './dto/filter.dto';
-import { NftItemDto } from './dto/nft-item.dto';
+import { CreateNftItemDto } from './dto/nft-item.dto';
 import { UpdateNftItemDto } from './dto/update.nftItem.dto';
 import { NftItemService } from './nft-item.service';
 import { eventType, eventActions } from '../../shared/Constants';
 
 @Controller('nft-item')
+@UsePipes(ValidationPipe)
 export class NftItemController {
   constructor(
     private readonly nftItemService: NftItemService,
@@ -59,7 +62,7 @@ export class NftItemController {
   @ApiBearerAuth()
   @Post('create')
   async createNftItem(
-    @Body() nftItemDto: NftItemDto,
+    @Body() nftItemDto: CreateNftItemDto,
     @Request() req,
     @Response() response,
   ): Promise<any> {
@@ -155,7 +158,7 @@ export class NftItemController {
    */
   @ApiTags('Nft Item')
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'it will fetch nft item' })
+  @ApiOperation({ summary: 'It will update item' })
   @ApiResponse({
     status: ResponseStatusCode.OK,
     description: 'Nft Fetch',

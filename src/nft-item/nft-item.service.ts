@@ -4,7 +4,8 @@ import { Chains } from 'src/chains/entities/chains.entity';
 import { Collection } from 'src/collections/entities/collection.entity';
 import { ILike, Repository } from 'typeorm';
 import { FilterDto } from './dto/filter.dto';
-import { NftItemDto } from './dto/nft-item.dto';
+import { CreateNftItemDto } from './dto/nft-item.dto';
+
 import { UpdateNftItemDto } from './dto/update.nftItem.dto';
 import { NftItem } from './entities/nft-item.entities';
 
@@ -26,7 +27,7 @@ export class NftItemService {
    * @returns: create Item
    * @author: vipin
    */
-  async createNftItem(user, nftItemDto: NftItemDto): Promise<any> {
+  async createNftItem(user, nftItemDto: CreateNftItemDto): Promise<any> {
     try {
       const nftItem = new NftItem();
       nftItem.walletAddress = user.walletAddress;
@@ -52,6 +53,20 @@ export class NftItemService {
       nftItem.isLockable = nftItemDto.isLockable;
       nftItem.lockableContent = nftItemDto.lockableContent;
       nftItem.fileName = nftItemDto.fileName;
+
+      const [index, indexCount] = await this.nftItemRepository.findAndCount({
+        walletAddress: user.walletAddress,
+      });
+      console.log(indexCount);
+      console.log(user.walletAddress);
+      console.log(nftItemDto.supply);
+      console.log(typeof user.walletAddress);
+
+      nftItem.tokenId = await this.generateToken(
+        user.walletAddress,
+        indexCount + 1,
+        nftItemDto.supply,
+      );
 
       const data = await this.nftItemRepository.save(nftItem);
 
@@ -156,12 +171,16 @@ export class NftItemService {
    * @returns generateToken("0x287A135702555F69BA6eE961f69ee60Fbb87A0f8", 2, 123);
    * expected output
    *  18308202764175312363921158875842719186563004225019719481464309476731798945915
+   *
    * @author mohan
    */
-  async generateToken(walletAddress, index, supply): Promise<string> {
+  async generateToken(
+    walletAddress: string,
+    index: number,
+    supply: number,
+  ): Promise<string> {
     // walletAddrress to binary
-    // walletAddress = walletAddress.replace("0x", "");
-    const binaryWalletaddress = parseInt(walletAddress, 16)
+    const binaryWalletaddress = BigInt(walletAddress)
       .toString(2)
       .padStart(160, '0');
 
@@ -176,7 +195,7 @@ export class NftItemService {
 
     //console.log(binaryToken);
 
-    const decimalToken = BigInt(parseInt(binaryToken, 2));
+    const decimalToken = BigInt('0b' + binaryToken);
 
     return decimalToken.toString();
   }

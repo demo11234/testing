@@ -110,6 +110,7 @@ export class CreateCollectionsDto {
   @ApiPropertyOptional({
     description: 'Display Theme for collection',
     maxLength: 100,
+    default: 'contained',
   })
   @IsEnum(displayTheme)
   @IsOptional()
@@ -120,8 +121,9 @@ export class CreateCollectionsDto {
 
   @ApiPropertyOptional({
     description: 'Whether information is explicit or sensitive',
+    default: false,
   })
   @IsBoolean()
   @IsOptional()
-  explicitOrSensitiveContent: boolean; //
+  explicitOrSensitiveContent: boolean;
 }
