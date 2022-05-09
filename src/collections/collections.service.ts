@@ -273,29 +273,26 @@ export class CollectionsService {
   async checkUniqueCollection(
     uniqueCollectionCheck: UniqueCollectionCheck,
   ): Promise<any> {
+    const result = false;
     try {
-      const result = {
-        collectionNameExists: false,
-        collectionUrlExists: false,
-      };
-
-      const collectionByName = await this.collectionRepository.findOne({
-        name: uniqueCollectionCheck.name,
-      });
-      if (collectionByName) {
-        result.collectionNameExists = true;
+      if(uniqueCollectionCheck.name){
+        const collectionByName = await this.collectionRepository.findOne({
+          name: uniqueCollectionCheck.name,
+        });
+        result = !!collectionByName;
       }
-
-      const collectionByUrl = await this.collectionRepository.findOne({
-        url: uniqueCollectionCheck.url,
-      });
-      if (collectionByUrl) {
-        result.collectionUrlExists = true;
+      
+      if(uniqueCollectionCheck.url){
+        const collectionByUrl = await this.collectionRepository.findOne({
+          url: uniqueCollectionCheck.url,
+        });
+        result = !!collectionByUrl;
       }
-
+      
       return result;
     } catch (error) {
       console.log(error);
+      return false;
     }
   }
 }

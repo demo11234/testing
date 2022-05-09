@@ -550,14 +550,6 @@ export class CollectionsController {
     @Response() response,
   ): Promise<any> {
     try {
-      if (!uniquCollectionCheck.name) {
-        return this.responseModel.response(
-          ResponseMessage.COLLECTION_NAME,
-          ResponseStatusCode.NOT_FOUND,
-          false,
-          response,
-        );
-      } else {
         const result = await this.collectionService.checkUniqueCollection(
           uniquCollectionCheck,
         );
@@ -567,7 +559,6 @@ export class CollectionsController {
           true,
           response,
         );
-      }
     } catch (error) {
       return this.responseModel.response(
         error,
