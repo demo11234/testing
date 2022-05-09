@@ -47,7 +47,7 @@ export class Collection {
 
   @Column({ nullable: true })
   @ApiProperty()
-  categoryID: string;
+  categoryId: string;
 
   @Column({ nullable: true })
   @ApiProperty()

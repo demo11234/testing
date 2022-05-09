@@ -10,8 +10,8 @@ import {
   UseGuards,
   Response,
   Put,
+  Delete,
 } from '@nestjs/common';
-import { response } from 'express';
 import { ResponseMessage } from 'shared/ResponseMessage';
 import { ResponseStatusCode } from 'shared/ResponseStatusCode';
 import { ResponseModel } from 'src/responseModel';
@@ -27,11 +27,13 @@ import {
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { FilterDto } from './dto/filter.dto';
 import { UserWatchlistDto } from './dto/user-watchlist.dto';
+import { UserService } from 'src/user/user.service';
 
 @Controller('collections')
 export class CollectionsController {
   constructor(
     private readonly collectionService: CollectionsService,
+    private readonly userService: UserService,
     private readonly responseModel: ResponseModel,
   ) {}
 
@@ -205,9 +207,9 @@ export class CollectionsController {
    * @returns: Update Staus
    * @author: Ansh Arora
    */
-  @Patch(':id')
-  @UseGuards(JwtAuthGuard)
+  @Patch('/update/:id')
   @ApiTags('Collection Module')
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({
     summary:
       'Update Collection Details owned by user who is currenlty Logged In',
@@ -228,6 +230,7 @@ export class CollectionsController {
     status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
     description: ResponseMessage.INTERNAL_SERVER_ERROR,
   })
+  @ApiBearerAuth()
   async update(
     @Request() req,
     @Param('id') id: string,
@@ -235,12 +238,20 @@ export class CollectionsController {
     @Response() response,
   ) {
     try {
-      const collection = await this.collectionService.findOne(id, req.user.id);
-      if (req.user.id === collection.owner) {
+      const owner = await this.userService.findUserByWalletAddress(
+        req.user.walletAddress,
+      );
+      const collection = await this.collectionService.findOne(
+        id,
+        owner.walletAddress,
+      );
+      if (owner.walletAddress === collection.owner) {
+        console.log('inside If id', id);
         const updatedCollection = await this.collectionService.update(
           id,
           updateCollectionDto,
         );
+        console.log('updated', updateCollectionDto);
         if (updatedCollection) {
           return this.responseModel.response(
             updatedCollection,
@@ -274,9 +285,9 @@ export class CollectionsController {
    * @returns: Update Staus
    * @author: Ansh Arora
    */
-  @Patch(':id')
-  @UseGuards(JwtAuthGuard)
+  @Delete(':id')
   @ApiTags('Collection Module')
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({
     summary:
       'Soft deletes the Collection owned by user who is currenlty Logged In',
@@ -297,6 +308,7 @@ export class CollectionsController {
     status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
     description: ResponseMessage.INTERNAL_SERVER_ERROR,
   })
+  @ApiBearerAuth()
   async delete(@Request() req, @Param('id') id: string, @Response() response) {
     try {
       const owner = req.user.id;
