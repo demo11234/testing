@@ -1,6 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { CreateCollectionsDto } from './dto/create-collections.dto';
 import { UpdateCollectionsDto } from './dto/update-collection.dto';
 import { Collection } from './entities/collection.entity';
@@ -9,6 +13,7 @@ import { UpdateCollaboratorDto } from './dto/update-collaborator.dto';
 import { collaboratorUpdateType } from './enums/collaborator-update-type.enum';
 import { ResponseMessage } from 'shared/ResponseMessage';
 import { User } from '../../src/user/entities/user.entity';
+import { ResponseStatusCode } from 'shared/ResponseStatusCode';
 // import { UserRepository } from 'src/user/repositories/user.repository';
 
 @Injectable()
@@ -33,7 +38,7 @@ export class CollectionsService {
       collection.url = createCollectionDto.url;
       collection.description = createCollectionDto.description;
       collection.websiteLink = createCollectionDto.websiteLink;
-      collection.categoryID = createCollectionDto.categoryId;
+      collection.categoryId = createCollectionDto.categoryId;
       collection.discordLink = createCollectionDto.discordLink;
       collection.instagramLink = createCollectionDto.instagramLink;
       collection.mediumLink = createCollectionDto.mediumLink;
@@ -49,24 +54,47 @@ export class CollectionsService {
       collection = await this.collectionRepository.save(collection);
       return collection;
     } catch (error) {
-      throw new Error(error);
+      if (error.code === ResponseStatusCode.UNIQUE_CONSTRAINTS)
+        throw new ConflictException(ResponseMessage.UNIQUE_CONSTRAINTS_NAME);
+      else throw new InternalServerErrorException();
     }
   }
 
-  async findAll(filterDto: FilterDto): Promise<[Collection[], number]> {
+  async findAll(filterDto: FilterDto): Promise<any> {
     try {
-      const {
-        take,
-        skip,
-        earningWalletAddress,
-        name,
-        status,
-        isVerified,
-        search,
-      } = filterDto;
+      const { take, skip } = filterDto;
+      const filter = {
+        earningWalletAddress: '',
+        name: '',
+        isVerified: null,
+        status: '',
+      };
+      if (filterDto.earningWalletAddress) {
+        filterDto.earningWalletAddress = filter.earningWalletAddress;
+      } else {
+        delete filter.earningWalletAddress;
+      }
+      if (filterDto.name) {
+        filterDto.name = filter.name;
+      } else {
+        delete filter.name;
+      }
+      if (filterDto.status) {
+        filterDto.status = filter.status;
+      } else {
+        delete filter.status;
+      }
+
+      if (filterDto.isVerified) {
+        filterDto.isVerified = filter.isVerified;
+      } else {
+        delete filter.isVerified;
+      }
+
       const collections = await this.collectionRepository.findAndCount({
         take,
         skip,
+        where: filter,
       });
       if (!collections[0]) return null;
       collections[0] = collections[0].filter((collection) => {
@@ -103,7 +131,7 @@ export class CollectionsService {
       }
       return collections;
     } catch (error) {
-      throw new Error(error);
+      return { msg: ResponseMessage.INTERNAL_SERVER_ERROR };
     }
   }
 
@@ -112,10 +140,12 @@ export class CollectionsService {
       const collection = await this.collectionRepository.findOne({
         where: [{ id: id, isDeleted: false, owner: owner }],
       });
-      if (!collection) return null;
-      return collection;
+      if (collection) return collection;
+      else {
+        return { msg: ResponseMessage.COLLECTION_DOES_NOT_EXIST };
+      }
     } catch (error) {
-      throw new Error(error);
+      return { msg: ResponseMessage.INTERNAL_SERVER_ERROR };
     }
   }
 
@@ -124,6 +154,7 @@ export class CollectionsService {
     updateCollectionDto: UpdateCollectionsDto,
   ): Promise<any> {
     try {
+      console.log('inside service', updateCollectionDto);
       const isUpdated = await this.collectionRepository.update(
         { id },
         updateCollectionDto,
@@ -171,8 +202,10 @@ export class CollectionsService {
         updateCollaboratorDto.collecionId,
         collection,
       );
+      return { status: 200, msg: 'Collection updated succesfully' };
     } catch (error) {
-      throw new Error(error);
+      console.log('error', error);
+      return { msg: ResponseMessage.INTERNAL_SERVER_ERROR };
     }
   }
 
