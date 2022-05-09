@@ -264,31 +264,36 @@ export class CollectionsService {
     }
   }
 
-  async checkUniqueCollectionName(name: string): Promise<boolean> {
+  /**
+   * @description checkUniqueCollection checks collection with unique name and url
+   * @param UniqueCollectionCheck
+   * @returns Boolean Values for collectionNameExists and collectionUrlExists
+   * @author Jeetanshu Srivastava
+   */
+  async checkUniqueCollection(
+    uniqueCollectionCheck: UniqueCollectionCheck,
+  ): Promise<any> {
     try {
-      const collection = await this.collectionRepository.findOne({
-        name,
-      });
-      if (collection) {
-        return true;
-      } else {
-        return false;
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  }
+      const result = {
+        collectionNameExists: false,
+        collectionUrlExists: false,
+      };
 
-  async checkUniqueCollectionUrl(url: string): Promise<any> {
-    try {
-      const collection = await this.collectionRepository.findOne({
-        url,
+      const collectionByName = await this.collectionRepository.findOne({
+        name: uniqueCollectionCheck.name,
       });
-      if (collection) {
-        return true;
-      } else {
-        return false;
+      if (collectionByName) {
+        result.collectionNameExists = true;
       }
+
+      const collectionByUrl = await this.collectionRepository.findOne({
+        url: uniqueCollectionCheck.url,
+      });
+      if (collectionByUrl) {
+        result.collectionUrlExists = true;
+      }
+
+      return result;
     } catch (error) {
       console.log(error);
     }

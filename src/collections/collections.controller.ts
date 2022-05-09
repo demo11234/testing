@@ -527,7 +527,7 @@ export class CollectionsController {
   /**
    * @description checkUniqueCollection checks collection with unique name and url
    * @param UniqueCollectionCheck
-   * @returns Boolean Values
+   * @returns Boolean Values for collectionNameExists and collectionUrlExists
    * @author Jeetanshu Srivastava
    */
   @Put('/checkUniqueCollection')
@@ -550,41 +550,24 @@ export class CollectionsController {
     @Response() response,
   ): Promise<any> {
     try {
-      const result = {
-        collectionNameExists: false,
-        collectionUrlExists: false,
-      };
-      if (uniquCollectionCheck.name) {
-        const collection =
-          await this.collectionService.checkUniqueCollectionName(
-            uniquCollectionCheck.name,
-          );
-        if (collection) {
-          result.collectionNameExists = true;
-        }
-      } else {
+      if (!uniquCollectionCheck.name) {
         return this.responseModel.response(
           ResponseMessage.COLLECTION_NAME,
           ResponseStatusCode.NOT_FOUND,
           false,
           response,
         );
+      } else {
+        const result = await this.collectionService.checkUniqueCollection(
+          uniquCollectionCheck,
+        );
+        return this.responseModel.response(
+          result,
+          ResponseStatusCode.OK,
+          true,
+          response,
+        );
       }
-      if (uniquCollectionCheck.url) {
-        const collection =
-          await this.collectionService.checkUniqueCollectionUrl(
-            uniquCollectionCheck.url,
-          );
-        if (collection) {
-          result.collectionUrlExists = true;
-        }
-      }
-      return this.responseModel.response(
-        result,
-        ResponseStatusCode.OK,
-        true,
-        response,
-      );
     } catch (error) {
       return this.responseModel.response(
         error,
