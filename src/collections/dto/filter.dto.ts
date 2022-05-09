@@ -2,7 +2,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class FilterDto {
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Number of items per page',
   })
   @IsNotEmpty()
@@ -15,6 +15,7 @@ export class FilterDto {
   skip: number;
 
   @ApiPropertyOptional({ description: 'Earning Wallet id of the collection' })
+  @IsOptional()
   @IsNotEmpty()
   earningWalletAddress: string;
 

@@ -9,9 +9,12 @@ import { CreateCollectionsDto } from './dto/create-collections.dto';
 import { UpdateCollectionsDto } from './dto/update-collection.dto';
 import { Collection } from './entities/collection.entity';
 import { FilterDto } from './dto/filter.dto';
+import { UpdateCollaboratorDto } from './dto/update-collaborator.dto';
+import { collaboratorUpdateType } from './enums/collaborator-update-type.enum';
 import { ResponseMessage } from 'shared/ResponseMessage';
 import { User } from '../../src/user/entities/user.entity';
 import { ResponseStatusCode } from 'shared/ResponseStatusCode';
+import { UniqueCollectionCheck } from './dto/unique-collection-check.dto';
 // import { UserRepository } from 'src/user/repositories/user.repository';
 
 @Injectable()
@@ -123,14 +126,59 @@ export class CollectionsService {
     }
   }
 
-  async update(id: string, updateCollectionDto: UpdateCollectionsDto) {
+  async update(
+    id: string,
+    updateCollectionDto: UpdateCollectionsDto,
+  ): Promise<any> {
     try {
       console.log('inside service', updateCollectionDto);
       const isUpdated = await this.collectionRepository.update(
         { id },
         updateCollectionDto,
       );
-      console.log('isUpdated', isUpdated);
+      if (!isUpdated) return null;
+      return isUpdated;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  async delete(id: string): Promise<any> {
+    const collection = await this.collectionRepository.findOne(id);
+    collection.isDeleted = true;
+    await this.collectionRepository.update(id, collection);
+    return null;
+  }
+
+  async updateCollaborator(
+    updateCollaboratorDto: UpdateCollaboratorDto,
+    owner: string,
+  ): Promise<any> {
+    try {
+      const collection = await this.collectionRepository.findOne({
+        where: [
+          {
+            id: updateCollaboratorDto.collecionId,
+            isDeleted: false,
+            owner: owner,
+          },
+        ],
+      });
+      if (updateCollaboratorDto.updateType === collaboratorUpdateType.ADD) {
+        collection.collaborators.push(updateCollaboratorDto.updateType);
+        await this.collectionRepository.update(
+          updateCollaboratorDto.collecionId,
+          collection,
+        );
+      }
+      const toBeRemoved: number = collection.collaborators.indexOf(
+        updateCollaboratorDto.collaboratorWalletId,
+      );
+      collection.collaborators.splice(toBeRemoved, 1);
+      await this.collectionRepository.update(
+        updateCollaboratorDto.collecionId,
+        collection,
+      );
       return { status: 200, msg: 'Collection updated succesfully' };
     } catch (error) {
       console.log('error', error);
@@ -222,6 +270,38 @@ export class CollectionsService {
       return collections;
     } catch (error) {
       console.log(error);
+    }
+  }
+
+  /**
+   * @description checkUniqueCollection checks collection with unique name and url
+   * @param UniqueCollectionCheck
+   * @returns Boolean Values for collectionNameExists and collectionUrlExists
+   * @author Jeetanshu Srivastava
+   */
+  async checkUniqueCollection(
+    uniqueCollectionCheck: UniqueCollectionCheck,
+  ): Promise<any> {
+    let result = false;
+    try {
+      if (uniqueCollectionCheck.name) {
+        const collectionByName = await this.collectionRepository.findOne({
+          name: uniqueCollectionCheck.name,
+        });
+        result = !!collectionByName;
+      }
+
+      if (uniqueCollectionCheck.url) {
+        const collectionByUrl = await this.collectionRepository.findOne({
+          url: uniqueCollectionCheck.url,
+        });
+        result = !!collectionByUrl;
+      }
+
+      return result;
+    } catch (error) {
+      console.log(error);
+      return false;
     }
   }
 }
