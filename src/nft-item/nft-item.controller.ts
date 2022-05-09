@@ -20,12 +20,14 @@ import {
 } from '@nestjs/swagger';
 import { ResponseMessage } from 'shared/ResponseMessage';
 import { ResponseStatusCode } from 'shared/ResponseStatusCode';
+import { ActivityService } from 'src/activity/activity.service';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { ResponseModel } from 'src/responseModel';
 import { FilterDto } from './dto/filter.dto';
 import { CreateNftItemDto } from './dto/nft-item.dto';
 import { UpdateNftItemDto } from './dto/update.nftItem.dto';
 import { NftItemService } from './nft-item.service';
+import { eventType, eventActions } from '../../shared/Constants';
 
 @Controller('nft-item')
 @UsePipes(ValidationPipe)
@@ -33,6 +35,7 @@ export class NftItemController {
   constructor(
     private readonly nftItemService: NftItemService,
     private readonly responseModel: ResponseModel,
+    private readonly activityService: ActivityService,
   ) {}
 
   /**
@@ -41,36 +44,43 @@ export class NftItemController {
    * @returns: create Item
    * @author: vipin
    */
-    @ApiTags('Nft Item')
-    @UseGuards(JwtAuthGuard)
-    @ApiOperation({summary:'it will create new nft item',})
-    @ApiResponse({
-      status: ResponseStatusCode.OK,
-      description: 'Nft Created',
-    })
-    @ApiResponse({
-      status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
-      description: ResponseMessage.INTERNAL_SERVER_ERROR,
-    })
-    @ApiResponse({
-      status: ResponseStatusCode.BAD_REQUEST,
-      description: ResponseMessage.BAD_REQUEST,
-    })
-    @ApiBearerAuth()
-    @Post('create')
-    async createNftItem(
-      @Body() nftItemDto: CreateNftItemDto,
-      @Request() req,
-      @Response() response
-    ): Promise<any> {
-      try{
-        const user = req.user
-        const create = await this.nftItemService.createNftItem(
-          user,
-          nftItemDto,
-          );
-        if (create) 
-
+  @ApiTags('Nft Item')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'it will create new nft item' })
+  @ApiResponse({
+    status: ResponseStatusCode.OK,
+    description: 'Nft Created',
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
+    description: ResponseMessage.INTERNAL_SERVER_ERROR,
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.BAD_REQUEST,
+    description: ResponseMessage.BAD_REQUEST,
+  })
+  @ApiBearerAuth()
+  @Post('create')
+  async createNftItem(
+    @Body() nftItemDto: CreateNftItemDto,
+    @Request() req,
+    @Response() response,
+  ): Promise<any> {
+    try {
+      const user = req.user;
+      const create = await this.nftItemService.createNftItem(user, nftItemDto);
+      const activity = await this.activityService.createActivity({
+        eventActions: eventActions.MINTED,
+        nftItem: create.id,
+        eventType: eventType.TRANSFERS,
+        fromAccount: null,
+        toAccount: req.user.walletAddress,
+        totalPrice: null,
+        isPrivate: false,
+        collectionId: nftItemDto.collectionId,
+        winnerAccount: null,
+      });
+      if (create)
         return this.responseModel.response(
           create,
           ResponseStatusCode.OK,

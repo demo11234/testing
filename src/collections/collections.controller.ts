@@ -6,10 +6,11 @@ import {
   Patch,
   Post,
   Query,
-  Request,
+  Req,
   UseGuards,
   Response,
   Put,
+  Request,
   Delete,
 } from '@nestjs/common';
 import { ResponseMessage } from 'shared/ResponseMessage';
@@ -26,6 +27,8 @@ import {
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { FilterDto } from './dto/filter.dto';
+import { collaboratorUpdateType } from './enums/collaborator-update-type.enum';
+import { UpdateCollaboratorDto } from './dto/update-collaborator.dto';
 import { UserWatchlistDto } from './dto/user-watchlist.dto';
 import { UserService } from 'src/user/user.service';
 
@@ -64,12 +67,12 @@ export class CollectionsController {
   @ApiBearerAuth()
   async create(
     @Body() createCollectionDto: CreateCollectionsDto,
-    @Request() request,
+    @Req() req,
     @Response() response,
-  ) {
+  ): Promise<any> {
     try {
       const collection = await this.collectionService.create(
-        request.user.walletAddress,
+        req.user.walletAddress,
         createCollectionDto,
       );
       if (collection) {
@@ -115,7 +118,10 @@ export class CollectionsController {
     status: ResponseStatusCode.NOT_FOUND,
     description: ResponseMessage.COLLECTIONS_DO_NOT_EXIST,
   })
-  async findAll(@Query() filterDto: FilterDto, @Response() response) {
+  async findAll(
+    @Query() filterDto: FilterDto,
+    @Response() response,
+  ): Promise<any> {
     try {
       filterDto.take = filterDto.take <= 20 ? 20 : filterDto.take;
       if (!filterDto.skip) {
@@ -171,7 +177,11 @@ export class CollectionsController {
     status: ResponseStatusCode.NOT_FOUND,
     description: ResponseMessage.COLLECTION_DOES_NOT_EXIST,
   })
-  async findOne(@Param('id') id: string, @Request() req, @Response() response) {
+  async findOne(
+    @Param('id') id: string,
+    @Req() req,
+    @Response() response,
+  ): Promise<any> {
     try {
       const owner = req.user;
       const collection = await this.collectionService.findOne(id, owner);
@@ -232,11 +242,11 @@ export class CollectionsController {
   })
   @ApiBearerAuth()
   async update(
-    @Request() req,
+    @Req() req,
     @Param('id') id: string,
     @Body() updateCollectionDto: UpdateCollectionsDto,
     @Response() response,
-  ) {
+  ): Promise<any> {
     try {
       const owner = await this.userService.findUserByWalletAddress(
         req.user.walletAddress,
@@ -282,7 +292,7 @@ export class CollectionsController {
    * @description: This api updates the collection and returns status
    * @param id
    * @param updateCollectionDto
-   * @returns: Update Staus
+   * @returns: Update Status
    * @author: Ansh Arora
    */
   @Delete(':id')
@@ -308,14 +318,17 @@ export class CollectionsController {
     status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
     description: ResponseMessage.INTERNAL_SERVER_ERROR,
   })
-  @ApiBearerAuth()
-  async delete(@Request() req, @Param('id') id: string, @Response() response) {
+  async delete(
+    @Req() req,
+    @Param('id') id: string,
+    @Response() response,
+  ): Promise<any> {
     try {
       const owner = req.user.id;
       const collection = await this.collectionService.findOne(id, owner);
       if (req.user.id === collection.owner) {
         if (collection) {
-          collection.isDeleted = true;
+          await this.collectionService.delete(id);
           return this.responseModel.response(
             ResponseMessage.COLLECTION_DELETED,
             ResponseStatusCode.OK,
@@ -397,6 +410,65 @@ export class CollectionsController {
           response,
         );
       }
+    } catch (error) {
+      return this.responseModel.response(
+        error,
+        ResponseStatusCode.INTERNAL_SERVER_ERROR,
+        false,
+        response,
+      );
+    }
+  }
+
+  /**
+   * @description: This api adds or removes the collaborator
+   * @param updateCollaboratorDto
+   * @returns: Status on add or removal of collaborator
+   * @author: Ansh Arora
+   */
+  @Patch()
+  @UseGuards(JwtAuthGuard)
+  @ApiTags('Collection Module')
+  @ApiOperation({
+    summary: 'Adds or removes the collaborator from the collection',
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.OK,
+    description: ResponseMessage.COLLABORATOR_ADDED,
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.OK,
+    description: ResponseMessage.COLLABORATOR_REMOVED,
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
+    description: ResponseMessage.INTERNAL_SERVER_ERROR,
+  })
+  async updateCollaborator(
+    @Param() updateCollaboratorDto: UpdateCollaboratorDto,
+    @Req() req,
+    @Response() response,
+  ): Promise<any> {
+    try {
+      const owner = req.user;
+      await this.collectionService.updateCollaborator(
+        updateCollaboratorDto,
+        owner,
+      );
+      if (updateCollaboratorDto.updateType === collaboratorUpdateType.ADD) {
+        return this.responseModel.response(
+          ResponseMessage.COLLABORATOR_ADDED,
+          ResponseStatusCode.OK,
+          true,
+          response,
+        );
+      }
+      return this.responseModel.response(
+        ResponseMessage.COLLABORATOR_REMOVED,
+        ResponseStatusCode.OK,
+        true,
+        response,
+      );
     } catch (error) {
       return this.responseModel.response(
         error,

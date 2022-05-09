@@ -9,6 +9,8 @@ import { CreateCollectionsDto } from './dto/create-collections.dto';
 import { UpdateCollectionsDto } from './dto/update-collection.dto';
 import { Collection } from './entities/collection.entity';
 import { FilterDto } from './dto/filter.dto';
+import { UpdateCollaboratorDto } from './dto/update-collaborator.dto';
+import { collaboratorUpdateType } from './enums/collaborator-update-type.enum';
 import { ResponseMessage } from 'shared/ResponseMessage';
 import { User } from '../../src/user/entities/user.entity';
 import { ResponseStatusCode } from 'shared/ResponseStatusCode';
@@ -26,7 +28,7 @@ export class CollectionsService {
   async create(
     walletAddress: string,
     createCollectionDto: CreateCollectionsDto,
-  ) {
+  ): Promise<any> {
     try {
       let collection = new Collection();
       collection.logo = createCollectionDto.logo;
@@ -94,13 +96,46 @@ export class CollectionsService {
         skip,
         where: filter,
       });
+      if (!collections[0]) return null;
+      collections[0] = collections[0].filter((collection) => {
+        collection.isDeleted === false;
+      });
+      if (earningWalletAddress) {
+        collections[0] = collections[0].filter((collection) => {
+          collection.earningWalletAddress === earningWalletAddress;
+        });
+      }
+      if (name) {
+        collections[0] = collections[0].filter((collection) => {
+          collection.name === name;
+        });
+      }
+      if (status) {
+        collections[0] = collections[0].filter((collection) => {
+          collection.status.toString() === status;
+        });
+      }
+
+      if (isVerified) {
+        collections[0] = collections[0].filter((collection) => {
+          collection.isVerified === isVerified;
+        });
+      }
+      if (search) {
+        collections[0] = collections[0].filter(
+          (collection) =>
+            collection.name.includes(search) ||
+            collection.description.includes(search) ||
+            collection.displayTheme.includes(search),
+        );
+      }
       return collections;
     } catch (error) {
       return { msg: ResponseMessage.INTERNAL_SERVER_ERROR };
     }
   }
 
-  async findOne(id: string, owner: string): Promise<any> {
+  async findOne(id: string, owner: string): Promise<Collection> {
     try {
       const collection = await this.collectionRepository.findOne({
         where: [{ id: id, isDeleted: false, owner: owner }],
@@ -114,14 +149,59 @@ export class CollectionsService {
     }
   }
 
-  async update(id: string, updateCollectionDto: UpdateCollectionsDto) {
+  async update(
+    id: string,
+    updateCollectionDto: UpdateCollectionsDto,
+  ): Promise<any> {
     try {
       console.log('inside service', updateCollectionDto);
       const isUpdated = await this.collectionRepository.update(
         { id },
         updateCollectionDto,
       );
-      console.log('isUpdated', isUpdated);
+      if (!isUpdated) return null;
+      return isUpdated;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  async delete(id: string): Promise<any> {
+    const collection = await this.collectionRepository.findOne(id);
+    collection.isDeleted = true;
+    await this.collectionRepository.update(id, collection);
+    return null;
+  }
+
+  async updateCollaborator(
+    updateCollaboratorDto: UpdateCollaboratorDto,
+    owner: string,
+  ): Promise<any> {
+    try {
+      const collection = await this.collectionRepository.findOne({
+        where: [
+          {
+            id: updateCollaboratorDto.collecionId,
+            isDeleted: false,
+            owner: owner,
+          },
+        ],
+      });
+      if (updateCollaboratorDto.updateType === collaboratorUpdateType.ADD) {
+        collection.collaborators.push(updateCollaboratorDto.updateType);
+        await this.collectionRepository.update(
+          updateCollaboratorDto.collecionId,
+          collection,
+        );
+      }
+      const toBeRemoved: number = collection.collaborators.indexOf(
+        updateCollaboratorDto.collaboratorWalletId,
+      );
+      collection.collaborators.splice(toBeRemoved, 1);
+      await this.collectionRepository.update(
+        updateCollaboratorDto.collecionId,
+        collection,
+      );
       return { status: 200, msg: 'Collection updated succesfully' };
     } catch (error) {
       console.log('error', error);

@@ -37,6 +37,10 @@ export class Collection {
   })
   watchlist: User[];
 
+  @ManyToMany(() => User)
+  @ApiProperty()
+  collaborators: string[];
+
   @Column({ length: 50 })
   @ApiProperty()
   banner: string;
@@ -100,10 +104,6 @@ export class Collection {
   @Column({ nullable: true })
   @ApiProperty()
   earningWalletAddress: string;
-
-  @Column({ type: 'jsonb', default: [] })
-  @ApiProperty()
-  collaborators: string[];
 
   @Column({ length: 100, default: displayTheme.CONTAINED })
   @ApiProperty()
