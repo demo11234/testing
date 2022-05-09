@@ -51,4 +51,5 @@ export const ResponseMessage = {
   ITEM_NOT_FOUND: 'Item not found',
   BAD_REQUEST: 'Bad request',
   USER_DOES_NOT_OWN_ITEM: 'User does not own the item',
+  UNIQUE_CONSTRAINTS_NAME: 'Name of the collection must be unique',
 };
