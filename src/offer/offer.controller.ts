@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
@@ -20,6 +21,7 @@ import { ResponseMessage } from 'shared/ResponseMessage';
 import { ResponseStatusCode } from 'shared/ResponseStatusCode';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { ResponseModel } from 'src/responseModel';
+import { UserService } from 'src/user/user.service';
 import { CreateOfferDto } from './dto/create-offer.dto';
 import { OfferFilterDto } from './dto/offer-filter.dto';
 import { UpdateOfferDto } from './dto/update-offer.dto';
@@ -30,6 +32,7 @@ export class OfferController {
   constructor(
     private readonly offerService: OfferService,
     private readonly responseModel: ResponseModel,
+    private readonly userService: UserService
   ) {}
 
   /**
@@ -156,7 +159,7 @@ export class OfferController {
   }
 
   /**
-   * @description: This api gets all the collections based on filter and paginates them
+   * @description: This api gets all the offers based on filter and paginates them
    * @returns: Matching offers
    * @author: Ansh Arora
    */
@@ -204,6 +207,58 @@ export class OfferController {
           response,
         );
       }
+    } catch (error) {
+      return this.responseModel.response(
+        error,
+        ResponseStatusCode.INTERNAL_SERVER_ERROR,
+        false,
+        response,
+      );
+    }
+  }
+
+  /**
+   * @description: This api soft deletes the offer
+   * @returns: Null
+   * @author: Ansh Arora
+   */
+  @Delete('/delete')
+  @UseGuards(JwtAuthGuard)
+  @ApiTags('Offer Module')
+  @ApiOperation({
+    summary:
+      'Update Offer Details on an item by user who is currenlty Logged In',
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
+    description: ResponseMessage.INTERNAL_SERVER_ERROR,
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.CONFLICT,
+    description: ResponseMessage.USER_DOES_NOT_OWN_OFFER,
+  })
+  @ApiBearerAuth()
+  async delete(@Param() id: string, @Response() response, @Req() req) {
+    try {
+      const offer = await this.offerService.findOne(id);
+      const owner = await this.userService.findUserByWalletAddress(
+        req.user.walletAddress,
+      );
+      if (!offer.owner === owner.id) {
+        return this.responseModel.response(
+          ResponseMessage.USER_DOES_NOT_OWN_OFFER,
+          ResponseStatusCode.CONFLICT,
+          false,
+          response,
+        );
+      }
+      await this.offerService.delete(id);
+      return this.responseModel.response(
+        ResponseMessage.OFFER_REMOVED,
+        ResponseStatusCode.OK,
+        true,
+        response,
+      );
     } catch (error) {
       return this.responseModel.response(
         error,
