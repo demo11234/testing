@@ -273,7 +273,7 @@ export class CollectionsService {
   async checkUniqueCollection(
     uniqueCollectionCheck: UniqueCollectionCheck,
   ): Promise<any> {
-    const result = false;
+    let result = false;
     try {
       if(uniqueCollectionCheck.name){
         const collectionByName = await this.collectionRepository.findOne({
