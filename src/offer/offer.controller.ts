@@ -184,7 +184,7 @@ export class OfferController {
   ) {
     try {
       offerFilterDto.take =
-        offerFilterDto.take <= 20 ? 20 : offerFilterDto.take;
+        offerFilterDto.take >= 20 ? 20 : offerFilterDto.take;
       if (!offerFilterDto.skip) {
         offerFilterDto.skip === 0;
       }

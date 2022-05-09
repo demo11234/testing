@@ -56,16 +56,12 @@ export class OfferService {
   }
 
   async getOffers(offerFilerDto: OfferFilterDto): Promise<any> {
-    const offer = await this.offerRepository
-      .createQueryBuilder('offer')
-      .select('offer')
-      .from(Offer, 'offer')
-      .where('offer.item = :item', { item: offerFilerDto.item })
-      .andWhere('offer.isDeleted = false')
-      .take()
-      .skip()
-      .getOne();
-
-    return offer;
+    const { take, skip } = offerFilerDto;
+    const offers = await this.offerRepository.findAndCount({
+      take,
+      skip,
+      where: { item: offerFilerDto.item },
+    });
+    return offers;
   }
 }
