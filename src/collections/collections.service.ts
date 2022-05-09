@@ -14,6 +14,7 @@ import { collaboratorUpdateType } from './enums/collaborator-update-type.enum';
 import { ResponseMessage } from 'shared/ResponseMessage';
 import { User } from '../../src/user/entities/user.entity';
 import { ResponseStatusCode } from 'shared/ResponseStatusCode';
+import { UniqueCollectionCheck } from './dto/unique-collection-check.dto';
 // import { UserRepository } from 'src/user/repositories/user.repository';
 
 @Injectable()
@@ -96,46 +97,13 @@ export class CollectionsService {
         skip,
         where: filter,
       });
-      if (!collections[0]) return null;
-      collections[0] = collections[0].filter((collection) => {
-        collection.isDeleted === false;
-      });
-      if (earningWalletAddress) {
-        collections[0] = collections[0].filter((collection) => {
-          collection.earningWalletAddress === earningWalletAddress;
-        });
-      }
-      if (name) {
-        collections[0] = collections[0].filter((collection) => {
-          collection.name === name;
-        });
-      }
-      if (status) {
-        collections[0] = collections[0].filter((collection) => {
-          collection.status.toString() === status;
-        });
-      }
-
-      if (isVerified) {
-        collections[0] = collections[0].filter((collection) => {
-          collection.isVerified === isVerified;
-        });
-      }
-      if (search) {
-        collections[0] = collections[0].filter(
-          (collection) =>
-            collection.name.includes(search) ||
-            collection.description.includes(search) ||
-            collection.displayTheme.includes(search),
-        );
-      }
       return collections;
     } catch (error) {
       return { msg: ResponseMessage.INTERNAL_SERVER_ERROR };
     }
   }
 
-  async findOne(id: string, owner: string): Promise<Collection> {
+  async findOne(id: string, owner: string): Promise<any> {
     try {
       const collection = await this.collectionRepository.findOne({
         where: [{ id: id, isDeleted: false, owner: owner }],
@@ -291,6 +259,36 @@ export class CollectionsService {
         .getMany();
 
       return collections;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async checkUniqueCollectionName(name: string): Promise<boolean> {
+    try {
+      const collection = await this.collectionRepository.findOne({
+        name,
+      });
+      if (collection) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async checkUniqueCollectionUrl(url: string): Promise<any> {
+    try {
+      const collection = await this.collectionRepository.findOne({
+        url,
+      });
+      if (collection) {
+        return true;
+      } else {
+        return false;
+      }
     } catch (error) {
       console.log(error);
     }

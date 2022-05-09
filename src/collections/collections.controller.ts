@@ -31,6 +31,7 @@ import { collaboratorUpdateType } from './enums/collaborator-update-type.enum';
 import { UpdateCollaboratorDto } from './dto/update-collaborator.dto';
 import { UserWatchlistDto } from './dto/user-watchlist.dto';
 import { UserService } from 'src/user/user.service';
+import { UniqueCollectionCheck } from './dto/unique-collection-check.dto';
 
 @Controller('collections')
 export class CollectionsController {
@@ -355,6 +356,50 @@ export class CollectionsController {
   }
 
   /**
+   * @description: getWatchCollections returns the collections present in current user watchlist
+   * @returns: Collections
+   * @author: Jeetanshu Srivastava
+   */
+  @Put('/getWatchCollections')
+  @UseGuards(JwtAuthGuard)
+  @ApiTags('Collection Module')
+  @ApiOperation({
+    summary: 'Returns Current User Watchlist Collection',
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.OK,
+    description: ResponseMessage.COLLECTION_LIST,
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
+    description: ResponseMessage.INTERNAL_SERVER_ERROR,
+  })
+  @ApiBearerAuth()
+  async getWatchCollections(
+    @Response() response,
+    @Request() request,
+  ): Promise<any> {
+    try {
+      const collections = await this.collectionService.getCollectionForUser(
+        request.user.walletAddress,
+      );
+      return this.responseModel.response(
+        collections,
+        ResponseStatusCode.OK,
+        true,
+        response,
+      );
+    } catch (error) {
+      return this.responseModel.response(
+        error,
+        ResponseStatusCode.INTERNAL_SERVER_ERROR,
+        false,
+        response,
+      );
+    }
+  }
+
+  /**
    * @description: watchlist adds or removes user from watchlist depending upon the value of isWatched
    * @param updateCollectionDto
    * @returns: Update Staus
@@ -480,35 +525,62 @@ export class CollectionsController {
   }
 
   /**
-   * @description: getWatchCollections returns the collections present in current user watchlist
-   * @returns: Collections
-   * @author: Jeetanshu Srivastava
+   * @description checkUniqueCollection checks collection with unique name and url
+   * @param UniqueCollectionCheck
+   * @returns Boolean Values
+   * @author Jeetanshu Srivastava
    */
-  @Put('/getWatchCollections')
+  @Put('/checkUniqueCollection')
   @UseGuards(JwtAuthGuard)
   @ApiTags('Collection Module')
   @ApiOperation({
-    summary: 'Returns Current User Watchlist Collection',
+    summary: 'Boolean Values for Collection Name and Url',
   })
   @ApiResponse({
     status: ResponseStatusCode.OK,
-    description: ResponseMessage.COLLECTION_LIST,
+    description: ResponseMessage.UNIQUE_COLLECTION_CHECK,
   })
   @ApiResponse({
     status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
     description: ResponseMessage.INTERNAL_SERVER_ERROR,
   })
   @ApiBearerAuth()
-  async getWatchCollections(
+  async checkUniqueCollection(
+    @Query() uniquCollectionCheck: UniqueCollectionCheck,
     @Response() response,
-    @Request() request,
   ): Promise<any> {
     try {
-      const collections = await this.collectionService.getCollectionForUser(
-        request.user.walletAddress,
-      );
+      const result = {
+        collectionNameExists: false,
+        collectionUrlExists: false,
+      };
+      if (uniquCollectionCheck.name) {
+        const collection =
+          await this.collectionService.checkUniqueCollectionName(
+            uniquCollectionCheck.name,
+          );
+        if (collection) {
+          result.collectionNameExists = true;
+        }
+      } else {
+        return this.responseModel.response(
+          ResponseMessage.COLLECTION_NAME,
+          ResponseStatusCode.NOT_FOUND,
+          false,
+          response,
+        );
+      }
+      if (uniquCollectionCheck.url) {
+        const collection =
+          await this.collectionService.checkUniqueCollectionUrl(
+            uniquCollectionCheck.url,
+          );
+        if (collection) {
+          result.collectionUrlExists = true;
+        }
+      }
       return this.responseModel.response(
-        collections,
+        result,
         ResponseStatusCode.OK,
         true,
         response,
