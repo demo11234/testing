@@ -26,7 +26,7 @@ export class ActivityController {
    * @returns: All activities of a collection
    * @author: Ansh Arora
    */
-  @Post()
+  @Get()
   @ApiTags('Activity Module')
   @ApiOperation({
     summary: 'Find All Activities of a collection',
