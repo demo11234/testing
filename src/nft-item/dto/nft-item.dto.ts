@@ -1,3 +1,4 @@
+
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   ArrayMinSize,
@@ -13,28 +14,31 @@ import { Levels, Properties, Stats } from '../entities/nft-item.entities';
 import { Type as ValidateType } from 'class-transformer';
 
 export class CreateNftItemDto {
-  @ApiProperty()
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsString()
   @IsUrl(undefined, { message: 'file URL is not valid.' })
   fileUrl: string;
 
   @ApiProperty()
+  @IsOptional()
   @IsString()
   fileName: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsString()
+
   @IsUrl(undefined, { message: 'external URL is not valid.' })
   externalUrl: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   @IsString()
   description: string;
 
   @ApiProperty()
   @IsString()
   collectionId: string;
-  // collection: Collection;
 
   @ApiProperty({ description: 'properties', type: [Properties] })
   @IsArray()
@@ -58,21 +62,25 @@ export class CreateNftItemDto {
   @ValidateType(() => Stats)
   stats: Stats[];
 
-  @ApiProperty()
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsBoolean()
-  isLockable: boolean;
+  isLockable?: boolean;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsString()
-  lockableContent: string;
+  lockableContent?: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsBoolean()
-  isExplicit: boolean;
+  isExplicit?: boolean;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsNumber()
-  supply: number;
+  supply?: number;
 
   @ApiProperty()
   @IsString()

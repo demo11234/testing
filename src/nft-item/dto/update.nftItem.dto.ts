@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   ArrayMinSize,
   IsArray,
@@ -21,13 +21,13 @@ export class UpdateNftItemDto {
   @IsString()
   fileName?: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   @IsString()
   @IsUrl()
   @IsOptional()
   externalUrl?: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   @IsString()
   @IsOptional()
   description?: string;
@@ -36,7 +36,7 @@ export class UpdateNftItemDto {
   @IsString()
   collectionId?: string;
 
-  @ApiProperty({ description: 'properties', type: [Properties] })
+  @ApiPropertyOptional({ description: 'properties', type: [Properties] })
   @IsArray()
   @ArrayMinSize(1)
   @IsOptional()
@@ -44,28 +44,29 @@ export class UpdateNftItemDto {
   @ValidateType(() => Properties)
   properties?: Properties[];
 
-  @ApiProperty({ description: 'Levels', type: [Levels] })
+  @ApiPropertyOptional({ description: 'Levels', type: [Levels] })
   //@IsArray()
   @IsOptional()
   levels?: Levels[];
 
-  @ApiProperty({ description: 'Stats', type: [Stats] })
+  @ApiPropertyOptional({ description: 'Stats', type: [Stats] })
   //@IsArray()
   @IsOptional()
   stats?: Stats[];
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   @IsBoolean()
   @IsOptional()
   isLockable?: boolean;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   @IsString()
   @IsOptional()
   lockableContent?: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   @IsBoolean()
   @IsOptional()
   isExplicit?: boolean;
 }
+
