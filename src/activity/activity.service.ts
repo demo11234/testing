@@ -29,36 +29,37 @@ export class ActivityService {
   ): Promise<Activity> {
     try {
       const activity = new Activity();
+      const activityInfo = Object.assign({},createActivityInterface);
 
-      if (createActivityInterface.toAccount) {
+      if (activityInfo.toAccount) {
         activity.toAccount = await this.userRepository.findOne({
-          walletAddress: createActivityInterface.toAccount,
+          walletAddress: activityInfo.toAccount,
         });
-        delete createActivityInterface.toAccount;
+        delete activityInfo.toAccount;
       }
-      if (createActivityInterface.fromAccount) {
+      if (activityInfo.fromAccount) {
         activity.fromAccount = await this.userRepository.findOne({
-          walletAddress: createActivityInterface.fromAccount,
+          walletAddress: activityInfo.fromAccount,
         });
-        delete createActivityInterface.fromAccount;
+        delete activityInfo.fromAccount;
       }
-      if (createActivityInterface.winnerAccount) {
+      if (activityInfo.winnerAccount) {
         activity.winnerAccount = await this.userRepository.findOne({
-          walletAddress: createActivityInterface.winnerAccount,
+          walletAddress: activityInfo.winnerAccount,
         });
-        delete createActivityInterface.winnerAccount;
+        delete activityInfo.winnerAccount;
       }
 
-      if (createActivityInterface.nftItem) {
+      if (activityInfo.nftItem) {
         activity.nftItem = await this.nftItemRepository.findOne({
-          id: createActivityInterface.nftItem,
+          id: activityInfo.nftItem,
         });
-        delete createActivityInterface.nftItem;
+        delete activityInfo.nftItem;
       }
 
-      const keys = Object.keys(createActivityInterface);
+      const keys = Object.keys(activityInfo);
       keys.forEach((key) => {
-        activity[key] = createActivityInterface[key];
+        activity[key] = activityInfo[key];
       });
 
       return await this.activityRepository.save(activity);
