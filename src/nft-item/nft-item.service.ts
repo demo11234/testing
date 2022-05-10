@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Chains } from 'src/chains/entities/chains.entity';
 import { Collection } from 'src/collections/entities/collection.entity';
-import { ILike, In, LessThan, Like, MoreThan, Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { FilterDto } from './dto/filter.dto';
 import { CreateNftItemDto } from './dto/nft-item.dto';
 import { UpdateNftItemDto } from './dto/update.nftItem.dto';
@@ -59,7 +59,7 @@ export class NftItemService {
       const [index, indexCount] = await this.nftItemRepository.findAndCount({
         walletAddress: user.walletAddress,
       });
-
+      if (!nftItemDto.supply) nftItemDto.supply = 1;
       nftItem.tokenId = await this.generateToken(
         user.walletAddress,
         indexCount + 1,
@@ -70,7 +70,6 @@ export class NftItemService {
 
       if (data) return data;
     } catch (error) {
-      console.log(error);
       throw new Error(error);
     }
   }
@@ -87,28 +86,26 @@ export class NftItemService {
                 walletAddress, collectionsId, chainsId, categories,priceType,
                 status, priceRange, sortBy, limit, page, order: orderBy
             } = filterDto
+            
             let where: any = { walletAddress };
             
             if(collectionsId){
-                const collectionId = collectionsId.split(',')
-                let x = collectionId.map(s=>s.trim())
-                where.collection = collectionsId ? { id: In (x) } : where;
+                const collectionId = collectionsId.split(',').map(s=>s.trim())
+                where.collection = { id: In (collectionId) };
             }
 
             if(chainsId){
-                const chainId = chainsId.split(',')
-                let x = chainId.map(s=>s.trim())
-                where.blockChain = chainsId  ?  { id: In (x)  } : where;
+                const chainId = chainsId.split(',').map(s=>s.trim())
+                where.blockChain = { id: In (chainId)  };
             }
             // let a = []
             if(status){
                 
-                const statusArr = status.split(',')
-                let x = statusArr.map(s=>s.trim())
-                console.log(x)
-                if (x.includes('new')){
+                const statusArr = status.split(',').map(s=>s.trim())
+
+                if (statusArr.includes('new')){
                     const BetweenDates = () => Between( Date.now() - 1000*60*60*24*1, Date.now() );
-                    where.timeStamp = status  ?  BetweenDates() : where;
+                    where.timeStamp = BetweenDates();
                 }
                 // if (x.includes('buynow')){
                 //     a.push('buynow') 
@@ -123,13 +120,12 @@ export class NftItemService {
             }
 
             if(categories){
-                where.collection = categories ? {categoryID: categories} : where;
+                where.collection = {categoryID: categories};
             }
 
-            // if(priceType){
-            //     const priceValue = priceRange.split(',')
-            //     let x = priceValue.map(s=>s.trim())
-            //     where.blockChain = priceRange  ? { usdPrice: Between(x[0], x[1]) } : where;
+            // if(priceRange){
+            //     const priceValue = priceRange.split(',').map(s=>s.trim())
+            //     where.blockChain = priceRange  ? { usdPrice: Between(priceValue[0], priceValue[1]) } : where;
             // }
 
             let order = {};
@@ -145,6 +141,7 @@ export class NftItemService {
                     order["id"] = "ASC";
                 }
             }
+
             const data = await this.nftItemRepository.find({
                 where,
                 order,
@@ -154,7 +151,6 @@ export class NftItemService {
             })
             return data;
         }catch (error){
-            console.log(error)
             throw new Error(error);
         }
       }
