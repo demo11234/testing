@@ -12,7 +12,6 @@ export class CreateCollectionsDto {
   @ApiProperty({
     required: true,
     description: 'Logo for the collection',
-    maxLength: 50,
     nullable: false,
   })
   @IsString()
@@ -26,7 +25,6 @@ export class CreateCollectionsDto {
 
   @ApiPropertyOptional({
     description: 'Banner for collection',
-    maxLength: 50,
   })
   @IsString()
   @IsOptional()
@@ -35,7 +33,6 @@ export class CreateCollectionsDto {
   @ApiProperty({
     required: true,
     description: 'Name of collection',
-    maxLength: 50,
     nullable: false,
   })
   @IsString()
@@ -49,7 +46,6 @@ export class CreateCollectionsDto {
 
   @ApiPropertyOptional({
     description: 'Description about collection',
-    maxLength: 1000,
   })
   @IsString()
   @IsOptional()
@@ -60,27 +56,27 @@ export class CreateCollectionsDto {
   @IsOptional()
   categoryId: string;
 
-  @ApiPropertyOptional({ description: 'Url of website', maxLength: 1000 })
+  @ApiPropertyOptional({ description: 'Url of website' })
   @IsString()
   @IsOptional()
   websiteLink: string;
 
-  @ApiPropertyOptional({ description: 'Discord Link', maxLength: 1000 })
+  @ApiPropertyOptional({ description: 'Discord Link' })
   @IsString()
   @IsOptional()
   discordLink: string;
 
-  @ApiPropertyOptional({ description: 'Instagram Link', maxLength: 1000 })
+  @ApiPropertyOptional({ description: 'Instagram Link' })
   @IsString()
   @IsOptional()
   instagramLink: string;
 
-  @ApiPropertyOptional({ description: 'Medium Link', maxLength: 1000 })
+  @ApiPropertyOptional({ description: 'Medium Link' })
   @IsString()
   @IsOptional()
   mediumLink: string;
 
-  @ApiPropertyOptional({ description: 'Telegram Link', maxLength: 1000 })
+  @ApiPropertyOptional({ description: 'Telegram Link' })
   @IsString()
   @IsOptional()
   telegramLink: string;
@@ -109,7 +105,6 @@ export class CreateCollectionsDto {
 
   @ApiPropertyOptional({
     description: 'Display Theme for collection',
-    maxLength: 100,
     default: 'contained',
   })
   @IsEnum(displayTheme)

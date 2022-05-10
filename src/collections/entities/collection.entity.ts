@@ -22,11 +22,11 @@ export class Collection {
   @ApiProperty()
   id: string;
 
-  @Column({ length: 50, nullable: false })
+  @Column({ nullable: false })
   @ApiProperty()
   logo: string;
 
-  @Column({ length: 50, nullable: true })
+  @Column({ nullable: true })
   @ApiProperty()
   featureImage: string;
 
@@ -38,11 +38,11 @@ export class Collection {
   })
   watchlist: User[];
 
-  @Column({ length: 50, nullable: true })
+  @Column({ nullable: true })
   @ApiProperty()
   banner: string;
 
-  @Column({ unique: true, length: 50, nullable: false })
+  @Column({ unique: true, nullable: false })
   @ApiProperty()
   name: string;
 
@@ -66,7 +66,7 @@ export class Collection {
   @ApiProperty()
   url: string;
 
-  @Column({ length: 1000, nullable: true })
+  @Column({ nullable: true })
   @ApiProperty()
   description: string;
 
@@ -74,23 +74,23 @@ export class Collection {
   @ApiProperty()
   isDeleted: boolean;
 
-  @Column({ length: 1000, nullable: true })
+  @Column({ nullable: true })
   @ApiProperty()
   websiteLink: string;
 
-  @Column({ length: 1000, nullable: true })
+  @Column({ nullable: true })
   @ApiProperty()
   discordLink: string;
 
-  @Column({ length: 1000, nullable: true })
+  @Column({ nullable: true })
   @ApiProperty()
   instagramLink: string;
 
-  @Column({ length: 1000, nullable: true })
+  @Column({ nullable: true })
   @ApiProperty()
   mediumLink: string;
 
-  @Column({ length: 1000, nullable: true })
+  @Column({ nullable: true })
   @ApiProperty()
   telegramLink: string;
 
@@ -108,7 +108,7 @@ export class Collection {
   @JoinColumn()
   collaborators: User[];
 
-  @Column({ length: 100, default: displayTheme.CONTAINED })
+  @Column({ default: displayTheme.CONTAINED })
   @ApiProperty()
   @IsEnum(displayTheme)
   displayTheme:
@@ -138,7 +138,7 @@ export class Collection {
   @ApiProperty({ default: false })
   isSafelisted: boolean;
 
-  @Column({ length: 250, nullable: true })
+  @Column({ nullable: true })
   @ApiProperty()
   slug: string;
 

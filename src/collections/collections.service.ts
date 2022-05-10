@@ -73,33 +73,11 @@ export class CollectionsService {
   async findAll(filterDto: FilterDto): Promise<any> {
     try {
       const { take, skip } = filterDto;
-      const filter = {
-        earningWalletAddress: '',
-        name: '',
-        isVerified: null,
-        status: '',
-      };
-      if (filterDto.earningWalletAddress) {
-        filterDto.earningWalletAddress = filter.earningWalletAddress;
-      } else {
-        delete filter.earningWalletAddress;
-      }
-      if (filterDto.name) {
-        filterDto.name = filter.name;
-      } else {
-        delete filter.name;
-      }
-      if (filterDto.status) {
-        filterDto.status = filter.status;
-      } else {
-        delete filter.status;
-      }
+      const filter = Object.assign({}, filterDto);
 
-      if (filterDto.isVerified) {
-        filterDto.isVerified = filter.isVerified;
-      } else {
-        delete filter.isVerified;
-      }
+      Object.keys(filter).forEach((value) => {
+        if (!filter[value]) delete filter[value];
+      });
 
       const collections = await this.collectionRepository.findAndCount({
         take,

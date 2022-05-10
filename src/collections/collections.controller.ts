@@ -27,8 +27,6 @@ import {
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { FilterDto } from './dto/filter.dto';
-import { collaboratorUpdateType } from './enums/collaborator-update-type.enum';
-import { UpdateCollaboratorDto } from './dto/update-collaborator.dto';
 import { UserWatchlistDto } from './dto/user-watchlist.dto';
 import { UserService } from 'src/user/user.service';
 import { UniqueCollectionCheck } from './dto/unique-collection-check.dto';
