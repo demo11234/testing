@@ -4,4 +4,4 @@ sudo pm2 stop all
 sudo pm2 delete all
 cd /home/ubuntu/backend
 sudo cp /home/ubuntu/.env ./
-sudo pm2 start "./dist/src/main.js"
+sudo STAGE=dev pm2 start "./dist/src/main.js"
