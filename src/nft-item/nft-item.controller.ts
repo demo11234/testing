@@ -97,49 +97,49 @@ export class NftItemController {
     }
   }
 
-    /**
+  /**
    * @description: This api fetch item and returns status
    * @param FilterDto
    * @returns: fetch Items with filters
    * @author: vipin
    */
-    @ApiTags('Nft Item')
-    @ApiOperation({summary:'it will fetch nft item',})
-    @ApiResponse({
-        status: ResponseStatusCode.OK,
-        description: 'Nft Fetch',
-    })
-    @ApiResponse({
-      status: ResponseStatusCode.NOT_FOUND,
-      description: ResponseMessage.ITEM_NOT_FOUND,
-    })
-    @ApiResponse({
-      status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
-      description: ResponseMessage.INTERNAL_SERVER_ERROR,
-    })
-    @Get()
-    async fetchNftItems(
-      @Query() filterDto: FilterDto,
-      @Response() response
-    ): Promise<any> {
-      try {
-        const find = await this.nftItemService.fetchNftItems( filterDto);
-        if (find.length === 0) {
-          return this.responseModel.response(
-            ResponseMessage.ITEM_NOT_FOUND,
-            ResponseStatusCode.NOT_FOUND,
-            false,
-            response,
-          );
-        } else {
-          return this.responseModel.response(
-            find,
-            ResponseStatusCode.OK,
-            true,
-            response,
-          );
-        };
-      }catch (error){
+  @ApiTags('Nft Item')
+  @ApiOperation({ summary: 'it will fetch nft item' })
+  @ApiResponse({
+    status: ResponseStatusCode.OK,
+    description: 'Nft Fetch',
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.NOT_FOUND,
+    description: ResponseMessage.ITEM_NOT_FOUND,
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
+    description: ResponseMessage.INTERNAL_SERVER_ERROR,
+  })
+  @Get()
+  async fetchNftItems(
+    @Query() filterDto: FilterDto,
+    @Response() response,
+  ): Promise<any> {
+    try {
+      const find = await this.nftItemService.fetchNftItems(filterDto);
+      if (find.length === 0) {
+        return this.responseModel.response(
+          ResponseMessage.ITEM_NOT_FOUND,
+          ResponseStatusCode.NOT_FOUND,
+          false,
+          response,
+        );
+      } else {
+        return this.responseModel.response(
+          find,
+          ResponseStatusCode.OK,
+          true,
+          response,
+        );
+      }
+    } catch (error) {
       return this.responseModel.response(
         error,
         ResponseStatusCode.INTERNAL_SERVER_ERROR,
@@ -156,36 +156,37 @@ export class NftItemController {
    * @returns: Update Item
    * @author: vipin
    */
-    @ApiTags('Nft Item')
-    @UseGuards(JwtAuthGuard)
-    @ApiOperation({summary:'it will update nft item',})
-    @ApiResponse({
-      status: ResponseStatusCode.OK,
-      description: 'Nft updated',
-    })
-    @ApiResponse({
-      status: ResponseStatusCode.NOT_FOUND,
-      description: ResponseMessage.ITEM_NOT_FOUND,
-    })
-    @ApiResponse({
-      status: ResponseStatusCode.BAD_REQUEST,
-      description: ResponseMessage.USER_DOES_NOT_OWN_ITEM,
-    })
-    @ApiResponse({
-      status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
-      description: ResponseMessage.INTERNAL_SERVER_ERROR,
-    })
-    @ApiBearerAuth()
-    @Patch(':id')
-    async updateNftItems(
-      @Param('id') id: string,
-      @Body() updateNftItemDto: UpdateNftItemDto,
-      @Request() req,
-      @Response() response
-    ): Promise<any> {
-      try{
-        const item = await this.nftItemService.findOne(id)
-        if (!item) return this.responseModel.response(
+  @ApiTags('Nft Item')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'it will update nft item' })
+  @ApiResponse({
+    status: ResponseStatusCode.OK,
+    description: 'Nft updated',
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.NOT_FOUND,
+    description: ResponseMessage.ITEM_NOT_FOUND,
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.BAD_REQUEST,
+    description: ResponseMessage.USER_DOES_NOT_OWN_ITEM,
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
+    description: ResponseMessage.INTERNAL_SERVER_ERROR,
+  })
+  @ApiBearerAuth()
+  @Patch(':id')
+  async updateNftItems(
+    @Param('id') id: string,
+    @Body() updateNftItemDto: UpdateNftItemDto,
+    @Request() req,
+    @Response() response,
+  ): Promise<any> {
+    try {
+      const item = await this.nftItemService.findOne(id);
+      if (!item)
+        return this.responseModel.response(
           ResponseMessage.ITEM_NOT_FOUND,
           ResponseStatusCode.NOT_FOUND,
           false,
