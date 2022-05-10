@@ -14,53 +14,50 @@ import { Levels, Properties, Stats } from '../entities/nft-item.entities';
 import { Type as ValidateType } from 'class-transformer';
 
 export class CreateNftItemDto {
-  @ApiPropertyOptional()
-  @IsOptional()
+  @ApiProperty()
   @IsString()
-  @IsUrl(undefined, { message: 'file URL is not valid.' })
+  @IsUrl({ message: 'file URL is not valid.' })
   fileUrl: string;
 
   @ApiProperty()
-  @IsOptional()
   @IsString()
   fileName: string;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()
-
-  @IsUrl(undefined, { message: 'external URL is not valid.' })
-  externalUrl: string;
+  @IsUrl({ message: 'external URL is not valid.' })
+  externalUrl?: string;
 
   @ApiPropertyOptional()
   @IsString()
-  description: string;
+  @IsOptional()
+  description?: string;
 
   @ApiProperty()
   @IsString()
   collectionId: string;
 
-  @ApiProperty({ description: 'properties', type: [Properties] })
+  @ApiPropertyOptional({ description: 'properties', type: [Properties] })
   @IsArray()
-  @ArrayMinSize(1)
   @IsOptional()
   @ValidateNested()
   @ValidateType(() => Properties)
-  properties: Properties[];
+  properties?: Properties[];
 
-  @ApiProperty({ description: 'Levels', type: [Levels] })
-  //@IsArray()
+  @ApiPropertyOptional({ description: 'Levels', type: [Levels] })
+  @IsArray()
   @IsOptional()
   @ValidateNested()
   @ValidateType(() => Levels)
-  levels: Levels[];
+  levels?: Levels[];
 
-  @ApiProperty({ description: 'Stats', type: [Stats] })
-  //@IsArray()
+  @ApiPropertyOptional({ description: 'Stats', type: [Stats] })
+  @IsArray()
   @IsOptional()
   @ValidateNested()
   @ValidateType(() => Stats)
-  stats: Stats[];
+  stats?: Stats[];
 
   @ApiPropertyOptional()
   @IsOptional()

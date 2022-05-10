@@ -8,9 +8,8 @@ export class ResponseModel {
     success: boolean,
     @Response() response,
   ) {
-    return response.json({
+    return response.status(status).json({
       message,
-      status,
       success,
     });
   }

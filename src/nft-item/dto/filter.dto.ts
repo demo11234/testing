@@ -14,7 +14,7 @@ export class FilterDto {
   // @IsEnum(StatusEnum)
   status?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ description: "give price type eg. usdPrice, ethPrice ", enum: { usdPrice: 'usdPrice', ethPrice: 'ethPrice' } })
   @IsOptional()
   @IsString()
   priceType?:string;
