@@ -175,7 +175,6 @@ export class CollectionsController {
   })
   async findAllByOwner(@Param('id') id: string, @Response() response) {
     try {
-      console.log('This is controller', id);
       const collections =
         await this.collectionService.findByOwnerOrCollaborator(id);
       return this.responseModel.response(

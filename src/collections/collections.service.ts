@@ -61,9 +61,15 @@ export class CollectionsService {
 
   async findByOwnerOrCollaborator(id: string): Promise<any> {
     try {
-      const collections = await this.collectionRepository.find({
-        where: { owner: id },
-      });
+      const isDeletedFalse = false;
+      const collections = await this.collectionRepository
+        .createQueryBuilder('collection')
+        .where('collection.isDeleted = :isDeletedFalse', { isDeletedFalse })
+        .innerJoinAndSelect('collection.owner', 'owner', 'owner.id = :id', {
+          id,
+        })
+        .select(['collection', 'owner.userName'])
+        .getRawMany();
       return collections;
     } catch (error) {
       return { msg: ResponseMessage.INTERNAL_SERVER_ERROR };
