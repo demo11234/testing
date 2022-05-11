@@ -1,4 +1,3 @@
-
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   ArrayMinSize,
@@ -26,7 +25,6 @@ export class CreateNftItemDto {
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()
-  @IsUrl({ message: 'external URL is not valid.' })
   externalUrl?: string;
 
   @ApiPropertyOptional()
