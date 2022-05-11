@@ -64,4 +64,6 @@ export const ResponseMessage = {
 
   COLLECTION_NAME: 'Collection Name is Empty',
   UNIQUE_COLLECTION_CHECK: 'Boolean Values for Collection Name and url',
+
+  SELECT_COLLECTION: 'Please select a collection',
 };

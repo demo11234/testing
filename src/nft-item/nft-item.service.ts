@@ -35,40 +35,6 @@ export class NftItemService {
     try {
       const nftItem = new NftItem();
 
-      if (!nftItemDto.collectionId) {
-        const userCreated = await this.userRepository.findOne({
-          where: {
-            walletAddress: user.walletAddress,
-          },
-        });
-
-        const collection = await this.collectionRepository.find({
-          where: {
-            owner: userCreated.id,
-          },
-        });
-
-        if (collection.length) {
-          return 'Please Select the Collection';
-        } else {
-          const collections = (await this.collectionRepository.count()) + 1;
-          let collection = new Collection();
-
-          collection.logo = Constants.COLLECTION_LOGO;
-          collection.name = `${Constants.COLLECTION_NAME}#${collections}`;
-          collection.owner = userCreated;
-
-          collection = await this.collectionRepository.save(collection);
-
-          nftItem.collection = collection;
-        }
-      } else {
-        const collection = await this.collectionRepository.findOne({
-          where: { id: nftItemDto.collectionId },
-        });
-        nftItem.collection = collection;
-      }
-
       nftItem.walletAddress = user.walletAddress;
       nftItem.originalOwner = user.walletAddress;
       nftItem.owner = user.walletAddress;
@@ -100,6 +66,40 @@ export class NftItemService {
         indexCount + 1,
         nftItemDto.supply,
       );
+
+      if (!nftItemDto.collectionId) {
+        const userCreated = await this.userRepository.findOne({
+          where: {
+            walletAddress: user.walletAddress,
+          },
+        });
+
+        const collection = await this.collectionRepository.find({
+          where: {
+            owner: userCreated.id,
+          },
+        });
+
+        if (collection.length) {
+          return false;
+        } else {
+          const collections = (await this.collectionRepository.count()) + 1;
+          let collection = new Collection();
+
+          collection.logo = Constants.COLLECTION_LOGO;
+          collection.name = `${Constants.COLLECTION_NAME}#${collections}`;
+          collection.owner = userCreated;
+
+          collection = await this.collectionRepository.save(collection);
+
+          nftItem.collection = collection;
+        }
+      } else {
+        const collection = await this.collectionRepository.findOne({
+          where: { id: nftItemDto.collectionId },
+        });
+        nftItem.collection = collection;
+      }
 
       const data = await this.nftItemRepository.save(nftItem);
 
