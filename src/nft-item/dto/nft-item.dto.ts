@@ -11,6 +11,7 @@ import {
 } from 'class-validator';
 import { Levels, Properties, Stats } from '../entities/nft-item.entities';
 import { Type as ValidateType } from 'class-transformer';
+import { Column } from 'typeorm';
 
 export class CreateNftItemDto {
   @ApiProperty()
@@ -26,6 +27,11 @@ export class CreateNftItemDto {
   @IsOptional()
   @IsString()
   externalUrl?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  previewImage?: string;
 
   @ApiPropertyOptional()
   @IsString()
