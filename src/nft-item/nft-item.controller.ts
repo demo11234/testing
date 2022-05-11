@@ -69,7 +69,15 @@ export class NftItemController {
     try {
       const user = req.user;
       const create = await this.nftItemService.createNftItem(user, nftItemDto);
-      const activity = await this.activityService.createActivity({
+      if (!create) {
+        return this.responseModel.response(
+          ResponseMessage.SELECT_COLLECTION,
+          ResponseStatusCode.BAD_REQUEST,
+          false,
+          response,
+        );
+      }
+      await this.activityService.createActivity({
         eventActions: eventActions.MINTED,
         nftItem: create.id,
         eventType: eventType.TRANSFERS,
