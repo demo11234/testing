@@ -56,6 +56,7 @@ export class NftItemService {
       nftItem.lockableContent = nftItemDto.lockableContent;
       nftItem.fileName = nftItemDto.fileName;
       nftItem.timeStamp = Date.now();
+      nftItem.previewImage = nftItemDto.previewImage;
 
       const [index, indexCount] = await this.nftItemRepository.findAndCount({
         walletAddress: user.walletAddress,
@@ -227,6 +228,7 @@ export class NftItemService {
         where: { id: updateNftItemDto.collectionId },
       });
       updateNftItem.collection = collection;
+      updateNftItem.previewImage = updateNftItemDto.previewImage;
 
       const update = await this.nftItemRepository.update({ id }, updateNftItem);
       if (update) return update;

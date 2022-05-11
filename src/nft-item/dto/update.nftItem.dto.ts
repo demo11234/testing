@@ -23,9 +23,13 @@ export class UpdateNftItemDto {
 
   @ApiPropertyOptional()
   @IsString()
-  @IsUrl()
   @IsOptional()
   externalUrl?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  previewImage?: string;
 
   @ApiPropertyOptional()
   @IsString()
@@ -70,4 +74,3 @@ export class UpdateNftItemDto {
   @IsBoolean()
   isExplicit: boolean;
 }
-

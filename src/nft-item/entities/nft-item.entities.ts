@@ -23,14 +23,18 @@ export class NftItem {
   @ApiProperty()
   @Column({ nullable: false })
   fileUrl: string;
-  
+
   @ApiProperty()
-  @Column({nullable: false})
+  @Column({ nullable: false })
   fileName: string;
 
   @ApiProperty()
   @Column({ nullable: true })
   externalUrl: string;
+
+  @ApiProperty()
+  @Column({ nullable: true })
+  previewImage: string;
 
   @ApiProperty()
   @Column({ nullable: true })
@@ -41,25 +45,25 @@ export class NftItem {
   collection: Collection;
 
   @ApiProperty()
-  @Column({type: "jsonb", nullable: true })
+  @Column({ type: 'jsonb', nullable: true })
   properties: Properties[];
 
   @ApiProperty()
-  @Column({type: "jsonb", nullable: true})
+  @Column({ type: 'jsonb', nullable: true })
   levels: Levels[];
 
   @ApiProperty()
-  @Column({type: "jsonb", nullable: true})
+  @Column({ type: 'jsonb', nullable: true })
   stats: Stats[];
 
   @ApiProperty()
-  @Column({default: false})
+  @Column({ default: false })
   isLockable: boolean;
 
   @ApiProperty()
-  @Column({default: false})
+  @Column({ default: false })
   isExplicit: boolean;
-  
+
   @ApiProperty()
   @Column({ default: 1 })
   supply: number;
@@ -69,12 +73,12 @@ export class NftItem {
   blockChain: Chains;
 
   @ApiProperty()
-  @Column({nullable: true})
+  @Column({ nullable: true })
   lockableContent: string;
 
   @ApiProperty()
-  @Column("simple-array", {default: []})
-  allowedTokens:string[];
+  @Column('simple-array', { default: [] })
+  allowedTokens: string[];
 
   @ApiProperty()
   @Column()
@@ -97,7 +101,7 @@ export class NftItem {
   updatedAt: Date;
 
   @ApiProperty()
-  @Column({type: 'float'})
+  @Column({ type: 'float' })
   timeStamp: number;
 }
 
@@ -115,11 +119,11 @@ export class Levels {
   @ApiProperty()
   @IsString()
   name: string;
-  
+
   @ApiProperty()
   @IsNumber()
   value: number;
-  
+
   @ApiProperty()
   @IsNumber()
   maxValue: number;
@@ -129,11 +133,11 @@ export class Stats {
   @ApiProperty()
   @IsString()
   name: string;
-  
+
   @ApiProperty()
   @IsNumber()
   value: number;
-  
+
   @ApiProperty()
   @IsNumber()
   maxValue: number;
