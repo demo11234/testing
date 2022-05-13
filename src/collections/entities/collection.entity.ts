@@ -38,6 +38,14 @@ export class Collection {
   })
   watchlist: User[];
 
+  @ManyToMany(() => User)
+  @JoinTable({
+    name: 'favourites',
+    joinColumn: { name: 'collection_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'user_id', referencedColumnName: 'id' },
+  })
+  favourites: User[];
+
   @Column({ nullable: true })
   @ApiProperty()
   banner: string;
