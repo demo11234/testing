@@ -11,9 +11,13 @@ import {
   Query,
   ValidationPipe,
   UsePipes,
+  HttpCode,
+  HttpStatus,
+  BadRequestException,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
+  ApiOkResponse,
   ApiOperation,
   ApiResponse,
   ApiTags,
@@ -226,6 +230,30 @@ export class NftItemController {
         false,
         response,
       );
+    }
+  }
+
+  @ApiTags('Nft Item')
+  @Get('/getNftItemByID/:id')
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({ description: 'GET ITEM DATA BY ITEM ID' })
+  async fatchNftItemByID(@Param('id') id: string) {
+    try {
+      return await this.nftItemService.findOne(id);
+    } catch (e) {
+      throw new BadRequestException(e.message);
+    }
+  }
+
+  @ApiTags('Nft Item')
+  @Get('/countViewer/:id')
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({ description: 'GET VIEWER COUNT ITEM' })
+  async fatchViewerCount(@Param('id') id: string) {
+    try {
+      return await this.nftItemService.fatchViewerCount(id);
+    } catch (e) {
+      throw new BadRequestException(e.message);
     }
   }
 }

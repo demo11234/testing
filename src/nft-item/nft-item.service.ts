@@ -75,6 +75,7 @@ export class NftItemService {
           },
         });
 
+
         const collection = await this.collectionRepository.find({
           where: {
             owner: userCreated.id,
@@ -281,5 +282,25 @@ export class NftItemService {
     const decimalToken = BigInt('0b' + binaryToken);
 
     return decimalToken.toString();
+  }
+
+  /**
+   * @description: This api for count the viewer of nft Item
+   * @param: id
+   * @returns: viewer count
+   * @author: Susmita
+   */
+
+  async fatchViewerCount(id: string): Promise<any> {
+    try {
+      const item = await this.findOne(id);
+      if (item){
+        item.keys= item.keys + 1;
+        const update = await this.nftItemRepository.update({ id }, item);
+        return item;
+      }
+    } catch (error) {
+      throw new Error(error);
+    }
   }
 }

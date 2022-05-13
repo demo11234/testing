@@ -103,6 +103,10 @@ export class NftItem {
   @ApiProperty()
   @Column({ type: 'float' })
   timeStamp: number;
+ 
+  @ApiProperty()
+  @Column({ nullable: true, default: 0 })
+  keys: number;
 }
 
 export class Properties {
