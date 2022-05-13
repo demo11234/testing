@@ -66,4 +66,5 @@ export const ResponseMessage = {
   UNIQUE_COLLECTION_CHECK: 'Boolean Values for Collection Name and url',
 
   SELECT_COLLECTION: 'Please select a collection',
+  USER_DOSENT_OWN_ALL_ITEM: 'User dosent own all item in collection'
 };

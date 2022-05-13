@@ -133,49 +133,6 @@ export class CollectionsService {
     }
   }
 
-  // async delete(id: string): Promise<any> {
-  //   const collection = await this.collectionRepository.findOne(id);
-  //   collection.isDeleted = true;
-  //   await this.collectionRepository.update(id, collection);
-  //   return null;
-  // }
-
-  // async updateCollaborator(
-  //   updateCollaboratorDto: UpdateCollaboratorDto,
-  //   owner: string,
-  // ): Promise<any> {
-  //   try {
-  //     const collection = await this.collectionRepository.findOne({
-  //       where: [
-  //         {
-  //           id: updateCollaboratorDto.collecionId,
-  //           isDeleted: false,
-  //           owner: owner,
-  //         },
-  //       ],
-  //     });
-  //     if (updateCollaboratorDto.updateType === collaboratorUpdateType.ADD) {
-  //       collection.collaborators.push(updateCollaboratorDto.updateType);
-  //       await this.collectionRepository.update(
-  //         updateCollaboratorDto.collecionId,
-  //         collection,
-  //       );
-  //     }
-  //     const toBeRemoved: number = collection.collaborators.indexOf(
-  //       updateCollaboratorDto.collaboratorWalletId,
-  //     );
-  //     collection.collaborators.splice(toBeRemoved, 1);
-  //     await this.collectionRepository.update(
-  //       updateCollaboratorDto.collecionId,
-  //       collection,
-  //     );
-  //     return { status: 200, msg: 'Collection updated succesfully' };
-  //   } catch (error) {
-  //     console.log('error', error);
-  //     return { msg: ResponseMessage.INTERNAL_SERVER_ERROR };
-  //   }
-  // }
-
   /**
    * @description Function will add current user to the collection watchlist
    * @param walletAddress , wallet address of the current user
@@ -321,10 +278,12 @@ export class CollectionsService {
         flag = 1
       })
 
-      if (flag === 1) throw new BadRequestException(ResponseMessage.BAD_REQUEST)
+      if (flag === 1) throw new BadRequestException(ResponseMessage.USER_DOSENT_OWN_ALL_ITEM)
       collection.isDeleted = true;
+
       await this.collectionRepository.update(id, collection);
       await this.collectionRepository.softDelete({id});
+      await this.nftItemRepository.softRemove(item);
 
       return ResponseMessage.COLLECTION_DELETED;
       } catch(error) {
