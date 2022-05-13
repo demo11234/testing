@@ -233,6 +233,7 @@ export class NftItemController {
     }
   }
 
+
   @ApiTags('Nft Item')
   @Get('/getNftItemByID/:id')
   @HttpCode(HttpStatus.OK)
@@ -256,4 +257,47 @@ export class NftItemController {
       throw new BadRequestException(e.message);
     }
   }
+  
+  /**
+   * @description: This api fetch all the item of a collection except one
+   * @param id
+   * @returns: all Item from a collection except one
+   * @author: vipin
+   */
+   @ApiTags('Nft Item')
+   @ApiOperation({ summary: 'it will fetch nft item from a collection except one' })
+   @ApiResponse({
+     status: ResponseStatusCode.OK,
+     description: 'Nft Fetch all from a collection',
+   })
+   @ApiResponse({
+     status: ResponseStatusCode.NOT_FOUND,
+     description: ResponseMessage.ITEM_NOT_FOUND,
+   })
+   @ApiResponse({
+     status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
+     description: ResponseMessage.INTERNAL_SERVER_ERROR,
+   })
+   @Get('fetchFromCollection/:id')
+   async findAllItemExceptOne(
+     @Param('id') id: string,
+     @Response() response,
+   ): Promise<any> {
+     try {
+       const find = await this.nftItemService.findAllItemExceptOne(id);
+       return this.responseModel.response(
+        find,
+        ResponseStatusCode.OK,
+        true,
+        response,
+      )
+     } catch (error) {
+       return this.responseModel.response(
+         error,
+         ResponseStatusCode.INTERNAL_SERVER_ERROR,
+         false,
+         response,
+       );
+     }
+   }
 }

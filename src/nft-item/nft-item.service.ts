@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Chains } from 'src/chains/entities/chains.entity';
 import { Collection } from 'src/collections/entities/collection.entity';
-import { In, Repository } from 'typeorm';
+import { In, Not, Repository } from 'typeorm';
 import { FilterDto } from './dto/filter.dto';
 import { CreateNftItemDto } from './dto/nft-item.dto';
 import { UpdateNftItemDto } from './dto/update.nftItem.dto';
@@ -10,6 +10,7 @@ import { NftItem } from './entities/nft-item.entities';
 import { Between } from 'typeorm';
 import { Constants } from 'shared/Constants';
 import { User } from 'src/user/entities/user.entity';
+import { ResponseMessage } from 'shared/ResponseMessage';
 
 @Injectable()
 export class NftItemService {
@@ -154,16 +155,15 @@ export class NftItemService {
             Between(Date.now() - 1000 * 60 * 60 * 24 * 1, Date.now());
           where.timeStamp = BetweenDates();
         }
-        // if (x.includes('buynow')){
-        //     a.push('buynow')
-        // }
-        // if (x.includes('onAuction')){
-        //     a.push('onAuction')
-        // }
-        // if (x.includes('hasOffer')){
-        //     a.push('hasOffer')
-        // }
-        // return a;
+        if (statusArr.includes('buynow')){
+          where.buyNow = true;
+        }
+        if (statusArr.includes('onAuction')){
+          where.onAuction = true;
+        }
+        if (statusArr.includes('hasOffer')){
+          where.hasOffer = true;
+        }
       }
 
       if (categories) {
@@ -301,6 +301,29 @@ export class NftItemService {
       }
     } catch (error) {
       throw new Error(error);
+      
+   * @description: This api fetch all the item of a collection except one
+   * @param id
+   * @returns: all Item from a collection
+   * @author: vipin
+  */
+  async findAllItemExceptOne(
+  id: string,
+  ): Promise<any> {
+    try {
+      const item = await this.nftItemRepository.find({
+        where: {id},
+        relations: ['collection']
+      })
+      if(!item.length) throw new NotFoundException(ResponseMessage.ITEM_NOT_FOUND)
+
+      const data = await this.nftItemRepository.find({
+        where: {id: Not(id), collection: item[0].collection.id},
+        relations: ['collection']
+      })
+      return data
+    } catch(error) {
+      return error;
     }
   }
 }
