@@ -17,9 +17,12 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { eventActions, eventType } from 'shared/Constants';
 import { ResponseMessage } from 'shared/ResponseMessage';
 import { ResponseStatusCode } from 'shared/ResponseStatusCode';
+import { ActivityService } from 'src/activity/activity.service';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { NftItemService } from 'src/nft-item/nft-item.service';
 import { ResponseModel } from 'src/responseModel';
 import { UserService } from 'src/user/user.service';
 import { CreateOfferDto } from './dto/create-offer.dto';
@@ -32,14 +35,15 @@ export class OfferController {
   constructor(
     private readonly offerService: OfferService,
     private readonly responseModel: ResponseModel,
-    private readonly userService: UserService
+    private readonly userService: UserService,
+    private readonly activityService: ActivityService,
   ) {}
 
   /**
    * @description: 'This api creates new offer by the user who is logged in'
-   * @param createOfferDto
+   * @body createOfferDto
    * @returns: 'Created Offer'
-   * @author: 'Ansh Arora
+   * @author: 'Ansh Arora'
    */
   @Post()
   @ApiTags('Offer Module')
@@ -72,6 +76,17 @@ export class OfferController {
         ownerWalletAddress,
       );
       if (offer) {
+        const activity = await this.activityService.createActivity({
+          eventActions: eventActions.OFFER_ENTERED,
+          nftItem: offer.item,
+          eventType: eventType.BIDS,
+          fromAccount: ownerWalletAddress,
+          toAccount: offer.item.owner,
+          totalPrice: createOfferDto.price,
+          isPrivate: false,
+          collectionId: offer.item.collection,
+          winnerAccount: null,
+        });
         return this.responseModel.response(
           offer,
           ResponseStatusCode.CREATED,
@@ -253,6 +268,17 @@ export class OfferController {
         );
       }
       await this.offerService.delete(id);
+      const activity = await this.activityService.createActivity({
+        eventActions: eventActions.OFFER_WITHDRAWN,
+        nftItem: offer.item,
+        eventType: eventType.BIDS,
+        fromAccount: req.user.walletAddress,
+        toAccount: offer.item.owner,
+        totalPrice: offer.price,
+        isPrivate: false,
+        collectionId: offer.item.collection,
+        winnerAccount: null,
+      });
       return this.responseModel.response(
         ResponseMessage.OFFER_REMOVED,
         ResponseStatusCode.OK,

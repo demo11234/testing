@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
+import { NftItem } from 'src/nft-item/entities/nft-item.entities';
 import { User } from 'src/user/entities/user.entity';
 
 import {
@@ -31,9 +32,11 @@ export class Offer {
   @JoinColumn()
   owner: User;
 
-  @Column()
-  @ApiProperty()
-  item: string;
+  @ManyToOne(() => NftItem, (nftItem) => nftItem.offers, {
+    eager: true,
+  })
+  @JoinColumn()
+  item: NftItem;
 
   @Column()
   Expires: string;

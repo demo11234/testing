@@ -15,6 +15,7 @@ export enum eventActions {
   BID_WITHDRAWN = 'BidWithdrawn',
   TRANSFER = 'Transfer',
   OFFER_ENTERED = 'OfferEntered',
+  OFFER_WITHDRAWN = 'OfferWithdrawn',
   APPROVE = 'Approve',
 }
 

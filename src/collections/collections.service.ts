@@ -63,79 +63,24 @@ export class CollectionsService {
   async findAll(filterDto: FilterDto): Promise<any> {
     try {
       const { take, skip } = filterDto;
-      const filter = {
-        earningWalletAddress: '',
-        name: '',
-        isVerified: null,
-        status: '',
-      };
-      if (filterDto.earningWalletAddress) {
-        filterDto.earningWalletAddress = filter.earningWalletAddress;
-      } else {
-        delete filter.earningWalletAddress;
-      }
-      if (filterDto.name) {
-        filterDto.name = filter.name;
-      } else {
-        delete filter.name;
-      }
-      if (filterDto.status) {
-        filterDto.status = filter.status;
-      } else {
-        delete filter.status;
-      }
+      const filter = Object.assign({}, filterDto);
 
-      if (filterDto.isVerified) {
-        filterDto.isVerified = filter.isVerified;
-      } else {
-        delete filter.isVerified;
-      }
+      Object.keys(filter).forEach((value) => {
+        if (!filter[value]) delete filter[value];
+      });
 
       const collections = await this.collectionRepository.findAndCount({
         take,
         skip,
         where: filter,
       });
-      if (!collections[0]) return null;
-      collections[0] = collections[0].filter((collection) => {
-        collection.isDeleted === false;
-      });
-      if (earningWalletAddress) {
-        collections[0] = collections[0].filter((collection) => {
-          collection.earningWalletAddress === earningWalletAddress;
-        });
-      }
-      if (name) {
-        collections[0] = collections[0].filter((collection) => {
-          collection.name === name;
-        });
-      }
-      if (status) {
-        collections[0] = collections[0].filter((collection) => {
-          collection.status.toString() === status;
-        });
-      }
-
-      if (isVerified) {
-        collections[0] = collections[0].filter((collection) => {
-          collection.isVerified === isVerified;
-        });
-      }
-      if (search) {
-        collections[0] = collections[0].filter(
-          (collection) =>
-            collection.name.includes(search) ||
-            collection.description.includes(search) ||
-            collection.displayTheme.includes(search),
-        );
-      }
       return collections;
     } catch (error) {
       return { msg: ResponseMessage.INTERNAL_SERVER_ERROR };
     }
   }
 
-  async findOne(id: string, owner: string): Promise<Collection> {
+  async findOne(id: string, owner: string): Promise<any> {
     try {
       const collection = await this.collectionRepository.findOne({
         where: [{ id: id, isDeleted: false, owner: owner }],

@@ -1,8 +1,11 @@
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ActivityService } from 'src/activity/activity.service';
+import { Activity } from 'src/activity/entities/activity.entity';
 import { Category } from 'src/admin/entities/categories.entity';
 import { Collection } from 'src/collections/entities/collection.entity';
+import { NftItem } from 'src/nft-item/entities/nft-item.entities';
 import { Notification } from 'src/notification/entity/notification.entity';
 import { NotificationService } from 'src/notification/notification.service';
 import { ResponseModel } from 'src/responseModel';
@@ -24,6 +27,8 @@ import { OfferService } from './offer.service';
       UserRepository,
       Notification,
       Collection,
+      NftItem,
+      Activity,
     ]),
   ],
   controllers: [OfferController],
@@ -35,6 +40,7 @@ import { OfferService } from './offer.service';
     ServicesService,
     FileUpload,
     ConfigService,
+    ActivityService,
   ],
 })
 export class OfferModule {}

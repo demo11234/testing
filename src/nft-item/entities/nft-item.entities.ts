@@ -2,12 +2,14 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsString } from 'class-validator';
 import { Chains } from 'src/chains/entities/chains.entity';
 import { Collection } from 'src/collections/entities/collection.entity';
+import { Offer } from 'src/offer/entities/offer.entity';
 import {
   CreateDateColumn,
   ManyToOne,
   Column,
   Entity,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
 import { PrimaryGeneratedColumn, JoinColumn } from 'typeorm';
 
@@ -23,9 +25,9 @@ export class NftItem {
   @ApiProperty()
   @Column({ nullable: false })
   fileUrl: string;
-  
+
   @ApiProperty()
-  @Column({nullable: false})
+  @Column({ nullable: false })
   fileName: string;
 
   @ApiProperty()
@@ -41,40 +43,46 @@ export class NftItem {
   collection: Collection;
 
   @ApiProperty()
-  @Column({type: "jsonb",default: []})
+  @Column({ type: 'jsonb', default: [] })
   properties: Properties[];
 
   @ApiProperty()
-  @Column({type: "jsonb",default: []})
+  @Column({ type: 'jsonb', default: [] })
   levels: Levels[];
 
   @ApiProperty()
-  @Column({type: "jsonb",default: []})
+  @Column({ type: 'jsonb', default: [] })
   stats: Stats[];
 
   @ApiProperty()
-  @Column({default: false})
+  @Column({ default: false })
   isLockable: boolean;
 
   @ApiProperty()
-  @Column({default: false})
+  @Column({ default: false })
   isExplicit: boolean;
-  
+
   @ApiProperty()
   @Column({ default: 1 })
   supply: number;
+
+  @OneToMany(() => Offer, (offer) => offer.item, {
+    eager: false,
+  })
+  @JoinColumn()
+  offers: Offer[];
 
   @ManyToOne(() => Chains, (chains) => chains.nftChainName)
   @JoinColumn()
   blockChain: Chains;
 
   @ApiProperty()
-  @Column({length: 1000, default: ''})
+  @Column({ length: 1000, default: '' })
   lockableContent: string;
 
   @ApiProperty()
-  @Column("simple-array", {default: []})
-  allowedTokens:string[];
+  @Column('simple-array', { default: [] })
+  allowedTokens: string[];
 
   @ApiProperty()
   @Column()
@@ -97,7 +105,7 @@ export class NftItem {
   updatedAt: Date;
 
   @ApiProperty()
-  @Column({type: 'float'})
+  @Column({ type: 'float' })
   timeStamp: number;
 }
 
@@ -120,10 +128,10 @@ export class Levels {
   @ApiProperty()
   @IsString()
   name: string;
-  
+
   @ApiProperty()
   value: number;
-  
+
   @ApiProperty()
   maxValue: number;
 }
@@ -132,10 +140,10 @@ export class Stats {
   @ApiProperty()
   @IsString()
   name: string;
-  
+
   @ApiProperty()
   value: number;
-  
+
   @ApiProperty()
   maxValue: number;
 }
