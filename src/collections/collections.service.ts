@@ -244,13 +244,7 @@ export class CollectionsService {
           'watchlist.walletAddress = :walletAddress',
           { walletAddress },
         )
-        .select([
-          'collection.id',
-          'collection.logo',
-          'collection.featureImage',
-          'collection.name',
-          'collection.banner',
-        ])
+        .select(['collection'])
         .getMany();
 
       return collections;
@@ -297,6 +291,12 @@ export class CollectionsService {
     }
   }
 
+  /**
+   * @description Function will remove current user to the collection favourites
+   * @param walletAddress , wallet address of the current user
+   * @param collectionId , collecton id to perform the update
+   * @returns Promise
+   */
   async removeUseFromFavourites(
     walletAddress: string,
     collectionId: string,
@@ -321,6 +321,11 @@ export class CollectionsService {
     }
   }
 
+  /**
+   * @description: getCollectionForUserFavourites returns the collections present in current user favourites
+   * @returns: Collections
+   * @author: Jeetanshu Srivastava
+   */
   async getCollectionForUserFavourites(
     walletAddress: string,
   ): Promise<Collection[]> {
@@ -333,13 +338,7 @@ export class CollectionsService {
           'favourites.walletAddress = :walletAddress',
           { walletAddress },
         )
-        .select([
-          'collection.id',
-          'collection.logo',
-          'collection.featureImage',
-          'collection.name',
-          'collection.banner',
-        ])
+        .select(['collection'])
         .getMany();
 
       return collections;
