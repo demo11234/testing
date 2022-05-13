@@ -94,6 +94,18 @@ export class NftItem {
   walletAddress: string;
 
   @ApiProperty()
+  @Column({default: false})
+  buyNow: boolean;
+
+  @ApiProperty()
+  @Column({default: false})
+  onAuction: boolean;
+
+  @ApiProperty()
+  @Column({default: false})
+  hasOffer: boolean;
+
+  @ApiProperty()
   @CreateDateColumn()
   createdAt: Date;
 
