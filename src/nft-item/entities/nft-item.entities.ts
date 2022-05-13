@@ -8,6 +8,7 @@ import {
   Column,
   Entity,
   UpdateDateColumn,
+  DeleteDateColumn,
 } from 'typeorm';
 import { PrimaryGeneratedColumn, JoinColumn } from 'typeorm';
 
@@ -103,6 +104,9 @@ export class NftItem {
   @ApiProperty()
   @Column({ type: 'float' })
   timeStamp: number;
+
+  @DeleteDateColumn()
+  deletedAt: Date;
 }
 
 export class Properties {

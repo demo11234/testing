@@ -13,6 +13,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
   JoinColumn,
+  DeleteDateColumn,
 } from 'typeorm';
 import { displayTheme } from '../enums/display-themes.enum';
 
@@ -156,4 +157,11 @@ export class Collection {
 
   @OneToMany(() => NftItem, (nftItem) => nftItem.collection)
   nftItem: NftItem[];
+
+  @Column()
+  @ApiProperty()
+  ownerWalletAddress: string;
+
+  @DeleteDateColumn()
+  deletedAt: Date;
 }
