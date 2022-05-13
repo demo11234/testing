@@ -331,72 +331,6 @@ export class CollectionsController {
   }
 
   /**
-   * @description: This api updates the collection and returns status
-   * @param id
-   * @param updateCollectionDto
-   * @returns: Update Status
-   * @author: Ansh Arora
-   */
-  @Delete(':id')
-  @ApiTags('Collection Module')
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({
-    summary:
-      'Soft deletes the Collection owned by user who is currenlty Logged In',
-  })
-  @ApiResponse({
-    status: ResponseStatusCode.CONFLICT,
-    description: ResponseMessage.USER_DOES_NOT_OWN_COLLECTION,
-  })
-  @ApiResponse({
-    status: ResponseStatusCode.NOT_FOUND,
-    description: ResponseMessage.COLLECTION_DOES_NOT_EXIST,
-  })
-  @ApiResponse({
-    status: ResponseStatusCode.OK,
-    description: ResponseMessage.COLLECTION_DELETED,
-  })
-  @ApiResponse({
-    status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
-    description: ResponseMessage.INTERNAL_SERVER_ERROR,
-  })
-  async delete(
-    @Req() req,
-    @Param('id') id: string,
-    @Response() response,
-  ): Promise<any> {
-    try {
-      const owner = req.user.id;
-      const collection = await this.collectionService.findOne(id, owner);
-      if (req.user.id === collection.owner) {
-        if (collection) {
-          await this.collectionService.delete(id);
-          return this.responseModel.response(
-            ResponseMessage.COLLECTION_DELETED,
-            ResponseStatusCode.OK,
-            true,
-            response,
-          );
-        }
-      } else {
-        return this.responseModel.response(
-          ResponseMessage.USER_DOES_NOT_OWN_COLLECTION,
-          ResponseStatusCode.BAD_REQUEST,
-          false,
-          response,
-        );
-      }
-    } catch (error) {
-      return this.responseModel.response(
-        error,
-        ResponseStatusCode.INTERNAL_SERVER_ERROR,
-        false,
-        response,
-      );
-    }
-  }
-
-  /**
    * @description: getWatchCollections returns the collections present in current user watchlist
    * @returns: Collections
    * @author: Jeetanshu Srivastava
@@ -618,65 +552,6 @@ export class CollectionsController {
     }
   }
 
-  // /**
-  //  * @description: This api adds or removes the collaborator
-  //  * @param updateCollaboratorDto
-  //  * @returns: Status on add or removal of collaborator
-  //  * @author: Ansh Arora
-  //  */
-  // @Patch()
-  // @UseGuards(JwtAuthGuard)
-  // @ApiTags('Collection Module')
-  // @ApiOperation({
-  //   summary: 'Adds or removes the collaborator from the collection',
-  // })
-  // @ApiResponse({
-  //   status: ResponseStatusCode.OK,
-  //   description: ResponseMessage.COLLABORATOR_ADDED,
-  // })
-  // @ApiResponse({
-  //   status: ResponseStatusCode.OK,
-  //   description: ResponseMessage.COLLABORATOR_REMOVED,
-  // })
-  // @ApiResponse({
-  //   status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
-  //   description: ResponseMessage.INTERNAL_SERVER_ERROR,
-  // })
-  // async updateCollaborator(
-  //   @Param() updateCollaboratorDto: UpdateCollaboratorDto,
-  //   @Req() req,
-  //   @Response() response,
-  // ): Promise<any> {
-  //   try {
-  //     const owner = req.user;
-  //     await this.collectionService.updateCollaborator(
-  //       updateCollaboratorDto,
-  //       owner,
-  //     );
-  //     if (updateCollaboratorDto.updateType === collaboratorUpdateType.ADD) {
-  //       return this.responseModel.response(
-  //         ResponseMessage.COLLABORATOR_ADDED,
-  //         ResponseStatusCode.OK,
-  //         true,
-  //         response,
-  //       );
-  //     }
-  //     return this.responseModel.response(
-  //       ResponseMessage.COLLABORATOR_REMOVED,
-  //       ResponseStatusCode.OK,
-  //       true,
-  //       response,
-  //     );
-  //   } catch (error) {
-  //     return this.responseModel.response(
-  //       error,
-  //       ResponseStatusCode.INTERNAL_SERVER_ERROR,
-  //       false,
-  //       response,
-  //     );
-  //   }
-  // }
-
   /**
    * @description checkUniqueCollection checks collection with unique name and url
    * @param UniqueCollectionCheck
@@ -721,4 +596,57 @@ export class CollectionsController {
       );
     }
   }
+
+  /**
+   * @description: This api soft deletes the collection and returns status
+   * @param id
+   * @returns: soft delete collection
+   * @author: vipin
+  */
+  @Delete(':id')
+  @ApiTags('Collection Module')
+  @UseGuards(JwtAuthGuard)
+  @ApiResponse({
+    status: ResponseStatusCode.CONFLICT,
+    description: ResponseMessage.USER_DOES_NOT_OWN_COLLECTION,
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.NOT_FOUND,
+    description: ResponseMessage.COLLECTION_DOES_NOT_EXIST,
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.OK,
+    description: ResponseMessage.COLLECTION_DELETED,
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
+    description: ResponseMessage.INTERNAL_SERVER_ERROR,
+  })
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary:
+      'Soft deletes the Collection owned by user who is currenlty Logged In',
+  })
+  async deleteCollection (
+    @Param('id') id:string,
+    @Response() response,
+    @Request() request,
+    ):Promise <any> {
+      try{
+        const data = await this.collectionService.deleteCollection(id, request);
+        return this.responseModel.response(
+          data,
+          ResponseStatusCode.OK,
+          true,
+          response,
+        );
+      } catch (error){
+        return this.responseModel.response(
+          error,
+          ResponseStatusCode.INTERNAL_SERVER_ERROR,
+          false,
+          response,
+        );
+      }
+    }
 }
