@@ -5,6 +5,10 @@ export const Constants = {
   JWT_SECRET_KEY: process.env.JWT_SECRET_KEY,
   USER: 'User',
   ADMIN: 'Admin',
+
+  COLLECTION_LOGO:
+    'https://jungle-development-bucket.s3.amazonaws.com/profile/1652186046441-tree-736885__480.webp',
+  COLLECTION_NAME: 'Unnamed',
 };
 
 export enum eventActions {

@@ -14,6 +14,7 @@ import { collaboratorUpdateType } from './enums/collaborator-update-type.enum';
 import { ResponseMessage } from 'shared/ResponseMessage';
 import { User } from '../../src/user/entities/user.entity';
 import { ResponseStatusCode } from 'shared/ResponseStatusCode';
+import { UniqueCollectionCheck } from './dto/unique-collection-check.dto';
 // import { UserRepository } from 'src/user/repositories/user.repository';
 
 @Injectable()
@@ -25,10 +26,7 @@ export class CollectionsService {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  async create(
-    walletAddress: string,
-    createCollectionDto: CreateCollectionsDto,
-  ): Promise<any> {
+  async create(owner: User, createCollectionDto: CreateCollectionsDto) {
     try {
       let collection = new Collection();
       collection.logo = createCollectionDto.logo;
@@ -49,14 +47,32 @@ export class CollectionsService {
       collection.displayTheme = createCollectionDto.displayTheme;
       collection.explicitOrSensitiveContent =
         createCollectionDto.explicitOrSensitiveContent;
-      collection.owner = walletAddress;
+      collection.owner = owner;
 
       collection = await this.collectionRepository.save(collection);
       return collection;
     } catch (error) {
+      console.log(error);
       if (error.code === ResponseStatusCode.UNIQUE_CONSTRAINTS)
         throw new ConflictException(ResponseMessage.UNIQUE_CONSTRAINTS_NAME);
       else throw new InternalServerErrorException();
+    }
+  }
+
+  async findByOwnerOrCollaborator(id: string): Promise<any> {
+    try {
+      const isDeletedFalse = false;
+      const collections = await this.collectionRepository
+        .createQueryBuilder('collection')
+        .where('collection.isDeleted = :isDeletedFalse', { isDeletedFalse })
+        .innerJoinAndSelect('collection.owner', 'owner', 'owner.id = :id', {
+          id,
+        })
+        .select(['collection', 'owner.userName'])
+        .getRawMany();
+      return collections;
+    } catch (error) {
+      return { msg: ResponseMessage.INTERNAL_SERVER_ERROR };
     }
   }
 
@@ -118,41 +134,41 @@ export class CollectionsService {
     return null;
   }
 
-  async updateCollaborator(
-    updateCollaboratorDto: UpdateCollaboratorDto,
-    owner: string,
-  ): Promise<any> {
-    try {
-      const collection = await this.collectionRepository.findOne({
-        where: [
-          {
-            id: updateCollaboratorDto.collecionId,
-            isDeleted: false,
-            owner: owner,
-          },
-        ],
-      });
-      if (updateCollaboratorDto.updateType === collaboratorUpdateType.ADD) {
-        collection.collaborators.push(updateCollaboratorDto.updateType);
-        await this.collectionRepository.update(
-          updateCollaboratorDto.collecionId,
-          collection,
-        );
-      }
-      const toBeRemoved: number = collection.collaborators.indexOf(
-        updateCollaboratorDto.collaboratorWalletId,
-      );
-      collection.collaborators.splice(toBeRemoved, 1);
-      await this.collectionRepository.update(
-        updateCollaboratorDto.collecionId,
-        collection,
-      );
-      return { status: 200, msg: 'Collection updated succesfully' };
-    } catch (error) {
-      console.log('error', error);
-      return { msg: ResponseMessage.INTERNAL_SERVER_ERROR };
-    }
-  }
+  // async updateCollaborator(
+  //   updateCollaboratorDto: UpdateCollaboratorDto,
+  //   owner: string,
+  // ): Promise<any> {
+  //   try {
+  //     const collection = await this.collectionRepository.findOne({
+  //       where: [
+  //         {
+  //           id: updateCollaboratorDto.collecionId,
+  //           isDeleted: false,
+  //           owner: owner,
+  //         },
+  //       ],
+  //     });
+  //     if (updateCollaboratorDto.updateType === collaboratorUpdateType.ADD) {
+  //       collection.collaborators.push(updateCollaboratorDto.updateType);
+  //       await this.collectionRepository.update(
+  //         updateCollaboratorDto.collecionId,
+  //         collection,
+  //       );
+  //     }
+  //     const toBeRemoved: number = collection.collaborators.indexOf(
+  //       updateCollaboratorDto.collaboratorWalletId,
+  //     );
+  //     collection.collaborators.splice(toBeRemoved, 1);
+  //     await this.collectionRepository.update(
+  //       updateCollaboratorDto.collecionId,
+  //       collection,
+  //     );
+  //     return { status: 200, msg: 'Collection updated succesfully' };
+  //   } catch (error) {
+  //     console.log('error', error);
+  //     return { msg: ResponseMessage.INTERNAL_SERVER_ERROR };
+  //   }
+  // }
 
   /**
    * @description Function will add current user to the collection watchlist
@@ -238,6 +254,38 @@ export class CollectionsService {
       return collections;
     } catch (error) {
       console.log(error);
+    }
+  }
+
+  /**
+   * @description checkUniqueCollection checks collection with unique name and url
+   * @param UniqueCollectionCheck
+   * @returns Boolean Values for collectionNameExists and collectionUrlExists
+   * @author Jeetanshu Srivastava
+   */
+  async checkUniqueCollection(
+    uniqueCollectionCheck: UniqueCollectionCheck,
+  ): Promise<any> {
+    let result = false;
+    try {
+      if (uniqueCollectionCheck.name) {
+        const collectionByName = await this.collectionRepository.findOne({
+          name: uniqueCollectionCheck.name,
+        });
+        result = !!collectionByName;
+      }
+
+      if (uniqueCollectionCheck.url) {
+        const collectionByUrl = await this.collectionRepository.findOne({
+          url: uniqueCollectionCheck.url,
+        });
+        result = !!collectionByUrl;
+      }
+
+      return result;
+    } catch (error) {
+      console.log(error);
+      return false;
     }
   }
 }

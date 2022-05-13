@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsEnum } from 'class-validator';
+import { IsEnum } from 'class-validator';
 import { NftItem } from 'src/nft-item/entities/nft-item.entities';
 import { User } from 'src/user/entities/user.entity';
 import {
@@ -12,6 +12,7 @@ import {
   JoinTable,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
+  JoinColumn,
 } from 'typeorm';
 import { displayTheme } from '../enums/display-themes.enum';
 
@@ -21,11 +22,11 @@ export class Collection {
   @ApiProperty()
   id: string;
 
-  @Column({ length: 50, nullable: false })
+  @Column({ nullable: false })
   @ApiProperty()
   logo: string;
 
-  @Column({ length: 50, nullable: true })
+  @Column({ nullable: true })
   @ApiProperty()
   featureImage: string;
 
@@ -37,15 +38,11 @@ export class Collection {
   })
   watchlist: User[];
 
-  @ManyToMany(() => User)
-  @ApiProperty()
-  collaborators: string[];
-
-  @Column({ length: 50 })
+  @Column({ nullable: true })
   @ApiProperty()
   banner: string;
 
-  @Column({ unique: true, length: 50, nullable: false })
+  @Column({ unique: true, nullable: false })
   @ApiProperty()
   name: string;
 
@@ -61,7 +58,7 @@ export class Collection {
   @ApiProperty()
   paymentToken: string;
 
-  @Column({ nullable: true })
+  @Column({ default: true })
   @ApiProperty()
   explicitOrSensitiveContent: boolean;
 
@@ -69,7 +66,7 @@ export class Collection {
   @ApiProperty()
   url: string;
 
-  @Column({ length: 1000, nullable: true })
+  @Column({ nullable: true })
   @ApiProperty()
   description: string;
 
@@ -77,27 +74,27 @@ export class Collection {
   @ApiProperty()
   isDeleted: boolean;
 
-  @Column({ length: 1000, nullable: true })
+  @Column({ nullable: true })
   @ApiProperty()
   websiteLink: string;
 
-  @Column({ length: 1000, nullable: true })
+  @Column({ nullable: true })
   @ApiProperty()
   discordLink: string;
 
-  @Column({ length: 1000, nullable: true })
+  @Column({ nullable: true })
   @ApiProperty()
   instagramLink: string;
 
-  @Column({ length: 1000, nullable: true })
+  @Column({ nullable: true })
   @ApiProperty()
   mediumLink: string;
 
-  @Column({ length: 1000, nullable: true })
+  @Column({ nullable: true })
   @ApiProperty()
   telegramLink: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, type: 'decimal' })
   @ApiProperty()
   earningFee: number;
 
@@ -105,7 +102,13 @@ export class Collection {
   @ApiProperty()
   earningWalletAddress: string;
 
-  @Column({ length: 100, default: displayTheme.CONTAINED })
+  @ManyToMany(() => User, (user) => user.collaboratedCollection, {
+    eager: false,
+  })
+  @JoinColumn()
+  collaborators: User[];
+
+  @Column({ default: displayTheme.CONTAINED })
   @ApiProperty()
   @IsEnum(displayTheme)
   displayTheme:
@@ -113,12 +116,11 @@ export class Collection {
     | displayTheme.COVERED
     | displayTheme.PADDED;
 
-  // @ManyToOne((_type) => User, (user) => user.collections, {
-  // eager: false,
-  // })
-  @Column({ nullable: true })
-  @ApiProperty()
-  owner: string;
+  @ManyToOne(() => User, (user) => user.collections, {
+    eager: false,
+  })
+  @JoinColumn()
+  owner: User;
 
   @Column({ default: false })
   @ApiProperty()
@@ -136,7 +138,7 @@ export class Collection {
   @ApiProperty({ default: false })
   isSafelisted: boolean;
 
-  @Column({ length: 250, nullable: true })
+  @Column({ nullable: true })
   @ApiProperty()
   slug: string;
 

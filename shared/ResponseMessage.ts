@@ -67,4 +67,9 @@ export const ResponseMessage = {
   ITEM_ACTIVITIES: 'Item Activities',
   ACTIVITIES: 'Activities',
   UNIQUE_CONSTRAINTS_NAME: 'Name of the collection must be unique',
+
+  COLLECTION_NAME: 'Collection Name is Empty',
+  UNIQUE_COLLECTION_CHECK: 'Boolean Values for Collection Name and url',
+
+  SELECT_COLLECTION: 'Please select a collection',
 };

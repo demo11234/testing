@@ -1,40 +1,49 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsNumber } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsBoolean, IsNumber, IsOptional } from 'class-validator';
 
 export class NotificationDto {
-  @ApiProperty()
+  @ApiPropertyOptional()
   @IsBoolean()
+  @IsOptional()
   itemSold?: boolean;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   @IsBoolean()
+  @IsOptional()
   bidActivity?: boolean;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   @IsBoolean()
+  @IsOptional()
   priceChange?: boolean;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   @IsBoolean()
+  @IsOptional()
   auctionExpiration?: boolean;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   @IsBoolean()
+  @IsOptional()
   outBid?: boolean;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   @IsBoolean()
+  @IsOptional()
   ownedItemUpdates?: boolean;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   @IsBoolean()
+  @IsOptional()
   successfulPurchase?: boolean;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   @IsBoolean()
+  @IsOptional()
   jungleNewsletter?: boolean;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   @IsNumber()
+  @IsOptional()
   minimumBidThreshold?: number;
 }

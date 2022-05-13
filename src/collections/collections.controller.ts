@@ -27,10 +27,9 @@ import {
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { FilterDto } from './dto/filter.dto';
-import { collaboratorUpdateType } from './enums/collaborator-update-type.enum';
-import { UpdateCollaboratorDto } from './dto/update-collaborator.dto';
 import { UserWatchlistDto } from './dto/user-watchlist.dto';
 import { UserService } from 'src/user/user.service';
+import { UniqueCollectionCheck } from './dto/unique-collection-check.dto';
 
 @Controller('collections')
 export class CollectionsController {
@@ -71,8 +70,11 @@ export class CollectionsController {
     @Response() response,
   ): Promise<any> {
     try {
-      const collection = await this.collectionService.create(
+      const owner = await this.userService.findUserByWalletAddress(
         req.user.walletAddress,
+      );
+      const collection = await this.collectionService.create(
+        owner,
         createCollectionDto,
       );
       if (collection) {
@@ -154,12 +156,51 @@ export class CollectionsController {
   }
 
   /**
+   * @description: This apis returns all collections by owner
+   * @returns: All collections by owner
+   * @author: Ansh Arora
+   */
+  @Get('/getByUserId/:id')
+  @ApiTags('Collection Module')
+  @ApiOperation({
+    summary: 'Find All Collections by owner',
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.OK,
+    description: 'Returns All Collections by owner',
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.NOT_FOUND,
+    description: ResponseMessage.COLLECTIONS_DO_NOT_EXIST,
+  })
+  async findAllByOwner(@Param('id') id: string, @Response() response) {
+    try {
+      const collections =
+        await this.collectionService.findByOwnerOrCollaborator(id);
+      return this.responseModel.response(
+        collections,
+        ResponseStatusCode.OK,
+        true,
+        response,
+      );
+    } catch (error) {
+      console.log('error in controller', error);
+      return this.responseModel.response(
+        error,
+        ResponseStatusCode.INTERNAL_SERVER_ERROR,
+        false,
+        response,
+      );
+    }
+  }
+
+  /**
    * @description: This api finds single collection using id
    * @param id
    * @returns: Single collection that matches the id
    * @author: Ansh Arora
    */
-  @Get(':id')
+  @Get('/:id')
   @UseGuards(JwtAuthGuard)
   @ApiTags('Collection Module')
   @ApiOperation({
@@ -355,6 +396,50 @@ export class CollectionsController {
   }
 
   /**
+   * @description: getWatchCollections returns the collections present in current user watchlist
+   * @returns: Collections
+   * @author: Jeetanshu Srivastava
+   */
+  @Put('/getWatchCollections')
+  @UseGuards(JwtAuthGuard)
+  @ApiTags('Collection Module')
+  @ApiOperation({
+    summary: 'Returns Current User Watchlist Collection',
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.OK,
+    description: ResponseMessage.COLLECTION_LIST,
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
+    description: ResponseMessage.INTERNAL_SERVER_ERROR,
+  })
+  @ApiBearerAuth()
+  async getWatchCollections(
+    @Response() response,
+    @Request() request,
+  ): Promise<any> {
+    try {
+      const collections = await this.collectionService.getCollectionForUser(
+        request.user.walletAddress,
+      );
+      return this.responseModel.response(
+        collections,
+        ResponseStatusCode.OK,
+        true,
+        response,
+      );
+    } catch (error) {
+      return this.responseModel.response(
+        error,
+        ResponseStatusCode.INTERNAL_SERVER_ERROR,
+        false,
+        response,
+      );
+    }
+  }
+
+  /**
    * @description: watchlist adds or removes user from watchlist depending upon the value of isWatched
    * @param updateCollectionDto
    * @returns: Update Staus
@@ -420,95 +505,96 @@ export class CollectionsController {
     }
   }
 
-  /**
-   * @description: This api adds or removes the collaborator
-   * @param updateCollaboratorDto
-   * @returns: Status on add or removal of collaborator
-   * @author: Ansh Arora
-   */
-  @Patch()
-  @UseGuards(JwtAuthGuard)
-  @ApiTags('Collection Module')
-  @ApiOperation({
-    summary: 'Adds or removes the collaborator from the collection',
-  })
-  @ApiResponse({
-    status: ResponseStatusCode.OK,
-    description: ResponseMessage.COLLABORATOR_ADDED,
-  })
-  @ApiResponse({
-    status: ResponseStatusCode.OK,
-    description: ResponseMessage.COLLABORATOR_REMOVED,
-  })
-  @ApiResponse({
-    status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
-    description: ResponseMessage.INTERNAL_SERVER_ERROR,
-  })
-  async updateCollaborator(
-    @Param() updateCollaboratorDto: UpdateCollaboratorDto,
-    @Req() req,
-    @Response() response,
-  ): Promise<any> {
-    try {
-      const owner = req.user;
-      await this.collectionService.updateCollaborator(
-        updateCollaboratorDto,
-        owner,
-      );
-      if (updateCollaboratorDto.updateType === collaboratorUpdateType.ADD) {
-        return this.responseModel.response(
-          ResponseMessage.COLLABORATOR_ADDED,
-          ResponseStatusCode.OK,
-          true,
-          response,
-        );
-      }
-      return this.responseModel.response(
-        ResponseMessage.COLLABORATOR_REMOVED,
-        ResponseStatusCode.OK,
-        true,
-        response,
-      );
-    } catch (error) {
-      return this.responseModel.response(
-        error,
-        ResponseStatusCode.INTERNAL_SERVER_ERROR,
-        false,
-        response,
-      );
-    }
-  }
+  // /**
+  //  * @description: This api adds or removes the collaborator
+  //  * @param updateCollaboratorDto
+  //  * @returns: Status on add or removal of collaborator
+  //  * @author: Ansh Arora
+  //  */
+  // @Patch()
+  // @UseGuards(JwtAuthGuard)
+  // @ApiTags('Collection Module')
+  // @ApiOperation({
+  //   summary: 'Adds or removes the collaborator from the collection',
+  // })
+  // @ApiResponse({
+  //   status: ResponseStatusCode.OK,
+  //   description: ResponseMessage.COLLABORATOR_ADDED,
+  // })
+  // @ApiResponse({
+  //   status: ResponseStatusCode.OK,
+  //   description: ResponseMessage.COLLABORATOR_REMOVED,
+  // })
+  // @ApiResponse({
+  //   status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
+  //   description: ResponseMessage.INTERNAL_SERVER_ERROR,
+  // })
+  // async updateCollaborator(
+  //   @Param() updateCollaboratorDto: UpdateCollaboratorDto,
+  //   @Req() req,
+  //   @Response() response,
+  // ): Promise<any> {
+  //   try {
+  //     const owner = req.user;
+  //     await this.collectionService.updateCollaborator(
+  //       updateCollaboratorDto,
+  //       owner,
+  //     );
+  //     if (updateCollaboratorDto.updateType === collaboratorUpdateType.ADD) {
+  //       return this.responseModel.response(
+  //         ResponseMessage.COLLABORATOR_ADDED,
+  //         ResponseStatusCode.OK,
+  //         true,
+  //         response,
+  //       );
+  //     }
+  //     return this.responseModel.response(
+  //       ResponseMessage.COLLABORATOR_REMOVED,
+  //       ResponseStatusCode.OK,
+  //       true,
+  //       response,
+  //     );
+  //   } catch (error) {
+  //     return this.responseModel.response(
+  //       error,
+  //       ResponseStatusCode.INTERNAL_SERVER_ERROR,
+  //       false,
+  //       response,
+  //     );
+  //   }
+  // }
 
   /**
-   * @description: getWatchCollections returns the collections present in current user watchlist
-   * @returns: Collections
-   * @author: Jeetanshu Srivastava
+   * @description checkUniqueCollection checks collection with unique name and url
+   * @param UniqueCollectionCheck
+   * @returns Boolean Values for collectionNameExists and collectionUrlExists
+   * @author Jeetanshu Srivastava
    */
-  @Put('/getWatchCollections')
+  @Put('/checkUniqueCollection')
   @UseGuards(JwtAuthGuard)
   @ApiTags('Collection Module')
   @ApiOperation({
-    summary: 'Returns Current User Watchlist Collection',
+    summary: 'Boolean Values for Collection Name and Url',
   })
   @ApiResponse({
     status: ResponseStatusCode.OK,
-    description: ResponseMessage.COLLECTION_LIST,
+    description: ResponseMessage.UNIQUE_COLLECTION_CHECK,
   })
   @ApiResponse({
     status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
     description: ResponseMessage.INTERNAL_SERVER_ERROR,
   })
   @ApiBearerAuth()
-  async getWatchCollections(
+  async checkUniqueCollection(
+    @Query() uniquCollectionCheck: UniqueCollectionCheck,
     @Response() response,
-    @Request() request,
   ): Promise<any> {
     try {
-      const collections = await this.collectionService.getCollectionForUser(
-        request.user.walletAddress,
+      const result = await this.collectionService.checkUniqueCollection(
+        uniquCollectionCheck,
       );
       return this.responseModel.response(
-        collections,
+        result,
         ResponseStatusCode.OK,
         true,
         response,

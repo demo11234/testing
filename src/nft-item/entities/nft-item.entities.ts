@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString } from 'class-validator';
+import { IsNumber, IsString } from 'class-validator';
 import { Chains } from 'src/chains/entities/chains.entity';
 import { Collection } from 'src/collections/entities/collection.entity';
 import { Offer } from 'src/offer/entities/offer.entity';
@@ -31,11 +31,15 @@ export class NftItem {
   fileName: string;
 
   @ApiProperty()
-  @Column()
+  @Column({ nullable: true })
   externalUrl: string;
 
   @ApiProperty()
-  @Column()
+  @Column({ nullable: true })
+  previewImage: string;
+
+  @ApiProperty()
+  @Column({ nullable: true })
   description: string;
 
   @ManyToOne(() => Collection, (collection) => collection.nftItem)
@@ -51,7 +55,11 @@ export class NftItem {
   levels: Levels[];
 
   @ApiProperty()
-  @Column({ type: 'jsonb', default: [] })
+  @Column({ type: 'jsonb', nullable: true })
+  levels: Levels[];
+
+  @ApiProperty()
+  @Column({ type: 'jsonb', nullable: true })
   stats: Stats[];
 
   @ApiProperty()
@@ -77,7 +85,7 @@ export class NftItem {
   blockChain: Chains;
 
   @ApiProperty()
-  @Column({ length: 1000, default: '' })
+  @Column({ nullable: true })
   lockableContent: string;
 
   @ApiProperty()
@@ -109,11 +117,6 @@ export class NftItem {
   timeStamp: number;
 }
 
-// export class Properties {
-//   type: string;
-//   name: string;
-// }
-
 export class Properties {
   @ApiProperty()
   @IsString()
@@ -130,9 +133,11 @@ export class Levels {
   name: string;
 
   @ApiProperty()
+  @IsNumber()
   value: number;
 
   @ApiProperty()
+  @IsNumber()
   maxValue: number;
 }
 
@@ -142,8 +147,10 @@ export class Stats {
   name: string;
 
   @ApiProperty()
+  @IsNumber()
   value: number;
 
   @ApiProperty()
+  @IsNumber()
   maxValue: number;
 }
