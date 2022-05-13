@@ -195,7 +195,9 @@ export class CollectionsService {
     }
   }
 
-  async getCollectionForUser(walletAddress: string): Promise<Collection[]> {
+  async getCollectionForUserWatchlist(
+    walletAddress: string,
+  ): Promise<Collection[]> {
     try {
       const collections = await this.collectionRepository
         .createQueryBuilder('collection')
@@ -205,13 +207,101 @@ export class CollectionsService {
           'watchlist.walletAddress = :walletAddress',
           { walletAddress },
         )
-        .select([
-          'collection.id',
-          'collection.logo',
-          'collection.featureImage',
-          'collection.name',
-          'collection.banner',
-        ])
+        .select(['collection'])
+        .getMany();
+
+      return collections;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  /**
+   * @description Function will add current user to the collection favourites
+   * @param walletAddress , wallet address of the current user
+   * @param collectionId , collecton id to perform the update
+   * @returns Promise
+   */
+  async addUserInFavourites(
+    walletAddress: string,
+    collectionId: string,
+  ): Promise<boolean> {
+    try {
+      const collection = await this.collectionRepository.findOne({
+        where: { id: collectionId },
+        relations: ['favourites'],
+      });
+      if (!collection) return null;
+
+      const user = await this.userRepository.findOne({
+        where: {
+          walletAddress,
+        },
+      });
+      if (!user) return null;
+
+      if (collection.favourites) {
+        collection.favourites.push(user);
+      } else {
+        collection.favourites = [user];
+      }
+
+      await this.collectionRepository.save(collection);
+
+      return true;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  /**
+   * @description Function will remove current user to the collection favourites
+   * @param walletAddress , wallet address of the current user
+   * @param collectionId , collecton id to perform the update
+   * @returns Promise
+   */
+  async removeUseFromFavourites(
+    walletAddress: string,
+    collectionId: string,
+  ): Promise<boolean> {
+    try {
+      const user = await this.userRepository.findOne({
+        where: {
+          walletAddress: walletAddress,
+        },
+      });
+      if (!user) return null;
+
+      await this.collectionRepository
+        .createQueryBuilder()
+        .relation(Collection, 'favourites')
+        .of(collectionId)
+        .remove(user.id);
+
+      return true;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  /**
+   * @description: getCollectionForUserFavourites returns the collections present in current user favourites
+   * @returns: Collections
+   * @author: Jeetanshu Srivastava
+   */
+  async getCollectionForUserFavourites(
+    walletAddress: string,
+  ): Promise<Collection[]> {
+    try {
+      const collections = await this.collectionRepository
+        .createQueryBuilder('collection')
+        .innerJoinAndSelect(
+          'collection.favourites',
+          'favourites',
+          'favourites.walletAddress = :walletAddress',
+          { walletAddress },
+        )
+        .select(['collection'])
         .getMany();
 
       return collections;
