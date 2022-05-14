@@ -10,6 +10,7 @@ import {
   Entity,
   UpdateDateColumn,
   OneToMany,
+  DeleteDateColumn,
 } from 'typeorm';
 import { PrimaryGeneratedColumn, JoinColumn } from 'typeorm';
 
@@ -44,7 +45,9 @@ export class NftItem {
 
   @ManyToOne(() => Collection, (collection) => collection.nftItem, {
     eager: true,
+  onDelete: "CASCADE",
   })
+  @JoinColumn()
   collection: Collection;
 
   @ApiProperty()
@@ -102,6 +105,18 @@ export class NftItem {
   walletAddress: string;
 
   @ApiProperty()
+  @Column({default: false})
+  buyNow: boolean;
+
+  @ApiProperty()
+  @Column({default: false})
+  onAuction: boolean;
+
+  @ApiProperty()
+  @Column({default: false})
+  hasOffer: boolean;
+
+  @ApiProperty()
   @CreateDateColumn()
   createdAt: Date;
 
@@ -112,6 +127,9 @@ export class NftItem {
   @ApiProperty()
   @Column({ type: 'float' })
   timeStamp: number;
+
+  @DeleteDateColumn()
+  deletedAt: Date;
 }
 
 export class Properties {

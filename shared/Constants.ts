@@ -29,3 +29,13 @@ export enum eventType {
   BIDS = 'Bids',
   TRANSFERS = 'Transfers',
 }
+
+export enum auctionType {
+  FIXED_PRICE = 'Fixed Price',
+  TIMED_AUCTION = 'Timed Auction',
+}
+
+export enum timedAuctionMethod {
+  SELL_TO_HIGHEST_BIDDER = 'Sell to Highest Bidder',
+  SELL_WITH_DECLINING_PRICE = 'Sell with Declining Price',
+}
