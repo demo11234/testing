@@ -38,3 +38,5 @@ export enum timedAuctionMethod {
   SELL_TO_HIGHEST_BIDDER = 'Sell to Highest Bidder',
   SELL_WITH_DECLINING_PRICE = 'Sell with Declining Price',
 }
+
+export const registerProxyAddr = '0x044A33A53AD47b6bA4E5A598Ef2651eAfe4aAfB6';

@@ -1,5 +1,7 @@
 import {
+  BadRequestException,
   CACHE_MANAGER,
+  HttpStatus,
   Inject,
   Injectable,
   InternalServerErrorException,
@@ -19,6 +21,10 @@ import { Repository } from 'typeorm';
 import { SignedUrlDto } from './dto/signed-url.dto';
 import 'dotenv/config';
 import { ServicesService } from 'src/services/services.service';
+import { SignatureDto } from './dto/signature.dto';
+import web3 from 'shared/web3';
+import { FeesPaidDto } from './dto/fees-paid-dto';
+import { ResponseMessage } from 'shared/ResponseMessage';
 
 @Injectable()
 export class UserService implements OnModuleInit {
@@ -213,6 +219,80 @@ export class UserService implements OnModuleInit {
       });
     } catch (error) {
       throw new Error(error);
+    }
+  }
+
+  async updateOneTimeFees(
+    walletAddress,
+    feesPaidDto: FeesPaidDto,
+  ): Promise<any> {
+    try {
+      //TODO: check with chain if fees paid or not
+      const updated = await this.userRepository.update(
+        { walletAddress },
+        feesPaidDto,
+      );
+      if (updated.affected) {
+        return {
+          success: true,
+          status: HttpStatus.OK,
+          data: feesPaidDto,
+        };
+      } else {
+        throw new BadRequestException(ResponseMessage.UPDATION_ERROR_FEES);
+      }
+    } catch (error) {
+      throw new InternalServerErrorException(error);
+    }
+  }
+  /**
+   * @description Signature authentication
+   * @param
+   * takes wallet_address,signature,signature_message,
+   * @returns object with successs or failure of signature authentication
+   * @author Mohan
+   */
+  async signatureAuth({
+    wallet_address,
+    signature,
+    signature_message,
+  }: SignatureDto): Promise<any> {
+    try {
+      if (!signature) {
+        return { errorMessage: 'Please provide the signature' };
+      } else {
+        //fetching the wallet address which signed the signature
+        const signatureAddress = await web3.eth.accounts.recover(
+          signature_message,
+          signature,
+        );
+        // Verifying the user with signature
+        if (wallet_address === signatureAddress.toLowerCase()) {
+          console.log('successful');
+
+          // Validating timestamp message is in development
+          // const action = signatureMessage.split('&')[0].split('=')[1].trim()
+          // if (action !== 'signIn') {
+          //   throw new UnauthorizedException('Invalid Action')
+          // }
+
+          // const ONE_HOUR = 60 * 60 * 1000
+          // const timestamp = new Date(
+          //   signatureMessage.split('&')[2].split('=')[1],
+          // ).getTime()
+          // const timeDiff = Date.now() - timestamp
+
+          // if (timeDiff > ONE_HOUR || timeDiff <= 0) {
+          //   throw new UnauthorizedException('Signature Expired')
+          // }
+
+          return true;
+        } else {
+          return false;
+        }
+      }
+    } catch (err) {
+      throw new BadRequestException(err.message);
     }
   }
 }
