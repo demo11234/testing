@@ -42,8 +42,9 @@ export class NftItem {
   @Column({ nullable: true })
   description: string;
 
-  @ManyToOne(() => Collection, (collection) => collection.nftItem)
-  @JoinColumn()
+  @ManyToOne(() => Collection, (collection) => collection.nftItem, {
+    eager: true,
+  })
   collection: Collection;
 
   @ApiProperty()
@@ -52,10 +53,6 @@ export class NftItem {
 
   @ApiProperty()
   @Column({ type: 'jsonb', default: [] })
-  levels: Levels[];
-
-  @ApiProperty()
-  @Column({ type: 'jsonb', nullable: true })
   levels: Levels[];
 
   @ApiProperty()

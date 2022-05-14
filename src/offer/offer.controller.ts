@@ -76,15 +76,15 @@ export class OfferController {
         ownerWalletAddress,
       );
       if (offer) {
-        const activity = await this.activityService.createActivity({
+        await this.activityService.createActivity({
           eventActions: eventActions.OFFER_ENTERED,
-          nftItem: offer.item,
+          nftItem: offer.item.id,
           eventType: eventType.BIDS,
           fromAccount: ownerWalletAddress,
           toAccount: offer.item.owner,
           totalPrice: createOfferDto.price,
           isPrivate: false,
-          collectionId: offer.item.collection,
+          collectionId: offer.item.collection.id,
           winnerAccount: null,
         });
         return this.responseModel.response(
@@ -137,6 +137,7 @@ export class OfferController {
     status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
     description: ResponseMessage.INTERNAL_SERVER_ERROR,
   })
+  @ApiBearerAuth()
   async update(
     @Req() req,
     @Param('id') id: string,
@@ -145,8 +146,11 @@ export class OfferController {
   ) {
     try {
       const offer = await this.offerService.findOne(id);
-      if (req.user.id === offer.owner) {
-        const updatedOffer = await this.offerService.update(id, updateOfferDto);
+      if (req.user.walletAddress === offer.owner.walletAddress) {
+        const updatedOffer = await this.offerService.update(
+          updateOfferDto,
+          offer,
+        );
         if (updatedOffer) {
           return this.responseModel.response(
             updatedOffer,
@@ -237,7 +241,7 @@ export class OfferController {
    * @returns: Null
    * @author: Ansh Arora
    */
-  @Delete('/delete')
+  @Delete(':id')
   @UseGuards(JwtAuthGuard)
   @ApiTags('Offer Module')
   @ApiOperation({
@@ -253,8 +257,9 @@ export class OfferController {
     description: ResponseMessage.USER_DOES_NOT_OWN_OFFER,
   })
   @ApiBearerAuth()
-  async delete(@Param() id: string, @Response() response, @Req() req) {
+  async delete(@Param('id') id: string, @Response() response, @Req() req) {
     try {
+      const ownerWalletAddress = req.user.walletAddress;
       const offer = await this.offerService.findOne(id);
       const owner = await this.userService.findUserByWalletAddress(
         req.user.walletAddress,
@@ -268,15 +273,15 @@ export class OfferController {
         );
       }
       await this.offerService.delete(id);
-      const activity = await this.activityService.createActivity({
+      await this.activityService.createActivity({
         eventActions: eventActions.OFFER_WITHDRAWN,
-        nftItem: offer.item,
+        nftItem: offer.item.id,
         eventType: eventType.BIDS,
-        fromAccount: req.user.walletAddress,
+        fromAccount: ownerWalletAddress,
         toAccount: offer.item.owner,
         totalPrice: offer.price,
         isPrivate: false,
-        collectionId: offer.item.collection,
+        collectionId: offer.item.collection.id,
         winnerAccount: null,
       });
       return this.responseModel.response(

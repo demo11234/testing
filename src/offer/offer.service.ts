@@ -1,6 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { NftItem } from 'src/nft-item/entities/nft-item.entities';
+import { Tokens } from 'src/token/entities/tokens.entity';
 import { User } from 'src/user/entities/user.entity';
 import { Repository } from 'typeorm';
 import { CreateOfferDto } from './dto/create-offer.dto';
@@ -17,6 +18,8 @@ export class OfferService {
     private readonly userRepository: Repository<User>,
     @InjectRepository(NftItem)
     private readonly nftItemRepository: Repository<NftItem>,
+    @InjectRepository(Tokens)
+    private readonly tokensRepository: Repository<Tokens>,
   ) {}
 
   /**
@@ -32,15 +35,19 @@ export class OfferService {
     const owner = await this.userRepository.findOne({
       walletAddress: ownerWalletAddress,
     });
-    const item = await this.nftItemRepository.findOne({id: createOfferDto.item});
-    console.log('owner', owner);
+    const item = await this.nftItemRepository.findOne({
+      id: createOfferDto.item,
+    });
+    const token = await this.tokensRepository.findOne({
+      address: createOfferDto.paymentToken,
+    });
     const offer = new Offer();
     offer.Expires = createOfferDto.Expires;
     offer.price = createOfferDto.price;
     offer.isDeleted = false;
     offer.owner = owner;
     offer.item = item;
-    offer.paymentToken = createOfferDto.paymentToken;
+    offer.paymentToken = token;
     await this.offerRepository.save(offer);
     return offer;
   }
@@ -51,10 +58,16 @@ export class OfferService {
    * @author Ansh Arora
    */
   async delete(id: string): Promise<any> {
-    const toBeDeleted = await this.offerRepository.findOne(id);
-    toBeDeleted.isDeleted === true;
-    await this.offerRepository.save(toBeDeleted);
-    return null;
+    try {
+      const toBeDeleted = await this.offerRepository.findOne(id);
+      if (toBeDeleted.isDeleted === true) {
+        return { msg: 'Already deleted' };
+      }
+      await this.offerRepository.update(id, { isDeleted: true });
+      return null;
+    } catch (error) {
+      throw new InternalServerErrorException(error);
+    }
   }
 
   /**
@@ -63,8 +76,21 @@ export class OfferService {
    * @returns Details of updated offer
    * @author Ansh Arora
    */
-  async update(id: string, updateOfferDto: UpdateOfferDto): Promise<any> {
-    const updatedOffer = await this.offerRepository.update(id, updateOfferDto);
+  async update(updateOfferDto: UpdateOfferDto, offer: Offer): Promise<any> {
+    const update = {};
+    if (updateOfferDto.Expires) {
+      update['Expires'] = updateOfferDto.Expires;
+    }
+    if (updateOfferDto.price) {
+      update['price'] = updateOfferDto.price;
+    }
+    if (updateOfferDto.paymentToken) {
+      const token = await this.tokensRepository.findOne({
+        address: updateOfferDto.paymentToken,
+      });
+      update['paymentToken'] = token;
+    }
+    const updatedOffer = await this.offerRepository.update(offer.id, update);
     return updatedOffer;
   }
 
@@ -76,7 +102,10 @@ export class OfferService {
    */
   async findOne(id: string): Promise<any> {
     try {
-      const offer = await this.offerRepository.findOne(id);
+      const offer = await this.offerRepository.findOne({
+        id: id,
+        isDeleted: false,
+      });
       return offer;
     } catch (error) {
       return { message: 'Internal Server Error', error };

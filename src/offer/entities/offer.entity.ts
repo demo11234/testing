@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
 import { NftItem } from 'src/nft-item/entities/nft-item.entities';
 import { User } from 'src/user/entities/user.entity';
+import { Tokens } from 'src/token/entities/tokens.entity';
 
 import {
   Column,
@@ -12,6 +13,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { truncate } from 'fs';
 
 @Entity()
 export class Offer {
@@ -22,12 +24,13 @@ export class Offer {
   @ApiProperty()
   price: number;
 
-  @Column()
-  @ApiProperty()
-  paymentToken: string;
+  @ManyToOne(() => Tokens, (tokens) => tokens.offers, {
+    eager: true,
+  })
+  paymentToken: Tokens;
 
   @ManyToOne(() => User, (user) => user.offers, {
-    eager: false,
+    eager: true,
   })
   @JoinColumn()
   owner: User;

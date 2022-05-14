@@ -96,6 +96,7 @@ export class NftItemController {
           response,
         );
     } catch (error) {
+      console.log(error);
       return this.responseModel.response(
         error,
         ResponseStatusCode.INTERNAL_SERVER_ERROR,

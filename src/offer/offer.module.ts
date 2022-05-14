@@ -10,6 +10,7 @@ import { Notification } from 'src/notification/entity/notification.entity';
 import { NotificationService } from 'src/notification/notification.service';
 import { ResponseModel } from 'src/responseModel';
 import { ServicesService } from 'src/services/services.service';
+import { Tokens } from 'src/token/entities/tokens.entity';
 import { User } from 'src/user/entities/user.entity';
 import { UserRepository } from 'src/user/repositories/user.repository';
 import { UserService } from 'src/user/user.service';
@@ -29,6 +30,7 @@ import { OfferService } from './offer.service';
       Collection,
       NftItem,
       Activity,
+      Tokens,
     ]),
   ],
   controllers: [OfferController],

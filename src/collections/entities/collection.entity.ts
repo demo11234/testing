@@ -154,6 +154,8 @@ export class Collection {
   @ApiProperty()
   updatedAt: Date;
 
-  @OneToMany(() => NftItem, (nftItem) => nftItem.collection)
+  @OneToMany(() => NftItem, (nftItem) => nftItem.collection, {
+    eager: false,
+  })
   nftItem: NftItem[];
 }

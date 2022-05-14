@@ -56,6 +56,7 @@ export class ActivityService {
         });
         delete activityInfo.nftItem;
       }
+      console.log('activityInfo', activityInfo);
 
       const keys = Object.keys(activityInfo);
       keys.forEach((key) => {
