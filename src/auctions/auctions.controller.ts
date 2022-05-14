@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   Post,
   Request,
   Response,
@@ -40,7 +41,7 @@ export class AuctionsController {
   })
   @ApiResponse({
     status: ResponseStatusCode.CREATED,
-    description: ResponseMessage.CHAIN_DETAILS,
+    description: ResponseMessage.AUCTION_DETAILS,
   })
   @ApiResponse({
     status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
@@ -60,6 +61,52 @@ export class AuctionsController {
       return this.responseModel.response(
         auction,
         ResponseStatusCode.CREATED,
+        true,
+        response,
+      );
+    } catch (error) {
+      console.log(error);
+      return this.responseModel.response(
+        error,
+        ResponseStatusCode.INTERNAL_SERVER_ERROR,
+        false,
+        response,
+      );
+    }
+  }
+
+  /**
+   * @description getAuctionByUserId will return auction details for given user id
+   * @param userId
+   * @returns it will return auction with given user id
+   * @author Jeetanshu Srivastava
+   */
+  @Get('/user')
+  @UseGuards(JwtAuthGuard)
+  @ApiTags('Auctions Module')
+  @ApiOperation({
+    summary: 'Get Auctions By User Id',
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.CREATED,
+    description: ResponseMessage.AUCTION_DETAILS,
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
+    description: ResponseMessage.INTERNAL_SERVER_ERROR,
+  })
+  @ApiBearerAuth()
+  async getAuctionsByUserId(
+    @Response() response,
+    @Request() request,
+  ): Promise<any> {
+    try {
+      const auctions = await this.auctionsService.getAuctionsByUserId(
+        request.user.walletAddress,
+      );
+      return this.responseModel.response(
+        auctions,
+        ResponseStatusCode.OK,
         true,
         response,
       );

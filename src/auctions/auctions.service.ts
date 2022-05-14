@@ -84,4 +84,25 @@ export class AuctionsService {
 
     return auction;
   }
+
+  /**
+   * @description getAuctionByUserId will return auction details for given user id
+   * @param userId
+   * @returns it will return auction with given user id
+   * @author Jeetanshu Srivastava
+   */
+  async getAuctionsByUserId(walletAddress: string): Promise<Auction[]> {
+    const user = await this.userRepository.findOne({ walletAddress });
+    const userId = user.id;
+    console.log(userId);
+    const auctions = await this.auctionRepository
+      .createQueryBuilder('auctions')
+      .innerJoinAndSelect('auctions.creator', 'creator')
+      .where('creator.id = :userId', {
+        userId,
+      })
+      .select(['auctions'])
+      .getMany();
+    return auctions;
+  }
 }
