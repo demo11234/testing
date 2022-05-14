@@ -15,6 +15,27 @@ import {
 import { auctionType, timedAuctionMethod } from 'shared/Constants';
 import { Tokens } from '../../../src/token/entities/tokens.entity';
 import { NftItem } from '../../../src/nft-item/entities/nft-item.entities';
+import { User } from 'src/user/entities/user.entity';
+
+export class Bundle {
+  @ApiProperty()
+  isBundle: boolean;
+
+  @ApiProperty()
+  name: string;
+
+  @ApiProperty()
+  @IsOptional()
+  description: string;
+}
+
+export class ReservedAuction {
+  @ApiProperty()
+  isReservedAuction: boolean;
+
+  @ApiProperty()
+  walletAddress: string;
+}
 
 @Entity()
 export class Auction {
@@ -34,13 +55,17 @@ export class Auction {
   })
   auction_item: NftItem[];
 
-  @Column({ type: 'timestamp', nullable: false })
+  @Column({ type: 'float' })
   @ApiProperty()
   startDate: number;
 
-  @Column({ type: 'timestamp', nullable: false })
+  @Column({ type: 'float' })
   @ApiProperty()
   endDate: number;
+
+  @ManyToOne(() => User)
+  @JoinColumn()
+  creator: User;
 
   @ManyToOne(() => Tokens)
   @JoinColumn()
@@ -76,14 +101,16 @@ export class Auction {
   reservedPrice: number;
 
   @Column({
-    default: timedAuctionMethod.SELL_TO_HIGHEST_BIDDER,
-    nullable: false,
+    nullable: true,
   })
   @ApiProperty()
   @IsEnum(timedAuctionMethod)
   timedAuctionMethod:
     | timedAuctionMethod.SELL_TO_HIGHEST_BIDDER
     | timedAuctionMethod.SELL_WITH_DECLINING_PRICE;
+
+  @Column({ default: true })
+  isActive: boolean;
 
   @CreateDateColumn()
   @ApiProperty()
@@ -92,24 +119,4 @@ export class Auction {
   @UpdateDateColumn()
   @ApiProperty()
   updatedAt: Date;
-}
-
-export class Bundle {
-  @ApiProperty()
-  isBundle: boolean;
-
-  @ApiProperty()
-  name: string;
-
-  @ApiProperty()
-  @IsOptional()
-  description: string;
-}
-
-export class ReservedAuction {
-  @ApiProperty()
-  isReservedAuction: boolean;
-
-  @ApiProperty()
-  walletAddress: string;
 }
