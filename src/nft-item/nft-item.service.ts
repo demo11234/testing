@@ -11,6 +11,9 @@ import { Between } from 'typeorm';
 import { Constants } from 'shared/Constants';
 import { User } from 'src/user/entities/user.entity';
 import { ResponseMessage } from 'shared/ResponseMessage';
+import { TransferItemDto } from './dto/transferItem.dto';
+import { ActivityService } from 'src/activity/activity.service';
+import { eventType, eventActions } from '../../shared/Constants';
 
 @Injectable()
 export class NftItemService {
@@ -23,6 +26,7 @@ export class NftItemService {
     private chainsRepository: Repository<Chains>,
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    private readonly activityService: ActivityService,
   ) {}
 
   /**
@@ -154,13 +158,13 @@ export class NftItemService {
             Between(Date.now() - 1000 * 60 * 60 * 24 * 1, Date.now());
           where.timeStamp = BetweenDates();
         }
-        if (statusArr.includes('buynow')){
+        if (statusArr.includes('buynow')) {
           where.buyNow = true;
         }
-        if (statusArr.includes('onAuction')){
+        if (statusArr.includes('onAuction')) {
           where.onAuction = true;
         }
-        if (statusArr.includes('hasOffer')){
+        if (statusArr.includes('hasOffer')) {
           where.hasOffer = true;
         }
       }
@@ -224,6 +228,7 @@ export class NftItemService {
       updateNftItem.lockableContent = updateNftItemDto.lockableContent;
       updateNftItem.properties = updateNftItemDto.properties;
       updateNftItem.stats = updateNftItemDto.stats;
+      updateNftItem.isFreezed = updateNftItem.isFreezed;
       const collection = await this.collectionRepository.findOne({
         where: { id: updateNftItemDto.collectionId },
       });
@@ -288,23 +293,69 @@ export class NftItemService {
    * @param id
    * @returns: all Item from a collection
    * @author: vipin
-  */
-  async findAllItemExceptOne(
-  id: string,
-  ): Promise<any> {
+   */
+  async findAllItemExceptOne(id: string): Promise<any> {
     try {
       const item = await this.nftItemRepository.find({
-        where: {id},
-        relations: ['collection']
-      })
-      if(!item.length) throw new NotFoundException(ResponseMessage.ITEM_NOT_FOUND)
+        where: { id },
+        relations: ['collection'],
+      });
+      if (!item.length)
+        throw new NotFoundException(ResponseMessage.ITEM_NOT_FOUND);
 
       const data = await this.nftItemRepository.find({
-        where: {id: Not(id), collection: item[0].collection.id},
-        relations: ['collection']
-      })
-      return data
-    } catch(error) {
+        where: { id: Not(id), collection: item[0].collection.id },
+        relations: ['collection'],
+      });
+      return data;
+    } catch (error) {
+      return error;
+    }
+  }
+
+  /**
+   * @description: This api delete an item
+   * @param id
+   * @returns: status and message
+   * @author: vipin
+   */
+  async deleteItem(id: string): Promise<any> {
+    try {
+      await this.nftItemRepository.softDelete({ id});
+      return ResponseMessage.ITEM_DELETED;
+    } catch (error) {
+      return error;
+    }
+  }
+
+  /**
+   * @description: This api transfer a item to other user
+   * @param id
+   * @returns: status and message
+   * @author: vipin
+   */
+  async transferItem(id: string, transferDto: TransferItemDto, item): Promise<any> {
+    try{
+      const transferNftItem = new NftItem();
+      transferNftItem.owner = transferDto.userWalletAddress
+      transferNftItem.supply = item.supply - transferDto.supply
+      await this.nftItemRepository.update({id}, transferNftItem)
+
+      await this.activityService.createActivity({
+        eventActions: eventActions.TRANSFER,
+        nftItem: item.id,
+        eventType: eventType.TRANSFERS,
+        fromAccount: item.owner,
+        toAccount: transferDto.userWalletAddress,
+        totalPrice: null,
+        isPrivate: false,
+        collectionId: item.collection.id,
+        winnerAccount: null,
+      });
+
+      return ResponseMessage.ITEM_TRANSFERED;
+    } catch(error){
+      console.log(error)
       return error;
     }
   }

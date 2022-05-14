@@ -61,16 +61,23 @@ export class UpdateNftItemDto {
   @ValidateType(() => Stats)
   stats?: Stats[];
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   @IsBoolean()
-  isLockable: boolean;
+  @IsOptional()
+  isLockable?: boolean;
 
   @ApiPropertyOptional()
   @IsString()
   @IsOptional()
   lockableContent?: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   @IsBoolean()
-  isExplicit: boolean;
+  @IsOptional()
+  isExplicit?: boolean;
+
+  @ApiPropertyOptional()
+  @IsBoolean()
+  @IsOptional()
+  isFreezed?: boolean;
 }
