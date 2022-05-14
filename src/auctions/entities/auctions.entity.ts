@@ -110,7 +110,12 @@ export class Auction {
     | timedAuctionMethod.SELL_WITH_DECLINING_PRICE;
 
   @Column({ default: true })
+  @ApiProperty()
   isActive: boolean;
+
+  @Column({ default: 0 })
+  @ApiProperty()
+  quantity: number;
 
   @CreateDateColumn()
   @ApiProperty()

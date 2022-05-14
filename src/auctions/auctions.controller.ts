@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Param,
   Post,
   Request,
   Response,
@@ -13,8 +14,10 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { eventActions, eventType } from 'shared/Constants';
 import { ResponseMessage } from 'shared/ResponseMessage';
 import { ResponseStatusCode } from 'shared/ResponseStatusCode';
+import { ActivityService } from 'src/activity/activity.service';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { ResponseModel } from 'src/responseModel';
 import { AuctionsService } from './auctions.service';
@@ -25,6 +28,7 @@ export class AuctionsController {
   constructor(
     private readonly auctionsService: AuctionsService,
     private readonly responseModel: ResponseModel,
+    private readonly activityService: ActivityService,
   ) {}
 
   /**
@@ -65,7 +69,6 @@ export class AuctionsController {
         response,
       );
     } catch (error) {
-      console.log(error);
       return this.responseModel.response(
         error,
         ResponseStatusCode.INTERNAL_SERVER_ERROR,
@@ -81,8 +84,7 @@ export class AuctionsController {
    * @returns it will return auction with given user id
    * @author Jeetanshu Srivastava
    */
-  @Get('/user')
-  @UseGuards(JwtAuthGuard)
+  @Get('/user/:userId')
   @ApiTags('Auctions Module')
   @ApiOperation({
     summary: 'Get Auctions By User Id',
@@ -95,15 +97,12 @@ export class AuctionsController {
     status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
     description: ResponseMessage.INTERNAL_SERVER_ERROR,
   })
-  @ApiBearerAuth()
   async getAuctionsByUserId(
+    @Param('userId') userId: string,
     @Response() response,
-    @Request() request,
   ): Promise<any> {
     try {
-      const auctions = await this.auctionsService.getAuctionsByUserId(
-        request.user.walletAddress,
-      );
+      const auctions = await this.auctionsService.getAuctionsByUserId(userId);
       return this.responseModel.response(
         auctions,
         ResponseStatusCode.OK,
@@ -111,7 +110,103 @@ export class AuctionsController {
         response,
       );
     } catch (error) {
-      console.log(error);
+      return this.responseModel.response(
+        error,
+        ResponseStatusCode.INTERNAL_SERVER_ERROR,
+        false,
+        response,
+      );
+    }
+  }
+
+  /**
+   * @description getAuctionByAuctionId will return auction details for given auction id
+   * @param auctionId
+   * @returns it will return auction details with given auction id
+   * @author Jeetanshu Srivastava
+   */
+  @Get('/details/:auctionId')
+  @ApiTags('Auctions Module')
+  @ApiOperation({
+    summary: 'Get Auctions Details By Auction Id',
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.OK,
+    description: ResponseMessage.AUCTION_DETAILS,
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
+    description: ResponseMessage.INTERNAL_SERVER_ERROR,
+  })
+  async getAuctionDetailsByAuctionId(
+    @Param('auctionId') auctionId: string,
+    @Response() response,
+  ): Promise<any> {
+    try {
+      const auctionDetails =
+        await this.auctionsService.getAuctionDetailsByAuctionId(auctionId);
+      return this.responseModel.response(
+        auctionDetails,
+        ResponseStatusCode.OK,
+        true,
+        response,
+      );
+    } catch (error) {
+      return this.responseModel.response(
+        error,
+        ResponseStatusCode.INTERNAL_SERVER_ERROR,
+        false,
+        response,
+      );
+    }
+  }
+
+  /**
+   * @description getAuctionByAuctionId will return auction details for given auction id
+   * @param auctionId
+   * @returns it will return auction details with given auction id
+   * @author Jeetanshu Srivastava
+   */
+  @Get('/cancellisting/:auctionId')
+  @UseGuards(JwtAuthGuard)
+  @ApiTags('Auctions Module')
+  @ApiOperation({
+    summary: 'Cancel the Listing',
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.OK,
+    description: ResponseMessage.AUCTION_DETAILS,
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
+    description: ResponseMessage.INTERNAL_SERVER_ERROR,
+  })
+  @ApiBearerAuth()
+  async cancelListing(
+    @Param('auctionId') auctionId: string,
+    @Response() response,
+    @Request() request,
+  ): Promise<any> {
+    try {
+      const auction = await this.auctionsService.getAuctionDetails(auctionId);
+      if (auction.creator.walletAddress != request.user.walletAddress) {
+        return this.responseModel.response(
+          ResponseMessage.UNAUTHORIZED,
+          ResponseStatusCode.BAD_REQUEST,
+          false,
+          response,
+        );
+      }
+      if (auction.isActive) {
+        await this.auctionsService.cancelListing(auctionId);
+      }
+      return this.responseModel.response(
+        true,
+        ResponseStatusCode.OK,
+        true,
+        response,
+      );
+    } catch (error) {
       return this.responseModel.response(
         error,
         ResponseStatusCode.INTERNAL_SERVER_ERROR,

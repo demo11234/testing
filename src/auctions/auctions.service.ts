@@ -32,6 +32,9 @@ export class AuctionsService {
     auction.auctionType = createAuctionInterface.auctionType;
     auction.startDate = createAuctionInterface.startDate;
     auction.endDate = createAuctionInterface.endDate;
+    auction.quantity = createAuctionInterface.quantity
+      ? createAuctionInterface.quantity
+      : 0;
 
     const user = await this.userRepository.findOne({ walletAddress });
     auction.creator = user;
@@ -91,10 +94,7 @@ export class AuctionsService {
    * @returns it will return auction with given user id
    * @author Jeetanshu Srivastava
    */
-  async getAuctionsByUserId(walletAddress: string): Promise<Auction[]> {
-    const user = await this.userRepository.findOne({ walletAddress });
-    const userId = user.id;
-    console.log(userId);
+  async getAuctionsByUserId(userId: string): Promise<Auction[]> {
     const auctions = await this.auctionRepository
       .createQueryBuilder('auctions')
       .innerJoinAndSelect('auctions.creator', 'creator')
@@ -104,5 +104,47 @@ export class AuctionsService {
       .select(['auctions'])
       .getMany();
     return auctions;
+  }
+
+  /**
+   * @description getAuctionByAuctionId will return auction details for given auction id
+   * @param auctionId
+   * @returns it will return auction details with given auction id
+   * @author Jeetanshu Srivastava
+   */
+  async getAuctionDetailsByAuctionId(auctionId: string): Promise<Auction> {
+    const auctions = await this.auctionRepository.findOne({
+      where: {
+        id: auctionId,
+      },
+    });
+    return auctions;
+  }
+
+  /**
+   * @description getAuctionDetails will return auction details for given auction id
+   * @param auctionId
+   * @returns it will return auction details with given auction id
+   * @author Jeetanshu Srivastava
+   */
+  async getAuctionDetails(auctionId: string): Promise<Auction> {
+    const auctions = await this.auctionRepository.findOne({
+      where: {
+        id: auctionId,
+      },
+      relations: ['creator'],
+    });
+    return auctions;
+  }
+
+  /**
+   * @description cancelListing will cancel the listing of the given auction Id
+   * @param auctionId
+   * @returns it will return boolean value 'true' for successful Listing Cancellation
+   * @author Jeetanshu Srivastava
+   */
+  async cancelListing(auctionId: string): Promise<boolean> {
+    await this.auctionRepository.update({ id: auctionId }, { isActive: false });
+    return true;
   }
 }
