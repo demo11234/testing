@@ -167,7 +167,7 @@ export class AuctionsController {
    * @returns it will return auction details with given auction id
    * @author Jeetanshu Srivastava
    */
-  @Get('/cancellisting/:auctionId')
+  @Get('/cancel/:auctionId')
   @UseGuards(JwtAuthGuard)
   @ApiTags('Auctions Module')
   @ApiOperation({
