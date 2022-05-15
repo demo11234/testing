@@ -80,6 +80,7 @@ export class NftItemService {
           },
         });
 
+
         const collection = await this.collectionRepository.find({
           where: {
             owner: userCreated.id,
@@ -289,7 +290,26 @@ export class NftItemService {
   }
 
   /**
-   * @description: This api fetch all the item of a collection except one
+   * @description: This api for count the viewer of nft Item
+   * @param: id
+   * @returns: viewer count
+   * @author: Susmita
+   */
+
+  async updateViewerCount(id: string): Promise<any> {
+    try {
+      const item = await this.findOne(id);
+      if (item){
+        item.viwes= item.viwes + 1;
+        await this.nftItemRepository.update({ id }, item);
+        return item;
+      }
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+      
+  /* @description: This api fetch all the item of a collection except one
    * @param id
    * @returns: all Item from a collection
    * @author: vipin
