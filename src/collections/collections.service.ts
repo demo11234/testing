@@ -134,41 +134,85 @@ export class CollectionsService {
     return null;
   }
 
-  // async updateCollaborator(
-  //   updateCollaboratorDto: UpdateCollaboratorDto,
-  //   owner: string,
-  // ): Promise<any> {
-  //   try {
-  //     const collection = await this.collectionRepository.findOne({
-  //       where: [
-  //         {
-  //           id: updateCollaboratorDto.collecionId,
-  //           isDeleted: false,
-  //           owner: owner,
-  //         },
-  //       ],
-  //     });
-  //     if (updateCollaboratorDto.updateType === collaboratorUpdateType.ADD) {
-  //       collection.collaborators.push(updateCollaboratorDto.updateType);
-  //       await this.collectionRepository.update(
-  //         updateCollaboratorDto.collecionId,
-  //         collection,
-  //       );
-  //     }
-  //     const toBeRemoved: number = collection.collaborators.indexOf(
-  //       updateCollaboratorDto.collaboratorWalletId,
-  //     );
-  //     collection.collaborators.splice(toBeRemoved, 1);
-  //     await this.collectionRepository.update(
-  //       updateCollaboratorDto.collecionId,
-  //       collection,
-  //     );
-  //     return { status: 200, msg: 'Collection updated succesfully' };
-  //   } catch (error) {
-  //     console.log('error', error);
-  //     return { msg: ResponseMessage.INTERNAL_SERVER_ERROR };
-  //   }
-  // }
+  /**
+   * @description Function will add current user to the collection collaborators
+   * @param walletAddress , wallet address of the current user
+   * @param collectionId , collecton id to perform the update
+   * @returns Promise
+   */
+  async addUserInCollaborators(
+    walletAddress: string,
+    collectionId: string,
+  ): Promise<any> {
+    try {
+      const collection = await this.collectionRepository.findOne({
+        where: { id: collectionId },
+        relations: ['collaborators'],
+      });
+      if (!collection) return null;
+      if (collection.owner.walletAddress === walletAddress) {
+        return {
+          status: ResponseStatusCode.CONFLICT,
+          msg: ResponseMessage.OWNER_CANNOT_BE_ADDED_AS_COLLABORATOR,
+        };
+      }
+      let flag = 0;
+      for (let i = 0; i < collection.collaborators.length; i++) {
+        if (collection.collaborators[i].walletAddress === walletAddress) {
+          flag = 1;
+        }
+      }
+      if (flag === 1) {
+        return {
+          Status: ResponseStatusCode.CONFLICT,
+          msg: ResponseMessage.USER_ALREADY_IN_COLLABORATORS,
+        };
+      }
+
+      const user = await this.userRepository.findOne({
+        where: {
+          walletAddress: walletAddress,
+        },
+      });
+      if (!user) return null;
+
+      if (collection.collaborators) {
+        collection.collaborators.push(user);
+      } else {
+        collection.collaborators = [user];
+      }
+
+      await this.collectionRepository.save(collection);
+
+      return true;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  async removeUserFromCollaborators(
+    walletAddress: string,
+    collectionId: string,
+  ): Promise<boolean> {
+    try {
+      const user = await this.userRepository.findOne({
+        where: {
+          walletAddress: walletAddress,
+        },
+      });
+      if (!user) return null;
+
+      await this.collectionRepository
+        .createQueryBuilder()
+        .relation(Collection, 'collaborators')
+        .of(collectionId)
+        .remove(user.id);
+
+      return true;
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   /**
    * @description Function will add current user to the collection watchlist

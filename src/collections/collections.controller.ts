@@ -30,6 +30,8 @@ import { FilterDto } from './dto/filter.dto';
 import { UserWatchlistDto } from './dto/user-watchlist.dto';
 import { UserService } from 'src/user/user.service';
 import { UniqueCollectionCheck } from './dto/unique-collection-check.dto';
+import { collaboratorUpdateType } from './enums/collaborator-update-type.enum';
+import { UpdateCollaboratorDto } from './dto/update-collaborator.dto';
 
 @Controller('collections')
 export class CollectionsController {
@@ -330,10 +332,9 @@ export class CollectionsController {
   }
 
   /**
-   * @description: This api updates the collection and returns status
+   * @description: This api soft deletes the collection and returns status
    * @param id
-   * @param updateCollectionDto
-   * @returns: Update Status
+   * @returns: null
    * @author: Ansh Arora
    */
   @Delete(':id')
@@ -505,64 +506,87 @@ export class CollectionsController {
     }
   }
 
-  // /**
-  //  * @description: This api adds or removes the collaborator
-  //  * @param updateCollaboratorDto
-  //  * @returns: Status on add or removal of collaborator
-  //  * @author: Ansh Arora
-  //  */
-  // @Patch()
-  // @UseGuards(JwtAuthGuard)
-  // @ApiTags('Collection Module')
-  // @ApiOperation({
-  //   summary: 'Adds or removes the collaborator from the collection',
-  // })
-  // @ApiResponse({
-  //   status: ResponseStatusCode.OK,
-  //   description: ResponseMessage.COLLABORATOR_ADDED,
-  // })
-  // @ApiResponse({
-  //   status: ResponseStatusCode.OK,
-  //   description: ResponseMessage.COLLABORATOR_REMOVED,
-  // })
-  // @ApiResponse({
-  //   status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
-  //   description: ResponseMessage.INTERNAL_SERVER_ERROR,
-  // })
-  // async updateCollaborator(
-  //   @Param() updateCollaboratorDto: UpdateCollaboratorDto,
-  //   @Req() req,
-  //   @Response() response,
-  // ): Promise<any> {
-  //   try {
-  //     const owner = req.user;
-  //     await this.collectionService.updateCollaborator(
-  //       updateCollaboratorDto,
-  //       owner,
-  //     );
-  //     if (updateCollaboratorDto.updateType === collaboratorUpdateType.ADD) {
-  //       return this.responseModel.response(
-  //         ResponseMessage.COLLABORATOR_ADDED,
-  //         ResponseStatusCode.OK,
-  //         true,
-  //         response,
-  //       );
-  //     }
-  //     return this.responseModel.response(
-  //       ResponseMessage.COLLABORATOR_REMOVED,
-  //       ResponseStatusCode.OK,
-  //       true,
-  //       response,
-  //     );
-  //   } catch (error) {
-  //     return this.responseModel.response(
-  //       error,
-  //       ResponseStatusCode.INTERNAL_SERVER_ERROR,
-  //       false,
-  //       response,
-  //     );
-  //   }
-  // }
+  /**
+   * @description: This api adds or removes the collaborator
+   * @param updateCollaboratorDto
+   * @returns: Status on add or removal of collaborator
+   * @author: Ansh Arora
+   */
+  @Put('/collaborators')
+  @UseGuards(JwtAuthGuard)
+  @ApiTags('Collection Module')
+  @ApiOperation({
+    summary:
+      'Add and Removes user wallet address from Collaborators of a collection',
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.OK,
+    description: ResponseMessage.COLLABORATOR_ADDED,
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.OK,
+    description: ResponseMessage.COLLABORATOR_REMOVED,
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
+    description: ResponseMessage.INTERNAL_SERVER_ERROR,
+  })
+  @ApiBearerAuth()
+  async updateCollaborator(
+    @Body() updateCollaboratorDto: UpdateCollaboratorDto,
+    @Response() response,
+    @Request() request,
+  ): Promise<any> {
+    try {
+      if (updateCollaboratorDto.updateType === collaboratorUpdateType.ADD) {
+        const result = await this.collectionService.addUserInCollaborators(
+          request.user.walletAddress,
+          updateCollaboratorDto.collectionId,
+        );
+        if (result !== true) {
+          return this.responseModel.response(
+            result,
+            ResponseStatusCode.CONFLICT,
+            false,
+            response,
+          );
+        }
+        return this.responseModel.response(
+          result,
+          ResponseStatusCode.OK,
+          true,
+          response,
+        );
+      } else if (
+        updateCollaboratorDto.updateType === collaboratorUpdateType.REMOVE
+      ) {
+        const result = await this.collectionService.removeUserFromCollaborators(
+          request.user.walletAddress,
+          updateCollaboratorDto.collectionId,
+        );
+        return this.responseModel.response(
+          result,
+          ResponseStatusCode.OK,
+          true,
+          response,
+        );
+      } else {
+        return this.responseModel.response(
+          ResponseMessage.BAD_REQUEST,
+          ResponseStatusCode.BAD_REQUEST,
+          false,
+          response,
+        );
+      }
+    } catch (error) {
+      return this.responseModel.response(
+        error,
+        ResponseStatusCode.INTERNAL_SERVER_ERROR,
+        false,
+        response,
+      );
+    }
+  }
 
   /**
    * @description checkUniqueCollection checks collection with unique name and url

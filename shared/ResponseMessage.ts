@@ -64,4 +64,8 @@ export const ResponseMessage = {
 
   COLLECTION_NAME: 'Collection Name is Empty',
   UNIQUE_COLLECTION_CHECK: 'Boolean Values for Collection Name and url',
+  OWNER_CANNOT_BE_ADDED_AS_COLLABORATOR:
+    'Owner cannot be added in collaborators',
+  COLLABORATOR_ADD_FAILED: 'Collaborator addition failed',
+  USER_ALREADY_IN_COLLABORATORS: 'User already in collaborators',
 };

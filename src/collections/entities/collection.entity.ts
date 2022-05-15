@@ -102,10 +102,12 @@ export class Collection {
   @ApiProperty()
   earningWalletAddress: string;
 
-  @ManyToMany(() => User, (user) => user.collaboratedCollection, {
-    eager: false,
+  @ManyToMany(() => User)
+  @JoinTable({
+    name: 'collaborators',
+    joinColumn: { name: 'collection_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'user_id', referencedColumnName: 'id' },
   })
-  @JoinColumn()
   collaborators: User[];
 
   @Column({ default: displayTheme.CONTAINED })
@@ -117,7 +119,7 @@ export class Collection {
     | displayTheme.PADDED;
 
   @ManyToOne(() => User, (user) => user.collections, {
-    eager: false,
+    eager: true,
   })
   @JoinColumn()
   owner: User;
