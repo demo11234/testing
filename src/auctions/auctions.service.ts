@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { auctionType, timedAuctionMethod } from 'shared/Constants';
+import { ResponseMessage } from 'shared/ResponseMessage';
+import { ResponseStatusCode } from 'shared/ResponseStatusCode';
 import { NftItem } from 'src/nft-item/entities/nft-item.entities';
 import { Tokens } from 'src/token/entities/tokens.entity';
 import { User } from 'src/user/entities/user.entity';
@@ -143,8 +145,30 @@ export class AuctionsService {
    * @returns it will return boolean value 'true' for successful Listing Cancellation
    * @author Jeetanshu Srivastava
    */
-  async cancelListing(auctionId: string): Promise<boolean> {
-    await this.auctionRepository.update({ id: auctionId }, { isActive: false });
-    return true;
+  async cancelListing(auctionId: string, walletAddress: string): Promise<any> {
+    const auction = await this.getAuctionDetails(auctionId);
+    if (auction.creator.walletAddress != walletAddress) {
+      return {
+        message: ResponseMessage.UNAUTHORIZED,
+        status: ResponseStatusCode.BAD_REQUEST,
+        success: false,
+      };
+    }
+    if (auction.isActive && !auction.isCancelled) {
+      await this.auctionRepository.update(
+        { id: auctionId },
+        { isActive: false, isCancelled: true },
+      );
+      return {
+        message: ResponseMessage.AUCTION_CANCELLED,
+        status: ResponseStatusCode.OK,
+        success: true,
+      };
+    }
+    return {
+      message: ResponseMessage.AUCTION_CANNOT_BE_CANCELLED,
+      status: ResponseStatusCode.BAD_REQUEST,
+      success: false,
+    };
   }
 }

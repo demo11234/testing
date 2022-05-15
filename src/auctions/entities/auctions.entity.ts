@@ -113,6 +113,10 @@ export class Auction {
   @ApiProperty()
   isActive: boolean;
 
+  @Column({ default: false })
+  @ApiProperty()
+  isCancelled: boolean;
+
   @Column({ default: 0 })
   @ApiProperty()
   quantity: number;

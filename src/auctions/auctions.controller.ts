@@ -188,22 +188,14 @@ export class AuctionsController {
     @Request() request,
   ): Promise<any> {
     try {
-      const auction = await this.auctionsService.getAuctionDetails(auctionId);
-      if (auction.creator.walletAddress != request.user.walletAddress) {
-        return this.responseModel.response(
-          ResponseMessage.UNAUTHORIZED,
-          ResponseStatusCode.BAD_REQUEST,
-          false,
-          response,
-        );
-      }
-      if (auction.isActive) {
-        await this.auctionsService.cancelListing(auctionId);
-      }
+      const result = await this.auctionsService.cancelListing(
+        auctionId,
+        request.user.walletAddress,
+      );
       return this.responseModel.response(
-        true,
-        ResponseStatusCode.OK,
-        true,
+        result.message,
+        result.status,
+        result.success,
         response,
       );
     } catch (error) {
