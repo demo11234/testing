@@ -80,9 +80,7 @@ export class AuctionsService {
       }
     }
 
-    await this.auctionRepository.save(auction);
-
-    return auction;
+    return this.auctionRepository.save(auction);
   }
 
   /**
