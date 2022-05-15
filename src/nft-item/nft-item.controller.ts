@@ -247,12 +247,12 @@ export class NftItemController {
   }
 
   @ApiTags('Nft Item')
-  @Get('/countViewer/:id')
+  @Put('/updateViewer/:id')
   @HttpCode(HttpStatus.OK)
-  @ApiOkResponse({ description: 'GET VIEWER COUNT ITEM' })
-  async fatchViewerCount(@Param('id') id: string) {
+  @ApiOkResponse({ description: 'Update VIEWER COUNT on a  ITEM' })
+  async updateViewerCount(@Param('id') id: string) {
     try {
-      return await this.nftItemService.fatchViewerCount(id);
+      return await this.nftItemService.updateViewerCount(id);
     } catch (e) {
       throw new BadRequestException(e.message);
     }

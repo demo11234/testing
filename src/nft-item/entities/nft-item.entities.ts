@@ -119,7 +119,7 @@ export class NftItem {
  
   @ApiProperty()
   @Column({ nullable: true, default: 0 })
-  keys: number;
+  viwes: number;
 
   @DeleteDateColumn()
   deletedAt: Date;

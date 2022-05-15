@@ -291,18 +291,20 @@ export class NftItemService {
    * @author: Susmita
    */
 
-  async fatchViewerCount(id: string): Promise<any> {
+  async updateViewerCount(id: string): Promise<any> {
     try {
       const item = await this.findOne(id);
       if (item){
-        item.keys= item.keys + 1;
-        const update = await this.nftItemRepository.update({ id }, item);
+        item.viwes= item.viwes + 1;
+        await this.nftItemRepository.update({ id }, item);
         return item;
       }
     } catch (error) {
       throw new Error(error);
+    }
+  }
       
-   * @description: This api fetch all the item of a collection except one
+  /* @description: This api fetch all the item of a collection except one
    * @param id
    * @returns: all Item from a collection
    * @author: vipin
