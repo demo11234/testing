@@ -8,6 +8,7 @@ import { CreateOfferDto } from './dto/create-offer.dto';
 import { OfferFilterDto } from './dto/offer-filter.dto';
 import { UpdateOfferDto } from './dto/update-offer.dto';
 import { Offer } from './entities/offer.entity';
+import { ResponseMessage } from 'shared/ResponseMessage';
 
 @Injectable()
 export class OfferService {
@@ -61,7 +62,7 @@ export class OfferService {
     try {
       const toBeDeleted = await this.offerRepository.findOne(id);
       if (toBeDeleted.isDeleted === true) {
-        return { msg: 'Already deleted' };
+        return { msg: ResponseMessage.OFFER_ALREADY_DELETED };
       }
       await this.offerRepository.update(id, { isDeleted: true });
       return null;
@@ -108,7 +109,7 @@ export class OfferService {
       });
       return offer;
     } catch (error) {
-      return { message: 'Internal Server Error', error };
+      return { message: ResponseMessage.INTERNAL_SERVER_ERROR, error };
     }
   }
 

@@ -186,7 +186,7 @@ export class OfferController {
   @ApiTags('Offer Module')
   @ApiOperation({
     summary:
-      'Update Offer Details on an item by user who is currenlty Logged In',
+      'Api to fetch offers based on current filter.',
   })
   @ApiResponse({
     status: ResponseStatusCode.CONFLICT,
@@ -246,7 +246,7 @@ export class OfferController {
   @ApiTags('Offer Module')
   @ApiOperation({
     summary:
-      'Update Offer Details on an item by user who is currenlty Logged In',
+      'Api to delete an offer using id.',
   })
   @ApiResponse({
     status: ResponseStatusCode.INTERNAL_SERVER_ERROR,

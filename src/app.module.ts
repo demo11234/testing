@@ -29,7 +29,6 @@ import { ServicesModule } from './services/services.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { AuctionsModule } from './auctions/auctions.module';
 
-
 @Module({
   imports: [
     ScheduleModule.forRoot(),
