@@ -2,12 +2,14 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsNumber, IsString } from 'class-validator';
 import { Chains } from 'src/chains/entities/chains.entity';
 import { Collection } from 'src/collections/entities/collection.entity';
+import { Offer } from 'src/offer/entities/offer.entity';
 import {
   CreateDateColumn,
   ManyToOne,
   Column,
   Entity,
   UpdateDateColumn,
+  OneToMany,
   DeleteDateColumn,
 } from 'typeorm';
 import { PrimaryGeneratedColumn, JoinColumn } from 'typeorm';
@@ -41,16 +43,19 @@ export class NftItem {
   @Column({ nullable: true })
   description: string;
 
-  @ManyToOne(() => Collection, (collection) => collection.nftItem, {onDelete: "CASCADE"})
+  @ManyToOne(() => Collection, (collection) => collection.nftItem, {
+    eager: true,
+  onDelete: "CASCADE",
+  })
   @JoinColumn()
   collection: Collection;
 
   @ApiProperty()
-  @Column({ type: 'jsonb', nullable: true })
+  @Column({ type: 'jsonb', default: [] })
   properties: Properties[];
 
   @ApiProperty()
-  @Column({ type: 'jsonb', nullable: true })
+  @Column({ type: 'jsonb', default: [] })
   levels: Levels[];
 
   @ApiProperty()
@@ -68,6 +73,12 @@ export class NftItem {
   @ApiProperty()
   @Column({ default: 1 })
   supply: number;
+
+  @OneToMany(() => Offer, (offer) => offer.item, {
+    eager: false,
+  })
+  @JoinColumn()
+  offers: Offer[];
 
   @ManyToOne(() => Chains, (chains) => chains.nftChainName)
   @JoinColumn()

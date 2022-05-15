@@ -22,6 +22,7 @@ import { TokenModule } from './token/token.module';
 import { CollectionsModule } from './collections/collections.module';
 import { UtilsModule } from './utils/utils.module';
 import { NotificationModule } from './notification/notification.module';
+import { OfferModule } from './offer/offer.module';
 import { ActivityModule } from './activity/activity.module';
 import { NftItemModule } from './nft-item/nft-item.module';
 import { ServicesModule } from './services/services.module';
@@ -61,6 +62,7 @@ import { AuctionsModule } from './auctions/auctions.module';
     NotificationModule,
     CollectionsModule,
     UtilsModule,
+    OfferModule,
     ActivityModule,
     NftItemModule,
     ServicesModule,
