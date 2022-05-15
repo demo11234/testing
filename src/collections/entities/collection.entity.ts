@@ -163,7 +163,10 @@ export class Collection {
   @ApiProperty()
   updatedAt: Date;
 
-  @OneToMany(() => NftItem, (nftItem) => nftItem.collection, {cascade: true})
+  @OneToMany(() => NftItem, (nftItem) => nftItem.collection, {
+    eager: false,
+    cascade: true,
+  })
   nftItem: NftItem[];
 
   @Column()
