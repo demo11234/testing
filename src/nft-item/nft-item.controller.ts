@@ -36,7 +36,6 @@ import { NftItemService } from './nft-item.service';
 import { eventType, eventActions } from '../../shared/Constants';
 import { Delete } from '@nestjs/common';
 import { TransferItemDto } from './dto/transferItem.dto';
-=======
 import { UserFavouritesDto } from './dto/user-favourites.dto';
 
 @Controller('nft-item')
