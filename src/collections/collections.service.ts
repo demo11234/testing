@@ -204,6 +204,12 @@ export class CollectionsService {
     }
   }
 
+  /**
+   * Function to remove a user from collaborator
+   * @param walletAddress , wallet address for the current user
+   * @param collectionId collection id to add collaborator
+   * @returns Promise
+   */
   async removeUserFromCollaborators(
     walletAddress: string,
     collectionId: string,
