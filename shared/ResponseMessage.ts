@@ -81,6 +81,10 @@ export const ResponseMessage = {
   USER_DOSENT_OWN_ALL_ITEM: 'User dosent own all item in collection',
   FAVOURITES_ADDED: 'User has been added in Favourites',
   FAVOURITES_REMOVED: 'User has been removed from Favourites',
+  ITEM_IS_FREEZED: 'Can not update item is Freezed',
+  ITEM_DELETED:'Item is deleted',
+  ITEM_TRANSFERED: 'Item transfered',
+  BAD_REQUEST_TRANSFER: 'Bad request transfer',
 
   AUCTION_CANCELLED: 'Auction Cancelled',
   AUCTION_CANNOT_BE_CANCELLED: 'Auction cannot be Cancelled',
