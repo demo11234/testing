@@ -17,6 +17,7 @@ import { User } from 'src/user/entities/user.entity';
 import { Repository } from 'typeorm';
 import { Auction } from './entities/auctions.entity';
 import { CreateAuctionInterface } from './interface/create-auction.interface';
+import { UpdateAuctionInterface } from './interface/update-auction.interface';
 
 @Injectable()
 export class AuctionsService {
@@ -219,6 +220,23 @@ export class AuctionsService {
       )
       .getMany();
 
+    return auctions;
+  }
+
+  /**
+   * @description getListingByItemId will return the details of the listing of the given item id
+   * @param itemId
+   * @returns it will return Array of Listings
+   * @author Jeetanshu Srivastava
+   */
+  async updatePriceAndExpirationDate(
+    updateAuctionInterface: UpdateAuctionInterface,
+  ): Promise<Auction[]> {
+    const auction = await this.auctionRepository.findOne({
+      where: {
+        id: updateAuctionInterface.auctionId,
+      },
+    });
     return auctions;
   }
 }
