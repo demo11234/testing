@@ -18,6 +18,7 @@ import { ResponseStatusCode } from 'shared/ResponseStatusCode';
 import { UniqueCollectionCheck } from './dto/unique-collection-check.dto';
 import { NftItem } from 'src/nft-item/entities/nft-item.entities';
 import { NotFoundException } from '@nestjs/common';
+import validator from 'validator';
 // import { UserRepository } from 'src/user/repositories/user.repository';
 
 @Injectable()
@@ -38,7 +39,11 @@ export class CollectionsService {
       collection.featureImage = createCollectionDto.featureImage;
       collection.banner = createCollectionDto.banner;
       collection.name = createCollectionDto.name;
-      collection.url = createCollectionDto.url;
+      if (createCollectionDto.urlSlug){
+        collection.slug = createCollectionDto.urlSlug;
+      }else{
+        collection.slug = createCollectionDto.name.replace(/\s+/g, '-')
+      }
       collection.description = createCollectionDto.description;
       collection.websiteLink = createCollectionDto.websiteLink;
       collection.categoryId = createCollectionDto.categoryId;
@@ -68,7 +73,7 @@ export class CollectionsService {
   async findByOwnerOrCollaborator(id: string): Promise<any> {
     try {
       const isDeletedFalse = false;
-      const collections = await this.collectionRepository
+      const collectionsByOwner = await this.collectionRepository
         .createQueryBuilder('collection')
         .where('collection.isDeleted = :isDeletedFalse', { isDeletedFalse })
         .innerJoinAndSelect('collection.owner', 'owner', 'owner.id = :id', {
@@ -76,7 +81,22 @@ export class CollectionsService {
         })
         .select(['collection', 'owner.userName'])
         .getRawMany();
-      return collections;
+
+      const collectionsByCollaborators = await this.collectionRepository
+        .createQueryBuilder('collection')
+        .where('collection.isDeleted = :isDeletedFalse', { isDeletedFalse })
+        .innerJoinAndSelect(
+          'collection.collaborators',
+          'collaborators',
+          'collaborators.id = :id',
+          {
+            id,
+          },
+        )
+        .select(['collection', 'collaborators.userName'])
+        .getRawMany();
+      const toBeSent = collectionsByOwner.concat(collectionsByCollaborators);
+      return toBeSent;
     } catch (error) {
       return { msg: ResponseMessage.INTERNAL_SERVER_ERROR };
     }
@@ -102,15 +122,19 @@ export class CollectionsService {
     }
   }
 
-  async findOne(id: string, owner: string): Promise<any> {
+  async findOne(id: string): Promise<any> {
     try {
-      const collection = await this.collectionRepository.findOne({
-        where: [{ id: id, isDeleted: false, owner: owner }],
-      });
-      if (collection) return collection;
-      else {
-        return { msg: ResponseMessage.COLLECTION_DOES_NOT_EXIST };
+      let collection
+      if (validator.isUUID(id)){
+        collection = await this.collectionRepository.findOne({
+          where: {id:id}
+        })
+      } else {
+        collection = await this.collectionRepository.findOne({
+          where: {slug:id}
+        })
       }
+      return collection
     } catch (error) {
       return { msg: ResponseMessage.INTERNAL_SERVER_ERROR };
     }
@@ -129,7 +153,95 @@ export class CollectionsService {
       if (!isUpdated) return null;
       return isUpdated;
     } catch (error) {
+      if (error.code === ResponseStatusCode.UNIQUE_CONSTRAINTS)
+        throw new ConflictException(ResponseMessage.UNIQUE_CONSTRAINTS_NAME);
       throw new Error(error);
+    }
+  }
+
+  /**
+   * @description Function will add current user to the collection collaborators
+   * @param walletAddress , wallet address of the current user
+   * @param collectionId , collecton id to perform the update
+   * @returns Promise
+   */
+  async addUserInCollaborators(
+    walletAddress: string,
+    collectionId: string,
+  ): Promise<any> {
+    try {
+      const collection = await this.collectionRepository.findOne({
+        where: { id: collectionId },
+        relations: ['collaborators'],
+      });
+      if (!collection) return null;
+      if (collection.owner.walletAddress === walletAddress) {
+        return {
+          status: ResponseStatusCode.CONFLICT,
+          msg: ResponseMessage.OWNER_CANNOT_BE_ADDED_AS_COLLABORATOR,
+        };
+      }
+      let flag = 0;
+      for (let i = 0; i < collection.collaborators.length; i++) {
+        if (collection.collaborators[i].walletAddress === walletAddress) {
+          flag = 1;
+        }
+      }
+      if (flag === 1) {
+        return {
+          Status: ResponseStatusCode.CONFLICT,
+          msg: ResponseMessage.USER_ALREADY_IN_COLLABORATORS,
+        };
+      }
+
+      const user = await this.userRepository.findOne({
+        where: {
+          walletAddress: walletAddress,
+        },
+      });
+      if (!user) return null;
+
+      if (collection.collaborators) {
+        collection.collaborators.push(user);
+      } else {
+        collection.collaborators = [user];
+      }
+
+      await this.collectionRepository.save(collection);
+
+      return true;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  /**
+   * Function to remove a user from collaborator
+   * @param walletAddress , wallet address for the current user
+   * @param collectionId collection id to add collaborator
+   * @returns Promise
+   */
+  async removeUserFromCollaborators(
+    walletAddress: string,
+    collectionId: string,
+  ): Promise<boolean> {
+    try {
+      const user = await this.userRepository.findOne({
+        where: {
+          walletAddress: walletAddress,
+        },
+      });
+      if (!user) return null;
+
+      await this.collectionRepository
+        .createQueryBuilder()
+        .relation(Collection, 'collaborators')
+        .of(collectionId)
+        .remove(user.id);
+
+      return true;
+    } catch (error) {
+      console.log(error);
     }
   }
 
@@ -328,9 +440,9 @@ export class CollectionsService {
         result = !!collectionByName;
       }
 
-      if (uniqueCollectionCheck.url) {
+      if (uniqueCollectionCheck.urlSlug) {
         const collectionByUrl = await this.collectionRepository.findOne({
-          url: uniqueCollectionCheck.url,
+          slug: uniqueCollectionCheck.urlSlug,
         });
         result = !!collectionByUrl;
       }

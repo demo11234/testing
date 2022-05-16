@@ -34,10 +34,10 @@ export class UpdateCollectionsDto {
   @IsString()
   name: string;
 
-  @ApiPropertyOptional({ description: 'Collection url' })
+  @ApiPropertyOptional({ description: 'Collection url slug' })
   @IsString()
   @IsOptional()
-  url: string;
+  slug: string;
 
   @ApiPropertyOptional({
     description: 'Description about collection',

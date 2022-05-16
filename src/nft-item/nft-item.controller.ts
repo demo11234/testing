@@ -7,13 +7,18 @@ import {
   Response,
   Param,
   Patch,
+  Put,
   UseGuards,
   Query,
   ValidationPipe,
   UsePipes,
+  HttpCode,
+  HttpStatus,
+  BadRequestException,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
+  ApiOkResponse,
   ApiOperation,
   ApiResponse,
   ApiTags,
@@ -243,6 +248,31 @@ export class NftItemController {
     }
   }
 
+
+  @ApiTags('Nft Item')
+  @Get('/getNftItemByID/:id')
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({ description: 'GET ITEM DATA BY ITEM ID' })
+  async fatchNftItemByID(@Param('id') id: string) {
+    try {
+      return await this.nftItemService.findOne(id);
+    } catch (e) {
+      throw new BadRequestException(e.message);
+    }
+  }
+
+  @ApiTags('Nft Item')
+  @Put('/updateViewer/:id')
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({ description: 'Update VIEWER COUNT on a  ITEM' })
+  async updateViewerCount(@Param('id') id: string) {
+    try {
+      return await this.nftItemService.updateViewerCount(id);
+    } catch (e) {
+      throw new BadRequestException(e.message);
+    }
+  }
+  
   /**
    * @description: This api fetch all the item of a collection except one
    * @param id

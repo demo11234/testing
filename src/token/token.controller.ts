@@ -205,4 +205,31 @@ export class TokenController {
       );
     }
   }
+
+  /**
+   * @description getAllActiveTokens will fetch and return all active tokens with details
+   * @returns it returns all active token details
+   * @author Ansh Arora
+   */
+  @Get()
+  @ApiTags('Tokens')
+  @ApiOperation({
+    summary: 'Fetches all active tokens',
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
+    description: ResponseMessage.INTERNAL_SERVER_ERROR,
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.OK,
+    description: ResponseMessage.TOKEN_DETAILS,
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.NOT_FOUND,
+    description: ResponseMessage.TOKENS_NOT_FOUND,
+  })
+  async getAllActiveTokens(@Response() response): Promise<any> {
+    const tokens = await this.tokenService.getAllActive(response);
+    return tokens;
+  }
 }

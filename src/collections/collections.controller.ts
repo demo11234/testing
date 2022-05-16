@@ -30,6 +30,8 @@ import { FilterDto } from './dto/filter.dto';
 import { UserWatchlistDto } from './dto/user-watchlist.dto';
 import { UserService } from 'src/user/user.service';
 import { UniqueCollectionCheck } from './dto/unique-collection-check.dto';
+import { collaboratorUpdateType } from './enums/collaborator-update-type.enum';
+import { UpdateCollaboratorDto } from './dto/update-collaborator.dto';
 import { UserFavouritesDto } from './dto/user-favourites.dto';
 
 @Controller('collections')
@@ -168,13 +170,17 @@ export class CollectionsController {
   })
   @ApiResponse({
     status: ResponseStatusCode.OK,
-    description: 'Returns All Collections by owner',
+    description:
+      'Returns All Collections that have user either as owner or as collaborator',
   })
   @ApiResponse({
     status: ResponseStatusCode.NOT_FOUND,
     description: ResponseMessage.COLLECTIONS_DO_NOT_EXIST,
   })
-  async findAllByOwner(@Param('id') id: string, @Response() response) {
+  async findAllByOwnerOrCollaborator(
+    @Param('id') id: string,
+    @Response() response,
+  ) {
     try {
       const collections =
         await this.collectionService.findByOwnerOrCollaborator(id);
@@ -202,7 +208,6 @@ export class CollectionsController {
    * @author: Ansh Arora
    */
   @Get('/:id')
-  @UseGuards(JwtAuthGuard)
   @ApiTags('Collection Module')
   @ApiOperation({
     summary: 'Find one collection',
@@ -225,8 +230,7 @@ export class CollectionsController {
     @Response() response,
   ): Promise<any> {
     try {
-      const owner = req.user;
-      const collection = await this.collectionService.findOne(id, owner);
+      const collection = await this.collectionService.findOne(id);
       if (collection) {
         return this.responseModel.response(
           collection,
@@ -290,14 +294,10 @@ export class CollectionsController {
     @Response() response,
   ): Promise<any> {
     try {
-      const owner = await this.userService.findUserByWalletAddress(
-        req.user.walletAddress,
-      );
       const collection = await this.collectionService.findOne(
         id,
-        owner.walletAddress,
       );
-      if (owner.walletAddress === collection.owner) {
+      if (req.user.walletAddress === collection.owner.walletAddress) {
         console.log('inside If id', id);
         const updatedCollection = await this.collectionService.update(
           id,
@@ -542,6 +542,87 @@ export class CollectionsController {
         true,
         response,
       );
+    } catch (error) {
+      return this.responseModel.response(
+        error,
+        ResponseStatusCode.INTERNAL_SERVER_ERROR,
+        false,
+        response,
+      );
+    }
+  }
+  
+  /**
+   * @description: This api adds or removes the collaborator
+   * @param updateCollaboratorDto
+   * @returns: Status on add or removal of collaborator
+   * @author: Ansh Arora
+   */
+  @Put('/collaborators')
+  @UseGuards(JwtAuthGuard)
+  @ApiTags('Collection Module')
+  @ApiOperation({
+    summary: 'Add and Removes user from Collaborators of a collection',
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.OK,
+    description: ResponseMessage.COLLABORATOR_ADDED,
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.OK,
+    description: ResponseMessage.COLLABORATOR_REMOVED,
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
+    description: ResponseMessage.INTERNAL_SERVER_ERROR,
+  })
+  @ApiBearerAuth()
+  async updateCollaborator(
+    @Body() updateCollaboratorDto: UpdateCollaboratorDto,
+    @Response() response,
+    @Request() request,
+  ): Promise<any> {
+    try {
+      if (updateCollaboratorDto.updateType === collaboratorUpdateType.ADD) {
+        const result = await this.collectionService.addUserInCollaborators(
+          request.user.walletAddress,
+          updateCollaboratorDto.collectionId,
+        );
+        if (result !== true) {
+          return this.responseModel.response(
+            result,
+            ResponseStatusCode.CONFLICT,
+            false,
+            response,
+          );
+        }
+        return this.responseModel.response(
+          result,
+          ResponseStatusCode.OK,
+          true,
+          response,
+        );
+      } else if (
+        updateCollaboratorDto.updateType === collaboratorUpdateType.REMOVE
+      ) {
+        const result = await this.collectionService.removeUserFromCollaborators(
+          request.user.walletAddress,
+          updateCollaboratorDto.collectionId,
+        );
+        return this.responseModel.response(
+          result,
+          ResponseStatusCode.OK,
+          true,
+          response,
+        );
+      } else {
+        return this.responseModel.response(
+          ResponseMessage.BAD_REQUEST,
+          ResponseStatusCode.BAD_REQUEST,
+          false,
+          response,
+        );
+      }
     } catch (error) {
       return this.responseModel.response(
         error,
