@@ -51,11 +51,11 @@ export class NftItem {
   collection: Collection;
 
   @ApiProperty()
-  @Column({ type: 'jsonb', nullable: true })
+  @Column({ type: 'jsonb', default: [] })
   properties: Properties[];
 
   @ApiProperty()
-  @Column({ type: 'jsonb', nullable: true })
+  @Column({ type: 'jsonb', default: [] })
   levels: Levels[];
 
   @ApiProperty()
