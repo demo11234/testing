@@ -169,13 +169,17 @@ export class CollectionsController {
   })
   @ApiResponse({
     status: ResponseStatusCode.OK,
-    description: 'Returns All Collections by owner',
+    description:
+      'Returns All Collections that have user either as owner or as collaborator',
   })
   @ApiResponse({
     status: ResponseStatusCode.NOT_FOUND,
     description: ResponseMessage.COLLECTIONS_DO_NOT_EXIST,
   })
-  async findAllByOwner(@Param('id') id: string, @Response() response) {
+  async findAllByOwnerOrCollaborator(
+    @Param('id') id: string,
+    @Response() response,
+  ) {
     try {
       const collections =
         await this.collectionService.findByOwnerOrCollaborator(id);
