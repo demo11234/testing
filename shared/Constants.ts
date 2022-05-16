@@ -12,6 +12,7 @@ export const Constants = {
 };
 
 export enum eventActions {
+  LISTED = 'Listed',
   MINTED = 'Minted',
   SUCCESSFUL = 'Successful',
   CANCELLED = 'Cancelled',
