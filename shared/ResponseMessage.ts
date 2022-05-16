@@ -76,11 +76,20 @@ export const ResponseMessage = {
   COLLABORATOR_ADD_FAILED: 'Collaborator addition failed',
   USER_ALREADY_IN_COLLABORATORS: 'User already in collaborators',
   SELECT_COLLECTION: 'Please select a collection',
+
+  AUCTION_DETAILS: 'Auction Details',
   USER_DOSENT_OWN_ALL_ITEM: 'User dosent own all item in collection',
   FAVOURITES_ADDED: 'User has been added in Favourites',
   FAVOURITES_REMOVED: 'User has been removed from Favourites',
   UPDATION_ERROR_FEES: 'Error in updating fees paid',
   FEES_NOT_PAID:
     'Pay firsttime fees. If paid already wait for some time to reflect in blockchain',
+  ITEM_IS_FREEZED: 'Can not update item is Freezed',
+  ITEM_DELETED:'Item is deleted',
+  ITEM_TRANSFERED: 'Item transfered',
+  BAD_REQUEST_TRANSFER: 'Bad request transfer',
+  AUCTION_CANCELLED: 'Auction Cancelled',
+  AUCTION_CANNOT_BE_CANCELLED: 'Auction cannot be Cancelled',
+  ITEMS_LIST: 'List of Items',
   TOKENS_NOT_FOUND: 'Tokens not found',
 };
