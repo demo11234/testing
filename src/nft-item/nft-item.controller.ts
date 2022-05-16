@@ -7,7 +7,6 @@ import {
   Response,
   Param,
   Patch,
-  Put,
   UseGuards,
   Query,
   ValidationPipe,
