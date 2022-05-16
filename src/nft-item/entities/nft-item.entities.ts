@@ -2,12 +2,15 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsNumber, IsString } from 'class-validator';
 import { Chains } from 'src/chains/entities/chains.entity';
 import { Collection } from 'src/collections/entities/collection.entity';
+import { Offer } from 'src/offer/entities/offer.entity';
 import {
   CreateDateColumn,
   ManyToOne,
   Column,
   Entity,
   UpdateDateColumn,
+  OneToMany,
+  DeleteDateColumn,
 } from 'typeorm';
 import { PrimaryGeneratedColumn, JoinColumn } from 'typeorm';
 
@@ -23,9 +26,9 @@ export class NftItem {
   @ApiProperty()
   @Column({ nullable: false })
   fileUrl: string;
-  
+
   @ApiProperty()
-  @Column({nullable: false})
+  @Column({ nullable: false })
   fileName: string;
 
   @ApiProperty()
@@ -34,47 +37,60 @@ export class NftItem {
 
   @ApiProperty()
   @Column({ nullable: true })
+  previewImage: string;
+
+  @ApiProperty()
+  @Column({ nullable: true })
   description: string;
 
-  @ManyToOne(() => Collection, (collection) => collection.nftItem)
+  @ManyToOne(() => Collection, (collection) => collection.nftItem, {
+    eager: true,
+  onDelete: "CASCADE",
+  })
   @JoinColumn()
   collection: Collection;
 
   @ApiProperty()
-  @Column({type: "jsonb", nullable: true })
+  @Column({ type: 'jsonb', default: [] })
   properties: Properties[];
 
   @ApiProperty()
-  @Column({type: "jsonb", nullable: true})
+  @Column({ type: 'jsonb', default: [] })
   levels: Levels[];
 
   @ApiProperty()
-  @Column({type: "jsonb", nullable: true})
+  @Column({ type: 'jsonb', nullable: true })
   stats: Stats[];
 
   @ApiProperty()
-  @Column({default: false})
+  @Column({ default: false })
   isLockable: boolean;
 
   @ApiProperty()
-  @Column({default: false})
+  @Column({ default: false })
   isExplicit: boolean;
-  
+
   @ApiProperty()
   @Column({ default: 1 })
   supply: number;
+
+  @OneToMany(() => Offer, (offer) => offer.item, {
+    eager: false,
+  })
+  @JoinColumn()
+  offers: Offer[];
 
   @ManyToOne(() => Chains, (chains) => chains.nftChainName)
   @JoinColumn()
   blockChain: Chains;
 
   @ApiProperty()
-  @Column({nullable: true})
+  @Column({ nullable: true })
   lockableContent: string;
 
   @ApiProperty()
-  @Column("simple-array", {default: []})
-  allowedTokens:string[];
+  @Column('simple-array', { default: [] })
+  allowedTokens: string[];
 
   @ApiProperty()
   @Column()
@@ -89,6 +105,18 @@ export class NftItem {
   walletAddress: string;
 
   @ApiProperty()
+  @Column({default: false})
+  buyNow: boolean;
+
+  @ApiProperty()
+  @Column({default: false})
+  onAuction: boolean;
+
+  @ApiProperty()
+  @Column({default: false})
+  hasOffer: boolean;
+
+  @ApiProperty()
   @CreateDateColumn()
   createdAt: Date;
 
@@ -97,8 +125,15 @@ export class NftItem {
   updatedAt: Date;
 
   @ApiProperty()
-  @Column({type: 'float'})
+  @Column({ type: 'float' })
   timeStamp: number;
+ 
+  @ApiProperty()
+  @Column({ nullable: true, default: 0 })
+  viwes: number;
+
+  @DeleteDateColumn()
+  deletedAt: Date;
 }
 
 export class Properties {
@@ -115,11 +150,11 @@ export class Levels {
   @ApiProperty()
   @IsString()
   name: string;
-  
+
   @ApiProperty()
   @IsNumber()
   value: number;
-  
+
   @ApiProperty()
   @IsNumber()
   maxValue: number;
@@ -129,11 +164,11 @@ export class Stats {
   @ApiProperty()
   @IsString()
   name: string;
-  
+
   @ApiProperty()
   @IsNumber()
   value: number;
-  
+
   @ApiProperty()
   @IsNumber()
   maxValue: number;

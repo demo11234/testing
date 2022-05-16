@@ -13,6 +13,7 @@ import { ServicesService } from 'src/services/services.service';
 import { FileUpload } from 'src/user/utils/s3.upload';
 import { Notification } from 'src/notification/entity/notification.entity';
 import { ConfigService } from '@nestjs/config';
+import { NftItem } from 'src/nft-item/entities/nft-item.entities';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { ConfigService } from '@nestjs/config';
       User,
       UserRepository,
       Notification,
+      NftItem
     ]),
   ],
   controllers: [CollectionsController],

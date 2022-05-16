@@ -1,4 +1,3 @@
-
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   ArrayMinSize,
@@ -12,6 +11,7 @@ import {
 } from 'class-validator';
 import { Levels, Properties, Stats } from '../entities/nft-item.entities';
 import { Type as ValidateType } from 'class-transformer';
+import { Column } from 'typeorm';
 
 export class CreateNftItemDto {
   @ApiProperty()
@@ -26,8 +26,12 @@ export class CreateNftItemDto {
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()
-  @IsUrl({ message: 'external URL is not valid.' })
   externalUrl?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  previewImage?: string;
 
   @ApiPropertyOptional()
   @IsString()

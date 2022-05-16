@@ -13,6 +13,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
   JoinColumn,
+  DeleteDateColumn,
 } from 'typeorm';
 import { displayTheme } from '../enums/display-themes.enum';
 
@@ -37,6 +38,14 @@ export class Collection {
     inverseJoinColumn: { name: 'user_id', referencedColumnName: 'id' },
   })
   watchlist: User[];
+
+  @ManyToMany(() => User)
+  @JoinTable({
+    name: 'favourites',
+    joinColumn: { name: 'collection_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'user_id', referencedColumnName: 'id' },
+  })
+  favourites: User[];
 
   @Column({ nullable: true })
   @ApiProperty()
@@ -156,6 +165,16 @@ export class Collection {
   @ApiProperty()
   updatedAt: Date;
 
-  @OneToMany(() => NftItem, (nftItem) => nftItem.collection)
+  @OneToMany(() => NftItem, (nftItem) => nftItem.collection, {
+    eager: false,
+    cascade: true,
+  })
   nftItem: NftItem[];
+
+  @Column()
+  @ApiProperty()
+  ownerWalletAddress: string;
+
+  @DeleteDateColumn()
+  deletedAt: Date;
 }

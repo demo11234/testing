@@ -1,7 +1,9 @@
+import { Offer } from 'src/offer/entities/offer.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -37,6 +39,11 @@ export class Tokens {
 
   @Column()
   usdPrice: number;
+
+  @OneToMany(() => Offer, (offer) => offer.paymentToken, {
+    eager: false,
+  })
+  offers: Offer;
 
   @Column({ default: true })
   active: boolean;

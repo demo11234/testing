@@ -32,6 +32,7 @@ import { UserService } from 'src/user/user.service';
 import { UniqueCollectionCheck } from './dto/unique-collection-check.dto';
 import { collaboratorUpdateType } from './enums/collaborator-update-type.enum';
 import { UpdateCollaboratorDto } from './dto/update-collaborator.dto';
+import { UserFavouritesDto } from './dto/user-favourites.dto';
 
 @Controller('collections')
 export class CollectionsController {
@@ -336,71 +337,6 @@ export class CollectionsController {
   }
 
   /**
-   * @description: This api soft deletes the collection and returns status
-   * @param id
-   * @returns: null
-   * @author: Ansh Arora
-   */
-  @Delete(':id')
-  @ApiTags('Collection Module')
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({
-    summary:
-      'Soft deletes the Collection owned by user who is currenlty Logged In',
-  })
-  @ApiResponse({
-    status: ResponseStatusCode.CONFLICT,
-    description: ResponseMessage.USER_DOES_NOT_OWN_COLLECTION,
-  })
-  @ApiResponse({
-    status: ResponseStatusCode.NOT_FOUND,
-    description: ResponseMessage.COLLECTION_DOES_NOT_EXIST,
-  })
-  @ApiResponse({
-    status: ResponseStatusCode.OK,
-    description: ResponseMessage.COLLECTION_DELETED,
-  })
-  @ApiResponse({
-    status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
-    description: ResponseMessage.INTERNAL_SERVER_ERROR,
-  })
-  async delete(
-    @Req() req,
-    @Param('id') id: string,
-    @Response() response,
-  ): Promise<any> {
-    try {
-      const owner = req.user.id;
-      const collection = await this.collectionService.findOne(id, owner);
-      if (req.user.id === collection.owner) {
-        if (collection) {
-          await this.collectionService.delete(id);
-          return this.responseModel.response(
-            ResponseMessage.COLLECTION_DELETED,
-            ResponseStatusCode.OK,
-            true,
-            response,
-          );
-        }
-      } else {
-        return this.responseModel.response(
-          ResponseMessage.USER_DOES_NOT_OWN_COLLECTION,
-          ResponseStatusCode.BAD_REQUEST,
-          false,
-          response,
-        );
-      }
-    } catch (error) {
-      return this.responseModel.response(
-        error,
-        ResponseStatusCode.INTERNAL_SERVER_ERROR,
-        false,
-        response,
-      );
-    }
-  }
-
-  /**
    * @description: getWatchCollections returns the collections present in current user watchlist
    * @returns: Collections
    * @author: Jeetanshu Srivastava
@@ -425,9 +361,10 @@ export class CollectionsController {
     @Request() request,
   ): Promise<any> {
     try {
-      const collections = await this.collectionService.getCollectionForUser(
-        request.user.walletAddress,
-      );
+      const collections =
+        await this.collectionService.getCollectionForUserWatchlist(
+          request.user.walletAddress,
+        );
       return this.responseModel.response(
         collections,
         ResponseStatusCode.OK,
@@ -446,8 +383,8 @@ export class CollectionsController {
 
   /**
    * @description: watchlist adds or removes user from watchlist depending upon the value of isWatched
-   * @param updateCollectionDto
-   * @returns: Update Staus
+   * @param UserWatchlistDto
+   * @returns: Updates Status
    * @author: Jeetanshu Srivastava
    */
   @Put('/watchlist')
@@ -511,6 +448,117 @@ export class CollectionsController {
   }
 
   /**
+   * @description: favourites adds or removes user from favourites depending upon the value of isFavourite
+   * @param UserWatchlistDto
+   * @returns: Updates Status
+   * @author: Jeetanshu Srivastava
+   */
+  @Put('/favourites')
+  @UseGuards(JwtAuthGuard)
+  @ApiTags('Collection Module')
+  @ApiOperation({
+    summary:
+      'Add and Removes user wallet address from favourites of a collection',
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.OK,
+    description: ResponseMessage.FAVOURITES_ADDED,
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.OK,
+    description: ResponseMessage.FAVOURITES_REMOVED,
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
+    description: ResponseMessage.INTERNAL_SERVER_ERROR,
+  })
+  @ApiBearerAuth()
+  async favourites(
+    @Body() userFavouritesDto: UserFavouritesDto,
+    @Response() response,
+    @Request() request,
+  ): Promise<any> {
+    try {
+      const { isFavourite } = userFavouritesDto;
+      if (isFavourite) {
+        const result = await this.collectionService.addUserInFavourites(
+          request.user.walletAddress,
+          userFavouritesDto.collectionId,
+        );
+        return this.responseModel.response(
+          result,
+          ResponseStatusCode.OK,
+          true,
+          response,
+        );
+      } else {
+        const result = await this.collectionService.removeUseFromFavourites(
+          request.user.walletAddress,
+          userFavouritesDto.collectionId,
+        );
+        return this.responseModel.response(
+          result,
+          ResponseStatusCode.OK,
+          true,
+          response,
+        );
+      }
+    } catch (error) {
+      return this.responseModel.response(
+        error,
+        ResponseStatusCode.INTERNAL_SERVER_ERROR,
+        false,
+        response,
+      );
+    }
+  }
+
+  /**
+   * @description: getFavouriteCollections returns the collections present in current user favourites
+   * @returns: Collections
+   * @author: Jeetanshu Srivastava
+   */
+  @Put('/getFavouritesCollections')
+  @UseGuards(JwtAuthGuard)
+  @ApiTags('Collection Module')
+  @ApiOperation({
+    summary: 'Returns Current User Watchlist Collection',
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.OK,
+    description: ResponseMessage.COLLECTION_LIST,
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
+    description: ResponseMessage.INTERNAL_SERVER_ERROR,
+  })
+  @ApiBearerAuth()
+  async getFavouriteCollections(
+    @Response() response,
+    @Request() request,
+  ): Promise<any> {
+    try {
+      const collections =
+        await this.collectionService.getCollectionForUserFavourites(
+          request.user.walletAddress,
+        );
+      return this.responseModel.response(
+        collections,
+        ResponseStatusCode.OK,
+        true,
+        response,
+      );
+    } catch (error) {
+      return this.responseModel.response(
+        error,
+        ResponseStatusCode.INTERNAL_SERVER_ERROR,
+        false,
+        response,
+      );
+    }
+  }
+  
+  /**
    * @description: This api adds or removes the collaborator
    * @param updateCollaboratorDto
    * @returns: Status on add or removal of collaborator
@@ -520,8 +568,7 @@ export class CollectionsController {
   @UseGuards(JwtAuthGuard)
   @ApiTags('Collection Module')
   @ApiOperation({
-    summary:
-      'Add and Removes user wallet address from Collaborators of a collection',
+    summary: 'Add and Removes user from Collaborators of a collection',
   })
   @ApiResponse({
     status: ResponseStatusCode.OK,
@@ -636,4 +683,57 @@ export class CollectionsController {
       );
     }
   }
+
+  /**
+   * @description: This api soft deletes the collection and returns status
+   * @param id
+   * @returns: soft delete collection
+   * @author: vipin
+  */
+  @Delete(':id')
+  @ApiTags('Collection Module')
+  @UseGuards(JwtAuthGuard)
+  @ApiResponse({
+    status: ResponseStatusCode.CONFLICT,
+    description: ResponseMessage.USER_DOES_NOT_OWN_COLLECTION,
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.NOT_FOUND,
+    description: ResponseMessage.COLLECTION_DOES_NOT_EXIST,
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.OK,
+    description: ResponseMessage.COLLECTION_DELETED,
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
+    description: ResponseMessage.INTERNAL_SERVER_ERROR,
+  })
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary:
+      'Soft deletes the Collection owned by user who is currenlty Logged In',
+  })
+  async deleteCollection (
+    @Param('id') id:string,
+    @Response() response,
+    @Request() request,
+    ):Promise <any> {
+      try{
+        const data = await this.collectionService.deleteCollection(id, request);
+        return this.responseModel.response(
+          data,
+          ResponseStatusCode.OK,
+          true,
+          response,
+        );
+      } catch (error){
+        return this.responseModel.response(
+          error,
+          ResponseStatusCode.INTERNAL_SERVER_ERROR,
+          false,
+          response,
+        );
+      }
+    }
 }

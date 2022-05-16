@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   InternalServerErrorException,
@@ -15,6 +16,8 @@ import { ResponseMessage } from 'shared/ResponseMessage';
 import { User } from '../../src/user/entities/user.entity';
 import { ResponseStatusCode } from 'shared/ResponseStatusCode';
 import { UniqueCollectionCheck } from './dto/unique-collection-check.dto';
+import { NftItem } from 'src/nft-item/entities/nft-item.entities';
+import { NotFoundException } from '@nestjs/common';
 // import { UserRepository } from 'src/user/repositories/user.repository';
 
 @Injectable()
@@ -24,6 +27,8 @@ export class CollectionsService {
     private readonly collectionRepository: Repository<Collection>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @InjectRepository(NftItem)
+    private readonly nftItemRepository: Repository<NftItem>,
   ) {}
 
   async create(owner: User, createCollectionDto: CreateCollectionsDto) {
@@ -48,6 +53,7 @@ export class CollectionsService {
       collection.explicitOrSensitiveContent =
         createCollectionDto.explicitOrSensitiveContent;
       collection.owner = owner;
+      collection.ownerWalletAddress = owner.walletAddress
 
       collection = await this.collectionRepository.save(collection);
       return collection;
@@ -140,13 +146,6 @@ export class CollectionsService {
     } catch (error) {
       throw new Error(error);
     }
-  }
-
-  async delete(id: string): Promise<any> {
-    const collection = await this.collectionRepository.findOne(id);
-    collection.isDeleted = true;
-    await this.collectionRepository.update(id, collection);
-    return null;
   }
 
   /**
@@ -291,7 +290,9 @@ export class CollectionsService {
     }
   }
 
-  async getCollectionForUser(walletAddress: string): Promise<Collection[]> {
+  async getCollectionForUserWatchlist(
+    walletAddress: string,
+  ): Promise<Collection[]> {
     try {
       const collections = await this.collectionRepository
         .createQueryBuilder('collection')
@@ -301,13 +302,101 @@ export class CollectionsService {
           'watchlist.walletAddress = :walletAddress',
           { walletAddress },
         )
-        .select([
-          'collection.id',
-          'collection.logo',
-          'collection.featureImage',
-          'collection.name',
-          'collection.banner',
-        ])
+        .select(['collection'])
+        .getMany();
+
+      return collections;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  /**
+   * @description Function will add current user to the collection favourites
+   * @param walletAddress , wallet address of the current user
+   * @param collectionId , collecton id to perform the update
+   * @returns Promise
+   */
+  async addUserInFavourites(
+    walletAddress: string,
+    collectionId: string,
+  ): Promise<boolean> {
+    try {
+      const collection = await this.collectionRepository.findOne({
+        where: { id: collectionId },
+        relations: ['favourites'],
+      });
+      if (!collection) return null;
+
+      const user = await this.userRepository.findOne({
+        where: {
+          walletAddress,
+        },
+      });
+      if (!user) return null;
+
+      if (collection.favourites) {
+        collection.favourites.push(user);
+      } else {
+        collection.favourites = [user];
+      }
+
+      await this.collectionRepository.save(collection);
+
+      return true;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  /**
+   * @description Function will remove current user to the collection favourites
+   * @param walletAddress , wallet address of the current user
+   * @param collectionId , collecton id to perform the update
+   * @returns Promise
+   */
+  async removeUseFromFavourites(
+    walletAddress: string,
+    collectionId: string,
+  ): Promise<boolean> {
+    try {
+      const user = await this.userRepository.findOne({
+        where: {
+          walletAddress: walletAddress,
+        },
+      });
+      if (!user) return null;
+
+      await this.collectionRepository
+        .createQueryBuilder()
+        .relation(Collection, 'favourites')
+        .of(collectionId)
+        .remove(user.id);
+
+      return true;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  /**
+   * @description: getCollectionForUserFavourites returns the collections present in current user favourites
+   * @returns: Collections
+   * @author: Jeetanshu Srivastava
+   */
+  async getCollectionForUserFavourites(
+    walletAddress: string,
+  ): Promise<Collection[]> {
+    try {
+      const collections = await this.collectionRepository
+        .createQueryBuilder('collection')
+        .innerJoinAndSelect(
+          'collection.favourites',
+          'favourites',
+          'favourites.walletAddress = :walletAddress',
+          { walletAddress },
+        )
+        .select(['collection'])
         .getMany();
 
       return collections;
@@ -345,6 +434,45 @@ export class CollectionsService {
     } catch (error) {
       console.log(error);
       return false;
+    }
+  }
+
+  /**
+   * @description this will delete collection if logged in user own all item in this collection
+   * @param id
+   * @returns collection deleted
+   * @author vipin
+   */
+  async deleteCollection(id: string, request): Promise<any> {
+    try{
+      //-- fetching collection using given id
+      const collection = await this.collectionRepository.findOne({id});
+
+      if (!collection) throw new NotFoundException(ResponseMessage.COLLECTION_DOES_NOT_EXIST)
+      if (request.user.walletAddress !== collection.ownerWalletAddress) throw new ConflictException (ResponseMessage.USER_DOES_NOT_OWN_COLLECTION)
+
+      //-- fetching all item from this collection
+      const item = await this.nftItemRepository.find({
+        where: {collection: {id}},
+        relations:['collection'],
+      })
+
+      let flag = 0;
+      item.forEach((item) => {
+        if (item.owner !== request.user.walletAddress)
+        flag = 1
+      })
+
+      if (flag === 1) throw new BadRequestException(ResponseMessage.USER_DOSENT_OWN_ALL_ITEM)
+      collection.isDeleted = true;
+
+      await this.collectionRepository.update(id, collection);
+      await this.collectionRepository.softDelete({id});
+      await this.nftItemRepository.softRemove(item);
+
+      return ResponseMessage.COLLECTION_DELETED;
+      } catch(error) {
+      return error;
     }
   }
 }
