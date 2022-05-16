@@ -16,6 +16,7 @@ import { auctionType, timedAuctionMethod } from 'shared/Constants';
 import { Tokens } from '../../../src/token/entities/tokens.entity';
 import { NftItem } from '../../../src/nft-item/entities/nft-item.entities';
 import { User } from 'src/user/entities/user.entity';
+import { Collection } from 'src/collections/entities/collection.entity';
 
 export class Bundle {
   @ApiProperty()
@@ -53,7 +54,15 @@ export class Auction {
     joinColumn: { name: 'auction_id', referencedColumnName: 'id' },
     inverseJoinColumn: { name: 'nft-item_id', referencedColumnName: 'id' },
   })
-  auction_item: NftItem[];
+  auction_item: NftItem;
+
+  @ManyToMany(() => Collection)
+  @JoinTable({
+    name: 'auction_collection',
+    joinColumn: { name: 'auction_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'collection_id', referencedColumnName: 'id' },
+  })
+  auction_collection: Collection;
 
   @Column({ type: 'float' })
   @ApiProperty()
