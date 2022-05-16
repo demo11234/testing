@@ -71,10 +71,19 @@ export const ResponseMessage = {
 
   COLLECTION_NAME: 'Collection Name is Empty',
   UNIQUE_COLLECTION_CHECK: 'Boolean Values for Collection Name and url',
+  OWNER_CANNOT_BE_ADDED_AS_COLLABORATOR:
+    'Owner cannot be added in collaborators',
+  COLLABORATOR_ADD_FAILED: 'Collaborator addition failed',
+  USER_ALREADY_IN_COLLABORATORS: 'User already in collaborators',
   SELECT_COLLECTION: 'Please select a collection',
 
   AUCTION_DETAILS: 'Auction Details',
   USER_DOSENT_OWN_ALL_ITEM: 'User dosent own all item in collection',
   FAVOURITES_ADDED: 'User has been added in Favourites',
   FAVOURITES_REMOVED: 'User has been removed from Favourites',
+
+  AUCTION_CANCELLED: 'Auction Cancelled',
+  AUCTION_CANNOT_BE_CANCELLED: 'Auction cannot be Cancelled',
+  ITEMS_LIST: 'List of Items',
+  TOKENS_NOT_FOUND: 'Tokens not found',
 };

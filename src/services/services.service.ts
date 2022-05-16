@@ -22,7 +22,7 @@ export class ServicesService {
    * @description cron job for uplading data to algolia
    * @author Mohan Chaudhari
    */
-  @Cron(CronExpression.EVERY_4_HOURS)
+  @Cron(CronExpression.EVERY_5_MINUTES)
   async handleCron() {
     console.log('calling algolia user upload function every 4 hours');
     const algoliaReturnedUser = await this.algoliaUserUpload();
@@ -49,7 +49,7 @@ export class ServicesService {
     //User adding
 
     const timeStamp = moment()
-      .subtract(4, 'h')
+      .subtract(1, 'h')
       .format('YYYY-MM-DD HH:MM:SS.SSSSSS');
 
     const result = await this.userRepository.find({
@@ -97,13 +97,14 @@ export class ServicesService {
     const collectionIndex = client.initIndex('collection_content');
 
     const timeStamp = moment()
-      .subtract(4, 'h')
+      .subtract(1, 'h')
       .format('YYYY-MM-DD HH:MM:SS.SSSSSS');
 
     //collection adding
     const result = await this.collectionRepository.find({
       select: [
         'id',
+        'name',
         'banner',
         'blockchain',
         'url',

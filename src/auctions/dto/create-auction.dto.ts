@@ -40,6 +40,11 @@ export class CreateAuctionDto {
   @ApiPropertyOptional()
   @IsOptional()
   @IsNumber()
+  quantity: number;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsNumber()
   price: number;
 
   @ApiPropertyOptional()

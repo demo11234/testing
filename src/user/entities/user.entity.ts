@@ -75,10 +75,4 @@ export class User {
   })
   @JoinColumn()
   collections: Collection[];
-
-  @ManyToMany(() => Collection, (collection) => collection.collaborators, {
-    eager: false,
-  })
-  @JoinColumn()
-  collaboratedCollection: Collection[];
 }
