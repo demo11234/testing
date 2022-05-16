@@ -9,10 +9,18 @@ import { NftItem } from 'src/nft-item/entities/nft-item.entities';
 import { User } from 'src/user/entities/user.entity';
 import { ActivityService } from 'src/activity/activity.service';
 import { Activity } from 'src/activity/entities/activity.entity';
+import { Collection } from 'src/collections/entities/collection.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Auction, Tokens, NftItem, User, Activity]),
+    TypeOrmModule.forFeature([
+      Auction,
+      Tokens,
+      NftItem,
+      User,
+      Activity,
+      Collection,
+    ]),
   ],
   providers: [AuctionsService, ResponseModel, ActivityService],
   controllers: [AuctionsController],

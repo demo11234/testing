@@ -62,6 +62,17 @@ export class AuctionsController {
         createAuctionDto,
         request.user.walletAddress,
       );
+      await this.activityService.createActivity({
+        eventActions: eventActions.LISTED,
+        nftItem: createAuctionDto.auction_items,
+        eventType: eventType.LISTING,
+        fromAccount: request.user.walletAddress,
+        toAccount: null,
+        totalPrice: null,
+        isPrivate: false,
+        collectionId: createAuctionDto.auction_collection,
+        winnerAccount: null,
+      });
       return this.responseModel.response(
         auction,
         ResponseStatusCode.CREATED,

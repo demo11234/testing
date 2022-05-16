@@ -1,8 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { auctionType, timedAuctionMethod } from 'shared/Constants';
+import {
+  auctionType,
+  eventActions,
+  eventType,
+  timedAuctionMethod,
+} from 'shared/Constants';
 import { ResponseMessage } from 'shared/ResponseMessage';
 import { ResponseStatusCode } from 'shared/ResponseStatusCode';
+import { ActivityService } from 'src/activity/activity.service';
+import { Collection } from 'src/collections/entities/collection.entity';
 import { NftItem } from 'src/nft-item/entities/nft-item.entities';
 import { Tokens } from 'src/token/entities/tokens.entity';
 import { User } from 'src/user/entities/user.entity';
@@ -17,6 +24,9 @@ export class AuctionsService {
     @InjectRepository(Tokens) private tokensRepository: Repository<Tokens>,
     @InjectRepository(NftItem) private nftItemRepository: Repository<NftItem>,
     @InjectRepository(User) private userRepository: Repository<User>,
+    @InjectRepository(Collection)
+    private readonly collectionRepository: Repository<Collection>,
+    private readonly activityService: ActivityService,
   ) {}
 
   /**
@@ -46,19 +56,16 @@ export class AuctionsService {
     });
     auction.tokens = token;
 
-    for (let i = 0; i < createAuctionInterface.auction_items.length; i++) {
-      const item = await this.nftItemRepository.findOne({
-        id: createAuctionInterface.auction_items[i],
-      });
-      if (auction.auction_item) {
-        auction.auction_item.push(item);
-      } else {
-        auction.auction_item = [item];
-      }
-      if (i == 0) {
-        auction.auctionName = item.fileName;
-      }
-    }
+    const item = await this.nftItemRepository.findOne({
+      id: createAuctionInterface.auction_items,
+    });
+    auction.auction_item = item;
+    auction.auctionName = item.fileName;
+
+    const collection = await this.collectionRepository.findOne({
+      id: createAuctionInterface.auction_collection,
+    });
+    auction.auction_collection = collection;
 
     if (createAuctionInterface.auctionType == auctionType.FIXED_PRICE) {
       auction.price = createAuctionInterface.price;
@@ -85,9 +92,7 @@ export class AuctionsService {
       }
     }
 
-    await this.auctionRepository.save(auction);
-
-    return auction;
+    return this.auctionRepository.save(auction);
   }
 
   /**
@@ -134,7 +139,7 @@ export class AuctionsService {
       where: {
         id: auctionId,
       },
-      relations: ['creator'],
+      relations: ['creator', 'auction_item', 'auction_collection'],
     });
     return auctions;
   }
@@ -159,6 +164,17 @@ export class AuctionsService {
         { id: auctionId },
         { isActive: false, isCancelled: true },
       );
+      await this.activityService.createActivity({
+        eventActions: eventActions.CANCELLED,
+        nftItem: auction.auction_item.id,
+        eventType: eventType.TRANSFERS,
+        fromAccount: auction.creator.walletAddress,
+        toAccount: null,
+        totalPrice: null,
+        isPrivate: false,
+        collectionId: auction.auction_collection.id,
+        winnerAccount: null,
+      });
       return {
         message: ResponseMessage.AUCTION_CANCELLED,
         status: ResponseStatusCode.OK,

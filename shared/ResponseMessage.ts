@@ -60,7 +60,7 @@ export const ResponseMessage = {
   BAD_REQUEST_OFFER_UPDATE: 'Bad request for offer update',
   OFFER_REMOVED: 'Offer removed successfully',
   OFFERS_DO_NOT_EXIST: 'Offers do not exist',
-  OFFER_ALREADY_DELETED: "Offer already removed",
+  OFFER_ALREADY_DELETED: 'Offer already removed',
   USER_DOES_NOT_OWN_OFFER: 'User who sent the request doesnt own the offer',
   ITEM_NOT_FOUND: 'Item not found',
   BAD_REQUEST: 'Bad request',
@@ -74,7 +74,6 @@ export const ResponseMessage = {
   SELECT_COLLECTION: 'Please select a collection',
 
   AUCTION_DETAILS: 'Auction Details',
-
   USER_DOSENT_OWN_ALL_ITEM: 'User dosent own all item in collection',
   FAVOURITES_ADDED: 'User has been added in Favourites',
   FAVOURITES_REMOVED: 'User has been removed from Favourites',
