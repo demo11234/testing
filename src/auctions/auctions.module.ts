@@ -10,6 +10,7 @@ import { User } from 'src/user/entities/user.entity';
 import { ActivityService } from 'src/activity/activity.service';
 import { Activity } from 'src/activity/entities/activity.entity';
 import { Collection } from 'src/collections/entities/collection.entity';
+import { Offer } from 'src/offer/entities/offer.entity';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { Collection } from 'src/collections/entities/collection.entity';
       User,
       Activity,
       Collection,
+      Offer,
     ]),
   ],
   providers: [AuctionsService, ResponseModel, ActivityService],

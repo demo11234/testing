@@ -11,6 +11,7 @@ import { ResponseStatusCode } from 'shared/ResponseStatusCode';
 import { ActivityService } from 'src/activity/activity.service';
 import { Collection } from 'src/collections/entities/collection.entity';
 import { NftItem } from 'src/nft-item/entities/nft-item.entities';
+import { Offer } from 'src/offer/entities/offer.entity';
 import { Tokens } from 'src/token/entities/tokens.entity';
 import { User } from 'src/user/entities/user.entity';
 import { Repository } from 'typeorm';
@@ -26,6 +27,7 @@ export class AuctionsService {
     @InjectRepository(User) private userRepository: Repository<User>,
     @InjectRepository(Collection)
     private readonly collectionRepository: Repository<Collection>,
+    @InjectRepository(Offer) private offerRepository: Repository<Offer>,
     private readonly activityService: ActivityService,
   ) {}
 
@@ -164,6 +166,17 @@ export class AuctionsService {
         { id: auctionId },
         { isActive: false, isCancelled: true },
       );
+
+      const itemId = auction.auction_item.id;
+
+      await this.offerRepository
+        .createQueryBuilder('offer')
+        .innerJoinAndSelect('offer.item', 'item')
+        .update(Offer)
+        .where('item.id = :itemId', { itemId })
+        .set({ isDeleted: true })
+        .execute();
+
       await this.activityService.createActivity({
         eventActions: eventActions.CANCELLED,
         nftItem: auction.auction_item.id,
@@ -175,6 +188,7 @@ export class AuctionsService {
         collectionId: auction.auction_collection.id,
         winnerAccount: null,
       });
+
       return {
         message: ResponseMessage.AUCTION_CANCELLED,
         status: ResponseStatusCode.OK,
