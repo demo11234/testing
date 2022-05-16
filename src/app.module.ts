@@ -22,10 +22,12 @@ import { TokenModule } from './token/token.module';
 import { CollectionsModule } from './collections/collections.module';
 import { UtilsModule } from './utils/utils.module';
 import { NotificationModule } from './notification/notification.module';
+import { OfferModule } from './offer/offer.module';
 import { ActivityModule } from './activity/activity.module';
 import { NftItemModule } from './nft-item/nft-item.module';
 import { ServicesModule } from './services/services.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { AuctionsModule } from './auctions/auctions.module';
 
 @Module({
   imports: [
@@ -60,9 +62,11 @@ import { ScheduleModule } from '@nestjs/schedule';
     NotificationModule,
     CollectionsModule,
     UtilsModule,
+    OfferModule,
     ActivityModule,
     NftItemModule,
     ServicesModule,
+    AuctionsModule,
   ],
   controllers: [AppController],
   providers: [

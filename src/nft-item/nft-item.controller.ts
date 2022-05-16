@@ -7,14 +7,19 @@ import {
   Response,
   Param,
   Patch,
+  Put,
   UseGuards,
   Query,
   ValidationPipe,
   UsePipes,
   Put,
+  HttpCode,
+  HttpStatus,
+  BadRequestException,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
+  ApiOkResponse,
   ApiOperation,
   ApiResponse,
   ApiTags,
@@ -339,4 +344,71 @@ export class NftItemController {
       );
     }
   }
+
+  @ApiTags('Nft Item')
+  @Get('/getNftItemByID/:id')
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({ description: 'GET ITEM DATA BY ITEM ID' })
+  async fatchNftItemByID(@Param('id') id: string) {
+    try {
+      return await this.nftItemService.findOne(id);
+    } catch (e) {
+      throw new BadRequestException(e.message);
+    }
+  }
+
+  @ApiTags('Nft Item')
+  @Put('/updateViewer/:id')
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({ description: 'Update VIEWER COUNT on a  ITEM' })
+  async updateViewerCount(@Param('id') id: string) {
+    try {
+      return await this.nftItemService.updateViewerCount(id);
+    } catch (e) {
+      throw new BadRequestException(e.message);
+    }
+  }
+  
+  /**
+   * @description: This api fetch all the item of a collection except one
+   * @param id
+   * @returns: all Item from a collection except one
+   * @author: vipin
+   */
+   @ApiTags('Nft Item')
+   @ApiOperation({ summary: 'it will fetch nft item from a collection except one' })
+   @ApiResponse({
+     status: ResponseStatusCode.OK,
+     description: 'Nft Fetch all from a collection',
+   })
+   @ApiResponse({
+     status: ResponseStatusCode.NOT_FOUND,
+     description: ResponseMessage.ITEM_NOT_FOUND,
+   })
+   @ApiResponse({
+     status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
+     description: ResponseMessage.INTERNAL_SERVER_ERROR,
+   })
+   @Get('fetchFromCollection/:id')
+   async findAllItemExceptOne(
+     @Param('id') id: string,
+     @Response() response,
+   ): Promise<any> {
+     try {
+       const find = await this.nftItemService.findAllItemExceptOne(id);
+       return this.responseModel.response(
+        find,
+        ResponseStatusCode.OK,
+        true,
+        response,
+      )
+     } catch (error) {
+       return this.responseModel.response(
+         error,
+         ResponseStatusCode.INTERNAL_SERVER_ERROR,
+         false,
+         response,
+       );
+     }
+   }
 }

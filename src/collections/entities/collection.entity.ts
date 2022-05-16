@@ -13,6 +13,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
   JoinColumn,
+  DeleteDateColumn,
 } from 'typeorm';
 import { displayTheme } from '../enums/display-themes.enum';
 
@@ -102,10 +103,12 @@ export class Collection {
   @ApiProperty()
   earningWalletAddress: string;
 
-  @ManyToMany(() => User, (user) => user.collaboratedCollection, {
-    eager: false,
+  @ManyToMany(() => User)
+  @JoinTable({
+    name: 'collaborators',
+    joinColumn: { name: 'collection_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'user_id', referencedColumnName: 'id' },
   })
-  @JoinColumn()
   collaborators: User[];
 
   @Column({ default: displayTheme.CONTAINED })
@@ -117,7 +120,7 @@ export class Collection {
     | displayTheme.PADDED;
 
   @ManyToOne(() => User, (user) => user.collections, {
-    eager: false,
+    eager: true,
   })
   @JoinColumn()
   owner: User;
@@ -154,6 +157,16 @@ export class Collection {
   @ApiProperty()
   updatedAt: Date;
 
-  @OneToMany(() => NftItem, (nftItem) => nftItem.collection)
+  @OneToMany(() => NftItem, (nftItem) => nftItem.collection, {
+    eager: false,
+    cascade: true,
+  })
   nftItem: NftItem[];
+
+  @Column()
+  @ApiProperty()
+  ownerWalletAddress: string;
+
+  @DeleteDateColumn()
+  deletedAt: Date;
 }
