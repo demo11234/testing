@@ -55,6 +55,13 @@ export const ResponseMessage = {
   WATCHLIST_ADDED: 'User has been added in Watchlist',
   WATCHLIST_REMOVED: 'User has been removed from watchlist',
   COLLECTION_LIST: 'List of Collections',
+  OFFER_CREATED: 'Offer created',
+  BAD_REQUEST_OFFER_CREATION: 'Bad request for offer creation',
+  BAD_REQUEST_OFFER_UPDATE: 'Bad request for offer update',
+  OFFER_REMOVED: 'Offer removed successfully',
+  OFFERS_DO_NOT_EXIST: 'Offers do not exist',
+  OFFER_ALREADY_DELETED: "Offer already removed",
+  USER_DOES_NOT_OWN_OFFER: 'User who sent the request doesnt own the offer',
   ITEM_NOT_FOUND: 'Item not found',
   BAD_REQUEST: 'Bad request',
   USER_DOES_NOT_OWN_ITEM: 'User does not own the item',
@@ -65,7 +72,7 @@ export const ResponseMessage = {
   COLLECTION_NAME: 'Collection Name is Empty',
   UNIQUE_COLLECTION_CHECK: 'Boolean Values for Collection Name and url',
   SELECT_COLLECTION: 'Please select a collection',
-  USER_DOSENT_OWN_ALL_ITEM: 'User dosent own all item in collection'
+  USER_DOSENT_OWN_ALL_ITEM: 'User dosent own all item in collection',
   FAVOURITES_ADDED: 'User has been added in Favourites',
   FAVOURITES_REMOVED: 'User has been removed from Favourites',
 };
