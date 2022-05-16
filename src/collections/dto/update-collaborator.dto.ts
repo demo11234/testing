@@ -7,17 +7,11 @@ export class UpdateCollaboratorDto {
     description: 'Collection id of where collaborator has to be added',
   })
   @IsNotEmpty()
-  collecionId: string;
+  collectionId: string;
 
   @ApiProperty({
     description: 'Update type telling whether to add or remove collaborator',
   })
   @IsNotEmpty()
   updateType: collaboratorUpdateType.ADD | collaboratorUpdateType.REMOVE;
-
-  @ApiProperty({
-    description: 'Wallet id of collaborator',
-  })
-  @IsNotEmpty()
-  collaboratorWalletId: string;
 }

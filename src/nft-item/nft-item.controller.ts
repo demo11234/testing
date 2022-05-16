@@ -7,10 +7,12 @@ import {
   Response,
   Param,
   Patch,
+  Put,
   UseGuards,
   Query,
   ValidationPipe,
   UsePipes,
+  Put,
   HttpCode,
   HttpStatus,
   BadRequestException,
@@ -34,6 +36,8 @@ import { NftItemService } from './nft-item.service';
 import { eventType, eventActions } from '../../shared/Constants';
 import { Delete } from '@nestjs/common';
 import { TransferItemDto } from './dto/transferItem.dto';
+=======
+import { UserFavouritesDto } from './dto/user-favourites.dto';
 
 @Controller('nft-item')
 @UsePipes(ValidationPipe)
@@ -247,6 +251,114 @@ export class NftItemController {
     }
   }
 
+  /**
+   * @description: favourites adds or removes user from favourites depending upon the value of isFavourite
+   * @param UserWatchlistDto
+   * @returns: Updates Status
+   * @author Jeetanshu Srivastava
+   */
+  @Put('/favourites')
+  @UseGuards(JwtAuthGuard)
+  @ApiTags('Nft Item')
+  @ApiOperation({
+    summary: 'Add and Removes user wallet address from favourites of a item',
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.OK,
+    description: ResponseMessage.FAVOURITES_ADDED,
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.OK,
+    description: ResponseMessage.FAVOURITES_REMOVED,
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
+    description: ResponseMessage.INTERNAL_SERVER_ERROR,
+  })
+  @ApiBearerAuth()
+  async favourites(
+    @Body() userFavouritesDto: UserFavouritesDto,
+    @Response() response,
+    @Request() request,
+  ): Promise<any> {
+    try {
+      const { isFavourite } = userFavouritesDto;
+      if (isFavourite) {
+        const result = await this.nftItemService.addUserInFavourites(
+          request.user.walletAddress,
+          userFavouritesDto.itemId,
+        );
+        return this.responseModel.response(
+          result,
+          ResponseStatusCode.OK,
+          true,
+          response,
+        );
+      } else {
+        const result = await this.nftItemService.removeUseFromFavourites(
+          request.user.walletAddress,
+          userFavouritesDto.itemId,
+        );
+        return this.responseModel.response(
+          result,
+          ResponseStatusCode.OK,
+          true,
+          response,
+        );
+      }
+    } catch (error) {
+      return this.responseModel.response(
+        error,
+        ResponseStatusCode.INTERNAL_SERVER_ERROR,
+        false,
+        response,
+      );
+    }
+  }
+
+  /**
+   * @description: getFavouriteItems returns the items present in current user favourites
+   * @returns: Items
+   * @author Jeetanshu Srivastava
+   */
+  @Get('/getFavouriteItems')
+  @UseGuards(JwtAuthGuard)
+  @ApiTags('Nft Item')
+  @ApiOperation({
+    summary: 'Returns Current User Watchlist Items',
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.OK,
+    description: ResponseMessage.ITEMS_LIST,
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
+    description: ResponseMessage.INTERNAL_SERVER_ERROR,
+  })
+  @ApiBearerAuth()
+  async getFavouriteItems(
+    @Response() response,
+    @Request() request,
+  ): Promise<any> {
+    try {
+      const items = await this.nftItemService.getItemForUserFavourites(
+        request.user.walletAddress,
+      );
+      return this.responseModel.response(
+        items,
+        ResponseStatusCode.OK,
+        true,
+        response,
+      );
+    } catch (error) {
+      return this.responseModel.response(
+        error,
+        ResponseStatusCode.INTERNAL_SERVER_ERROR,
+        false,
+        response,
+      );
+    }
+  }
 
   @ApiTags('Nft Item')
   @Get('/getNftItemByID/:id')

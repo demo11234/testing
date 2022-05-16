@@ -8,5 +8,5 @@ export class UserFavouritesDto {
 
   @ApiProperty()
   @IsNotEmpty()
-  collectionId: string;
+  itemId: string;
 }

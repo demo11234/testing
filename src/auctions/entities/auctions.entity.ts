@@ -5,8 +5,6 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
-  JoinTable,
-  ManyToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -15,6 +13,28 @@ import {
 import { auctionType, timedAuctionMethod } from 'shared/Constants';
 import { Tokens } from '../../../src/token/entities/tokens.entity';
 import { NftItem } from '../../../src/nft-item/entities/nft-item.entities';
+import { User } from 'src/user/entities/user.entity';
+import { Collection } from 'src/collections/entities/collection.entity';
+
+export class Bundle {
+  @ApiProperty()
+  isBundle: boolean;
+
+  @ApiProperty()
+  name: string;
+
+  @ApiProperty()
+  @IsOptional()
+  description: string;
+}
+
+export class ReservedAuction {
+  @ApiProperty()
+  isReservedAuction: boolean;
+
+  @ApiProperty()
+  walletAddress: string;
+}
 
 @Entity()
 export class Auction {
@@ -26,21 +46,25 @@ export class Auction {
   @ApiProperty()
   auctionName: string;
 
-  @ManyToMany(() => NftItem)
-  @JoinTable({
-    name: 'auction_item',
-    joinColumn: { name: 'auction_id', referencedColumnName: 'id' },
-    inverseJoinColumn: { name: 'nft-item_id', referencedColumnName: 'id' },
-  })
-  auction_item: NftItem[];
+  @ManyToOne(() => NftItem)
+  @JoinColumn()
+  auction_item: NftItem;
 
-  @Column({ type: 'timestamp', nullable: false })
+  @ManyToOne(() => Collection)
+  @JoinColumn()
+  auction_collection: Collection;
+
+  @Column({ type: 'float' })
   @ApiProperty()
   startDate: number;
 
-  @Column({ type: 'timestamp', nullable: false })
+  @Column({ type: 'float' })
   @ApiProperty()
   endDate: number;
+
+  @ManyToOne(() => User)
+  @JoinColumn()
+  creator: User;
 
   @ManyToOne(() => Tokens)
   @JoinColumn()
@@ -76,14 +100,25 @@ export class Auction {
   reservedPrice: number;
 
   @Column({
-    default: timedAuctionMethod.SELL_TO_HIGHEST_BIDDER,
-    nullable: false,
+    nullable: true,
   })
   @ApiProperty()
   @IsEnum(timedAuctionMethod)
   timedAuctionMethod:
     | timedAuctionMethod.SELL_TO_HIGHEST_BIDDER
     | timedAuctionMethod.SELL_WITH_DECLINING_PRICE;
+
+  @Column({ default: true })
+  @ApiProperty()
+  isActive: boolean;
+
+  @Column({ default: false })
+  @ApiProperty()
+  isCancelled: boolean;
+
+  @Column({ default: 0 })
+  @ApiProperty()
+  quantity: number;
 
   @CreateDateColumn()
   @ApiProperty()
@@ -92,24 +127,4 @@ export class Auction {
   @UpdateDateColumn()
   @ApiProperty()
   updatedAt: Date;
-}
-
-export class Bundle {
-  @ApiProperty()
-  isBundle: boolean;
-
-  @ApiProperty()
-  name: string;
-
-  @ApiProperty()
-  @IsOptional()
-  description: string;
-}
-
-export class ReservedAuction {
-  @ApiProperty()
-  isReservedAuction: boolean;
-
-  @ApiProperty()
-  walletAddress: string;
 }
