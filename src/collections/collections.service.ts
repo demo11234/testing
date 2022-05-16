@@ -154,17 +154,22 @@ export class CollectionsService {
    * @param collectionId , collecton id to perform the update
    * @returns Promise
    */
-  async addUserInCollaborators(
-    walletAddress: string,
-    collectionId: string,
+   async addUserInCollaborators(
+    ownerWalletAddress: string,
+    updateCollaboratorDto: UpdateCollaboratorDto,
   ): Promise<any> {
     try {
       const collection = await this.collectionRepository.findOne({
-        where: { id: collectionId },
+        where: { id: updateCollaboratorDto.collectionId },
         relations: ['collaborators'],
       });
       if (!collection) return null;
-      if (collection.owner.walletAddress === walletAddress) {
+      if (collection.owner.walletAddress !== ownerWalletAddress) {
+        return { status: 401, msg: ResponseMessage.UNAUTHORIZED };
+      }
+      if (
+        collection.owner.walletAddress === updateCollaboratorDto.walletAddress
+      ) {
         return {
           status: ResponseStatusCode.CONFLICT,
           msg: ResponseMessage.OWNER_CANNOT_BE_ADDED_AS_COLLABORATOR,
@@ -172,20 +177,23 @@ export class CollectionsService {
       }
       let flag = 0;
       for (let i = 0; i < collection.collaborators.length; i++) {
-        if (collection.collaborators[i].walletAddress === walletAddress) {
+        if (
+          collection.collaborators[i].walletAddress ===
+          updateCollaboratorDto.walletAddress
+        ) {
           flag = 1;
         }
       }
       if (flag === 1) {
         return {
-          Status: ResponseStatusCode.CONFLICT,
+          status: ResponseStatusCode.CONFLICT,
           msg: ResponseMessage.USER_ALREADY_IN_COLLABORATORS,
         };
       }
 
       const user = await this.userRepository.findOne({
         where: {
-          walletAddress: walletAddress,
+          walletAddress: updateCollaboratorDto.walletAddress,
         },
       });
       if (!user) return null;
@@ -204,28 +212,50 @@ export class CollectionsService {
     }
   }
 
-  /**
-   * Function to remove a user from collaborator
-   * @param walletAddress , wallet address for the current user
-   * @param collectionId collection id to add collaborator
-   * @returns Promise
-   */
   async removeUserFromCollaborators(
-    walletAddress: string,
-    collectionId: string,
-  ): Promise<boolean> {
+    ownerWalletAddress: string,
+    updateCollaboratorDto: UpdateCollaboratorDto,
+  ): Promise<any> {
     try {
       const user = await this.userRepository.findOne({
         where: {
-          walletAddress: walletAddress,
+          walletAddress: updateCollaboratorDto.walletAddress,
         },
       });
+      const collection = await this.collectionRepository.findOne({
+        where: { id: updateCollaboratorDto.collectionId },
+        relations: ['collaborators'],
+      });
+      if (!collection) return null;
+      if (collection.owner.walletAddress !== ownerWalletAddress) {
+        return { status: 401, msg: ResponseMessage.UNAUTHORIZED };
+      }
+      if (
+        collection.owner.walletAddress === updateCollaboratorDto.walletAddress
+      ) {
+        return {
+          status: ResponseStatusCode.CONFLICT,
+          msg: ResponseMessage.OWNER_CANNOT_BE_ADDED_AS_COLLABORATOR,
+        };
+      }
       if (!user) return null;
+      let flag = 0;
+      for (let i = 0; i < collection.collaborators.length; i++) {
+        if (
+          collection.collaborators[i].walletAddress ===
+          updateCollaboratorDto.walletAddress
+        ) {
+          flag = 1;
+        }
+      }
+      if (flag === 0) {
+        return { status: 409, msg: 'Already deleted' };
+      }
 
       await this.collectionRepository
         .createQueryBuilder()
         .relation(Collection, 'collaborators')
-        .of(collectionId)
+        .of(updateCollaboratorDto.collectionId)
         .remove(user.id);
 
       return true;

@@ -446,7 +446,6 @@ export class CollectionsController {
     }
   }
 
-
   /**
    * @description: This api adds or removes the collaborator
    * @param updateCollaboratorDto
@@ -457,7 +456,8 @@ export class CollectionsController {
   @UseGuards(JwtAuthGuard)
   @ApiTags('Collection Module')
   @ApiOperation({
-    summary: 'Add and Removes user from Collaborators of a collection',
+    summary:
+      'Add and Removes user wallet address from Collaborators of a collection',
   })
   @ApiResponse({
     status: ResponseStatusCode.OK,
@@ -481,12 +481,12 @@ export class CollectionsController {
       if (updateCollaboratorDto.updateType === collaboratorUpdateType.ADD) {
         const result = await this.collectionService.addUserInCollaborators(
           request.user.walletAddress,
-          updateCollaboratorDto.collectionId,
+          updateCollaboratorDto,
         );
         if (result !== true) {
           return this.responseModel.response(
             result,
-            ResponseStatusCode.CONFLICT,
+            result.status,
             false,
             response,
           );
@@ -502,8 +502,16 @@ export class CollectionsController {
       ) {
         const result = await this.collectionService.removeUserFromCollaborators(
           request.user.walletAddress,
-          updateCollaboratorDto.collectionId,
+          updateCollaboratorDto,
         );
+        if (result !== true) {
+          return this.responseModel.response(
+            result,
+            result.status,
+            false,
+            response,
+          );
+        }
         return this.responseModel.response(
           result,
           ResponseStatusCode.OK,
@@ -578,7 +586,7 @@ export class CollectionsController {
    * @param id
    * @returns: soft delete collection
    * @author: vipin
-  */
+   */
   @Delete(':id')
   @ApiTags('Collection Module')
   @UseGuards(JwtAuthGuard)
@@ -603,26 +611,26 @@ export class CollectionsController {
     summary:
       'Soft deletes the Collection owned by user who is currenlty Logged In',
   })
-  async deleteCollection (
-    @Param('id') id:string,
+  async deleteCollection(
+    @Param('id') id: string,
     @Response() response,
     @Request() request,
-    ):Promise <any> {
-      try{
-        const data = await this.collectionService.deleteCollection(id, request);
-        return this.responseModel.response(
-          data,
-          ResponseStatusCode.OK,
-          true,
-          response,
-        );
-      } catch (error){
-        return this.responseModel.response(
-          error,
-          ResponseStatusCode.INTERNAL_SERVER_ERROR,
-          false,
-          response,
-        );
-      }
+  ): Promise<any> {
+    try {
+      const data = await this.collectionService.deleteCollection(id, request);
+      return this.responseModel.response(
+        data,
+        ResponseStatusCode.OK,
+        true,
+        response,
+      );
+    } catch (error) {
+      return this.responseModel.response(
+        error,
+        ResponseStatusCode.INTERNAL_SERVER_ERROR,
+        false,
+        response,
+      );
     }
+  }
 }
