@@ -154,13 +154,13 @@ export class NftItemService {
             Between(Date.now() - 1000 * 60 * 60 * 24 * 1, Date.now());
           where.timeStamp = BetweenDates();
         }
-        if (statusArr.includes('buynow')){
+        if (statusArr.includes('buynow')) {
           where.buyNow = true;
         }
-        if (statusArr.includes('onAuction')){
+        if (statusArr.includes('onAuction')) {
           where.onAuction = true;
         }
-        if (statusArr.includes('hasOffer')){
+        if (statusArr.includes('hasOffer')) {
           where.hasOffer = true;
         }
       }
@@ -288,23 +288,22 @@ export class NftItemService {
    * @param id
    * @returns: all Item from a collection
    * @author: vipin
-  */
-  async findAllItemExceptOne(
-  id: string,
-  ): Promise<any> {
+   */
+  async findAllItemExceptOne(id: string): Promise<any> {
     try {
       const item = await this.nftItemRepository.find({
-        where: {id},
-        relations: ['collection']
-      })
-      if(!item.length) throw new NotFoundException(ResponseMessage.ITEM_NOT_FOUND)
+        where: { id },
+        relations: ['collection'],
+      });
+      if (!item.length)
+        throw new NotFoundException(ResponseMessage.ITEM_NOT_FOUND);
 
       const data = await this.nftItemRepository.find({
-        where: {id: Not(id), collection: item[0].collection.id},
-        relations: ['collection']
-      })
-      return data
-    } catch(error) {
+        where: { id: Not(id), collection: item[0].collection.id },
+        relations: ['collection'],
+      });
+      return data;
+    } catch (error) {
       return error;
     }
   }

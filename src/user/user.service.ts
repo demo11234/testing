@@ -1,8 +1,6 @@
 import {
   BadRequestException,
-  CACHE_MANAGER,
   HttpStatus,
-  Inject,
   Injectable,
   InternalServerErrorException,
   OnModuleInit,
@@ -11,8 +9,6 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { UserRepository } from './repositories/user.repository';
-import { Cache } from 'cache-manager';
-import { WalletAddressDto } from './dto/get-user.dto';
 import { FileUpload } from './utils/s3.upload';
 import { NotificationService } from '../notification/notification.service';
 import { Category } from 'src/admin/entities/categories.entity';
@@ -25,6 +21,9 @@ import { SignatureDto } from './dto/signature.dto';
 import web3 from 'shared/web3';
 import { FeesPaidDto } from './dto/fees-paid-dto';
 import { ResponseMessage } from 'shared/ResponseMessage';
+import { createContractInstance } from 'shared/contract-instance';
+import { registerProxyABI } from 'shared/ABI/registerProxy';
+import { registerProxyAddr } from 'shared/Constants';
 
 @Injectable()
 export class UserService implements OnModuleInit {
@@ -221,13 +220,32 @@ export class UserService implements OnModuleInit {
       throw new Error(error);
     }
   }
-
+  /**
+   * @description updating field for one timefees
+   * @param walletAddress
+   * @param feesPaidDto
+   * @returns status of updated or not
+   * @author Mohan
+   */
   async updateOneTimeFees(
     walletAddress,
     feesPaidDto: FeesPaidDto,
   ): Promise<any> {
     try {
-      //TODO: check with chain if fees paid or not
+      const registerProxiesInstance = await createContractInstance(
+        registerProxyABI,
+        registerProxyAddr,
+      );
+      const isFeesPaid = await registerProxiesInstance.methods
+        .proxies(walletAddress)
+        .call();
+      if (isFeesPaid === '0x0000000000000000000000000000000000000000') {
+        return {
+          success: false,
+          status: HttpStatus.BAD_REQUEST,
+          message: ResponseMessage.FEES_NOT_PAID,
+        };
+      }
       const updated = await this.userRepository.update(
         { walletAddress },
         feesPaidDto,
@@ -269,22 +287,6 @@ export class UserService implements OnModuleInit {
         // Verifying the user with signature
         if (wallet_address === signatureAddress.toLowerCase()) {
           console.log('successful');
-
-          // Validating timestamp message is in development
-          // const action = signatureMessage.split('&')[0].split('=')[1].trim()
-          // if (action !== 'signIn') {
-          //   throw new UnauthorizedException('Invalid Action')
-          // }
-
-          // const ONE_HOUR = 60 * 60 * 1000
-          // const timestamp = new Date(
-          //   signatureMessage.split('&')[2].split('=')[1],
-          // ).getTime()
-          // const timeDiff = Date.now() - timestamp
-
-          // if (timeDiff > ONE_HOUR || timeDiff <= 0) {
-          //   throw new UnauthorizedException('Signature Expired')
-          // }
 
           return true;
         } else {
