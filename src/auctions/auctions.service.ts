@@ -201,4 +201,24 @@ export class AuctionsService {
       success: false,
     };
   }
+
+  /**
+   * @description getListingByItemId will return the details of the listing of the given item id
+   * @param itemId
+   * @returns it will return Array of Listings
+   * @author Jeetanshu Srivastava
+   */
+  async getListingByItemId(itemId: string): Promise<Auction[]> {
+    const auctions = await this.auctionRepository
+      .createQueryBuilder('auctions')
+      .innerJoinAndSelect(
+        'auctions.auction_item',
+        'nft_item',
+        'nft_item.id = :itemId',
+        { itemId },
+      )
+      .getMany();
+
+    return auctions;
+  }
 }
