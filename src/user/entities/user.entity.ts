@@ -1,4 +1,5 @@
 import { Exclude } from 'class-transformer';
+import { Offer } from 'src/offer/entities/offer.entity';
 import { Collection } from 'src/collections/entities/collection.entity';
 
 import {
@@ -66,6 +67,9 @@ export class User {
   @Column({ default: '' })
   website: string;
 
+  @OneToMany(() => Offer, (offer) => offer.owner)
+  offers: Offer;
+
   @CreateDateColumn()
   createdAt: Date;
 
@@ -77,10 +81,4 @@ export class User {
   })
   @JoinColumn()
   collections: Collection[];
-
-  @ManyToMany(() => Collection, (collection) => collection.collaborators, {
-    eager: false,
-  })
-  @JoinColumn()
-  collaboratedCollection: Collection[];
 }
