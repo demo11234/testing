@@ -285,6 +285,97 @@ export class NftItemService {
   }
 
   /**
+   * @description Function will add current user to the item favourites
+   * @param walletAddress , wallet address of the current user
+   * @param itemId , item id to perform the update
+   * @returns Promise
+   * @author Jeetanshu Srivastava
+   */
+  async addUserInFavourites(
+    walletAddress: string,
+    itemId: string,
+  ): Promise<boolean> {
+    try {
+      const item = await this.nftItemRepository.findOne({
+        where: { id: itemId },
+        relations: ['favourites'],
+      });
+      if (!item) return null;
+
+      const user = await this.userRepository.findOne({
+        where: {
+          walletAddress,
+        },
+      });
+      if (!user) return null;
+
+      if (item.favourites) {
+        item.favourites.push(user);
+      } else {
+        item.favourites = [user];
+      }
+
+      await this.nftItemRepository.save(item);
+
+      return true;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  /**
+   * @description Function will remove current user to the item favourites
+   * @param walletAddress , wallet address of the current user
+   * @param itemId , collecton id to perform the update
+   * @returns Promise
+   * @author Jeetanshu Srivastava
+   */
+  async removeUseFromFavourites(
+    walletAddress: string,
+    itemId: string,
+  ): Promise<boolean> {
+    try {
+      const user = await this.userRepository.findOne({
+        where: {
+          walletAddress: walletAddress,
+        },
+      });
+      if (!user) return null;
+
+      await this.nftItemRepository
+        .createQueryBuilder()
+        .relation(NftItem, 'favourites')
+        .of(itemId)
+        .remove(user.id);
+
+      return true;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  /**
+   * @description: getItemForUserFavourites returns the items present in current user favourites
+   * @returns: Items
+   * @author: Jeetanshu Srivastava
+   */
+  async getItemForUserFavourites(walletAddress: string): Promise<NftItem[]> {
+    try {
+      const items = await this.nftItemRepository
+        .createQueryBuilder('items')
+        .innerJoinAndSelect(
+          'items.favourites',
+          'favourites',
+          'favourites.walletAddress = :walletAddress',
+          { walletAddress },
+        )
+        .select(['items'])
+        .getMany();
+
+      return items;
+    } catch (error) {
+      console.log(error);
+      
    * @description: This api for count the viewer of nft Item
    * @param: id
    * @returns: viewer count

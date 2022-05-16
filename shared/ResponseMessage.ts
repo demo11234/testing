@@ -79,5 +79,7 @@ export const ResponseMessage = {
   USER_DOSENT_OWN_ALL_ITEM: 'User dosent own all item in collection',
   FAVOURITES_ADDED: 'User has been added in Favourites',
   FAVOURITES_REMOVED: 'User has been removed from Favourites',
+
+  ITEMS_LIST: 'List of Items',
   TOKENS_NOT_FOUND: 'Tokens not found',
 };
