@@ -13,8 +13,10 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { eventActions, eventType } from 'shared/Constants';
 import { ResponseMessage } from 'shared/ResponseMessage';
 import { ResponseStatusCode } from 'shared/ResponseStatusCode';
+import { ActivityService } from 'src/activity/activity.service';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { ResponseModel } from 'src/responseModel';
 import { AuctionsService } from './auctions.service';
@@ -25,6 +27,7 @@ export class AuctionsController {
   constructor(
     private readonly auctionsService: AuctionsService,
     private readonly responseModel: ResponseModel,
+    private readonly activityService: ActivityService,
   ) {}
 
   /**
@@ -58,6 +61,17 @@ export class AuctionsController {
         createAuctionDto,
         request.user.walletAddress,
       );
+      await this.activityService.createActivity({
+        eventActions: eventActions.LISTED,
+        nftItem: createAuctionDto.auction_items,
+        eventType: eventType.LISTING,
+        fromAccount: request.user.walletAddress,
+        toAccount: null,
+        totalPrice: null,
+        isPrivate: false,
+        collectionId: createAuctionDto.auction_collection,
+        winnerAccount: null,
+      });
       return this.responseModel.response(
         auction,
         ResponseStatusCode.CREATED,
