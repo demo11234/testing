@@ -104,14 +104,6 @@ export class TokenService {
   async getAllActive(response): Promise<any> {
     try {
       const tokens = await this.tokensRepository.find({ active: true });
-      if (!tokens) {
-        return this.responseModel.response(
-          ResponseMessage.TOKENS_NOT_FOUND,
-          ResponseStatusCode.NOT_FOUND,
-          false,
-          response,
-        );
-      }
       return this.responseModel.response(
         tokens,
         ResponseStatusCode.OK,
