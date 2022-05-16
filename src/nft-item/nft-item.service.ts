@@ -381,6 +381,8 @@ export class NftItemService {
       return items;
     } catch (error) {
       console.log(error);
+      return error;
+
     }
   }
       
@@ -451,7 +453,7 @@ export class NftItemService {
     try{
       const transferNftItem = new NftItem();
       transferNftItem.owner = transferDto.userWalletAddress
-      transferNftItem.supply = item.supply - transferDto.supply
+
       await this.nftItemRepository.update({id}, transferNftItem)
 
       await this.activityService.createActivity({
@@ -464,6 +466,7 @@ export class NftItemService {
         isPrivate: false,
         collectionId: item.collection.id,
         winnerAccount: null,
+
       });
 
       return ResponseMessage.ITEM_TRANSFERED;

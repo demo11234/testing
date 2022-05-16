@@ -10,9 +10,4 @@ export class TransferItemDto {
   @IsString()
   userWalletAddress: string;
 
-  @ApiPropertyOptional({default:1})
-  @IsNumber()
-  @IsOptional()
-  supply?: number;
-
 }

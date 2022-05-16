@@ -46,10 +46,8 @@ export class NftItem {
   @Column({ nullable: true })
   description: string;
 
-  @ManyToOne(() => Collection, (collection) => collection.nftItem, {
-    eager: true,
-  onDelete: "CASCADE",
-  })
+  @ManyToOne(() => Collection, (collection) => collection.nftItem,
+  {onDelete: "CASCADE", eager: true})
   @JoinColumn()
   collection: Collection;
 
