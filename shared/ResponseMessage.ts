@@ -84,5 +84,6 @@ export const ResponseMessage = {
 
   AUCTION_CANCELLED: 'Auction Cancelled',
   AUCTION_CANNOT_BE_CANCELLED: 'Auction cannot be Cancelled',
+  ITEMS_LIST: 'List of Items',
   TOKENS_NOT_FOUND: 'Tokens not found',
 };
