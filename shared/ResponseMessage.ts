@@ -68,4 +68,6 @@ export const ResponseMessage = {
 
   FAVOURITES_ADDED: 'User has been added in Favourites',
   FAVOURITES_REMOVED: 'User has been removed from Favourites',
+
+  ITEMS_LIST: 'List of Items',
 };

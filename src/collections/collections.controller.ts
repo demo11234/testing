@@ -30,7 +30,6 @@ import { FilterDto } from './dto/filter.dto';
 import { UserWatchlistDto } from './dto/user-watchlist.dto';
 import { UserService } from 'src/user/user.service';
 import { UniqueCollectionCheck } from './dto/unique-collection-check.dto';
-import { UserFavouritesDto } from './dto/user-favourites.dto';
 
 @Controller('collections')
 export class CollectionsController {
@@ -497,117 +496,6 @@ export class CollectionsController {
           response,
         );
       }
-    } catch (error) {
-      return this.responseModel.response(
-        error,
-        ResponseStatusCode.INTERNAL_SERVER_ERROR,
-        false,
-        response,
-      );
-    }
-  }
-
-  /**
-   * @description: favourites adds or removes user from favourites depending upon the value of isFavourite
-   * @param UserWatchlistDto
-   * @returns: Updates Status
-   * @author: Jeetanshu Srivastava
-   */
-  @Put('/favourites')
-  @UseGuards(JwtAuthGuard)
-  @ApiTags('Collection Module')
-  @ApiOperation({
-    summary:
-      'Add and Removes user wallet address from favourites of a collection',
-  })
-  @ApiResponse({
-    status: ResponseStatusCode.OK,
-    description: ResponseMessage.FAVOURITES_ADDED,
-  })
-  @ApiResponse({
-    status: ResponseStatusCode.OK,
-    description: ResponseMessage.FAVOURITES_REMOVED,
-  })
-  @ApiResponse({
-    status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
-    description: ResponseMessage.INTERNAL_SERVER_ERROR,
-  })
-  @ApiBearerAuth()
-  async favourites(
-    @Body() userFavouritesDto: UserFavouritesDto,
-    @Response() response,
-    @Request() request,
-  ): Promise<any> {
-    try {
-      const { isFavourite } = userFavouritesDto;
-      if (isFavourite) {
-        const result = await this.collectionService.addUserInFavourites(
-          request.user.walletAddress,
-          userFavouritesDto.collectionId,
-        );
-        return this.responseModel.response(
-          result,
-          ResponseStatusCode.OK,
-          true,
-          response,
-        );
-      } else {
-        const result = await this.collectionService.removeUseFromFavourites(
-          request.user.walletAddress,
-          userFavouritesDto.collectionId,
-        );
-        return this.responseModel.response(
-          result,
-          ResponseStatusCode.OK,
-          true,
-          response,
-        );
-      }
-    } catch (error) {
-      return this.responseModel.response(
-        error,
-        ResponseStatusCode.INTERNAL_SERVER_ERROR,
-        false,
-        response,
-      );
-    }
-  }
-
-  /**
-   * @description: getFavouriteCollections returns the collections present in current user favourites
-   * @returns: Collections
-   * @author: Jeetanshu Srivastava
-   */
-  @Put('/getFavouritesCollections')
-  @UseGuards(JwtAuthGuard)
-  @ApiTags('Collection Module')
-  @ApiOperation({
-    summary: 'Returns Current User Watchlist Collection',
-  })
-  @ApiResponse({
-    status: ResponseStatusCode.OK,
-    description: ResponseMessage.COLLECTION_LIST,
-  })
-  @ApiResponse({
-    status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
-    description: ResponseMessage.INTERNAL_SERVER_ERROR,
-  })
-  @ApiBearerAuth()
-  async getFavouriteCollections(
-    @Response() response,
-    @Request() request,
-  ): Promise<any> {
-    try {
-      const collections =
-        await this.collectionService.getCollectionForUserFavourites(
-          request.user.walletAddress,
-        );
-      return this.responseModel.response(
-        collections,
-        ResponseStatusCode.OK,
-        true,
-        response,
-      );
     } catch (error) {
       return this.responseModel.response(
         error,

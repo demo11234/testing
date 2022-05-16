@@ -2,12 +2,15 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsNumber, IsString } from 'class-validator';
 import { Chains } from 'src/chains/entities/chains.entity';
 import { Collection } from 'src/collections/entities/collection.entity';
+import { User } from 'src/user/entities/user.entity';
 import {
   CreateDateColumn,
   ManyToOne,
   Column,
   Entity,
   UpdateDateColumn,
+  ManyToMany,
+  JoinTable,
 } from 'typeorm';
 import { PrimaryGeneratedColumn, JoinColumn } from 'typeorm';
 
@@ -91,6 +94,14 @@ export class NftItem {
   @ApiProperty()
   @Column()
   walletAddress: string;
+
+  @ManyToMany(() => User)
+  @JoinTable({
+    name: 'favourites',
+    joinColumn: { name: 'collection_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'user_id', referencedColumnName: 'id' },
+  })
+  favourites: User[];
 
   @ApiProperty()
   @CreateDateColumn()
