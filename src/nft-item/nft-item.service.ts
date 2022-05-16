@@ -358,7 +358,6 @@ export class NftItemService {
     try{
       const transferNftItem = new NftItem();
       transferNftItem.owner = transferDto.userWalletAddress
-      transferNftItem.supply = item.supply - transferDto.supply
       await this.nftItemRepository.update({id}, transferNftItem)
 
       await this.activityService.createActivity({
@@ -370,7 +369,7 @@ export class NftItemService {
         totalPrice: null,
         isPrivate: false,
         collectionId: item.collection.id,
-        winnerAccount: null,
+        winnerAccount: null
       });
 
       return ResponseMessage.ITEM_TRANSFERED;
