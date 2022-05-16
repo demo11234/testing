@@ -5,8 +5,6 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
-  JoinTable,
-  ManyToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -48,20 +46,12 @@ export class Auction {
   @ApiProperty()
   auctionName: string;
 
-  @ManyToMany(() => NftItem)
-  @JoinTable({
-    name: 'auction_item',
-    joinColumn: { name: 'auction_id', referencedColumnName: 'id' },
-    inverseJoinColumn: { name: 'nft-item_id', referencedColumnName: 'id' },
-  })
+  @ManyToOne(() => NftItem)
+  @JoinColumn()
   auction_item: NftItem;
 
-  @ManyToMany(() => Collection)
-  @JoinTable({
-    name: 'auction_collection',
-    joinColumn: { name: 'auction_id', referencedColumnName: 'id' },
-    inverseJoinColumn: { name: 'collection_id', referencedColumnName: 'id' },
-  })
+  @ManyToOne(() => Collection)
+  @JoinColumn()
   auction_collection: Collection;
 
   @Column({ type: 'float' })
