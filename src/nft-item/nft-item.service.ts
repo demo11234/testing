@@ -11,6 +11,7 @@ import { Between } from 'typeorm';
 import { Constants } from 'shared/Constants';
 import { User } from 'src/user/entities/user.entity';
 import { ResponseMessage } from 'shared/ResponseMessage';
+import { FilterDtoAllItems } from './dto/filter-Dto-All-items';
 
 @Injectable()
 export class NftItemService {
@@ -305,6 +306,118 @@ export class NftItemService {
       return data;
     } catch (error) {
       return error;
+    }
+  }
+  /**
+   * @description function to retrieve all items based on filters
+   * @param filterDtoAllItems
+   * @returns filtered array of
+   * @author Mohan
+   */
+  async getAllItems(filterDtoAllItems: FilterDtoAllItems): Promise<NftItem[]> {
+    try {
+      const {
+        collectionsId,
+        chainsId,
+        categories,
+        priceType,
+        status,
+        paymentTokens,
+        priceRange,
+        sortBy,
+        limit,
+        page,
+        order: orderBy,
+      } = filterDtoAllItems;
+
+      const where: any = {};
+
+      if (collectionsId) {
+        const collectionId = collectionsId.split(',').map((s) => s.trim());
+        where.collection = { id: In(collectionId) };
+      }
+
+      if (categories) {
+        where.collection = { categoryID: categories };
+      }
+
+      if (chainsId) {
+        const chainId = chainsId.split(',').map((s) => s.trim());
+        where.blockChain = { id: In(chainId) };
+      }
+
+      if (status) {
+        const statusArr = status.split(',').map((s) => s.trim());
+
+        if (statusArr.includes('new')) {
+          const BetweenDates = () =>
+            Between(Date.now() - 1000 * 60 * 60 * 24 * 1, Date.now());
+          where.timeStamp = BetweenDates();
+        }
+
+        // const timeStamp = moment()
+        //   .subtract(4, 'h')
+        //   .format('YYYY-MM-DD HH:MM:SS.SSSSSS');
+        // where.createdAt = MoreThan(timeStamp);
+
+        if (statusArr.includes('buynow')) {
+          where.buyNow = true;
+        }
+
+        if (statusArr.includes('onAuction')) {
+          where.onAuction = true;
+        }
+
+        if (statusArr.includes('hasOffer')) {
+          where.hasOffer = true;
+        }
+      }
+
+      //make relation with Auction first
+
+      // if(priceRange){
+      //     const priceValue = priceRange.split(',').map(s=>s.trim())
+      //     where.itemPrice = Between(priceValue[0], priceVlaue[1])
+      // }
+
+      //make relation with Auction first
+
+      if (paymentTokens) {
+        const tokens = paymentTokens.split(',').map((s) => s.trim());
+        where.paymentToken = In(tokens);
+      }
+
+      const order = {};
+      if (sortBy === 'date') {
+        switch (orderBy) {
+          case 'asc':
+            order['createdAt'] = 'ASC';
+            break;
+          case 'desc':
+            order['createdAt'] = 'DESC';
+            break;
+          default:
+            order['id'] = 'ASC';
+        }
+      }
+
+      const data = await this.nftItemRepository.find({
+        where,
+        order,
+        relations: ['collection', 'blockChain'],
+        skip: (+page - 1) * +limit,
+        take: +limit,
+      });
+
+      // if (paymentTokens) {
+      //   paymentTokens.;
+      //   const filteredData = data.filter((item) => {
+      //     item.allowedTokens.includes();
+      //   });
+      // }
+      return data;
+    } catch (error) {
+      console.log(error);
     }
   }
 }

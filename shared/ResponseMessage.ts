@@ -69,7 +69,6 @@ export const ResponseMessage = {
   FAVOURITES_ADDED: 'User has been added in Favourites',
   FAVOURITES_REMOVED: 'User has been removed from Favourites',
   UPDATION_ERROR_FEES: 'Error in updating fees paid',
-
   FEES_NOT_PAID:
     'Pay firsttime fees. If paid already wait for some time to reflect in blockchain',
 };

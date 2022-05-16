@@ -28,6 +28,7 @@ import { CreateNftItemDto } from './dto/nft-item.dto';
 import { UpdateNftItemDto } from './dto/update.nftItem.dto';
 import { NftItemService } from './nft-item.service';
 import { eventType, eventActions } from '../../shared/Constants';
+import { FilterDtoAllItems } from './dto/filter-Dto-All-items';
 
 @Controller('nft-item')
 @UsePipes(ValidationPipe)
@@ -235,40 +236,63 @@ export class NftItemController {
    * @returns: all Item from a collection except one
    * @author: vipin
    */
-   @ApiTags('Nft Item')
-   @ApiOperation({ summary: 'it will fetch nft item from a collection except one' })
-   @ApiResponse({
-     status: ResponseStatusCode.OK,
-     description: 'Nft Fetch all from a collection',
-   })
-   @ApiResponse({
-     status: ResponseStatusCode.NOT_FOUND,
-     description: ResponseMessage.ITEM_NOT_FOUND,
-   })
-   @ApiResponse({
-     status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
-     description: ResponseMessage.INTERNAL_SERVER_ERROR,
-   })
-   @Get('fetchFromCollection/:id')
-   async findAllItemExceptOne(
-     @Param('id') id: string,
-     @Response() response,
-   ): Promise<any> {
-     try {
-       const find = await this.nftItemService.findAllItemExceptOne(id);
-       return this.responseModel.response(
+  @ApiTags('Nft Item')
+  @ApiOperation({
+    summary: 'it will fetch nft item from a collection except one',
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.OK,
+    description: 'Nft Fetch all from a collection',
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.NOT_FOUND,
+    description: ResponseMessage.ITEM_NOT_FOUND,
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
+    description: ResponseMessage.INTERNAL_SERVER_ERROR,
+  })
+  @Get('fetchFromCollection/:id')
+  async findAllItemExceptOne(
+    @Param('id') id: string,
+    @Response() response,
+  ): Promise<any> {
+    try {
+      const find = await this.nftItemService.findAllItemExceptOne(id);
+      return this.responseModel.response(
         find,
         ResponseStatusCode.OK,
         true,
         response,
-      )
-     } catch (error) {
-       return this.responseModel.response(
-         error,
-         ResponseStatusCode.INTERNAL_SERVER_ERROR,
-         false,
-         response,
-       );
-     }
-   }
+      );
+    } catch (error) {
+      return this.responseModel.response(
+        error,
+        ResponseStatusCode.INTERNAL_SERVER_ERROR,
+        false,
+        response,
+      );
+    }
+  }
+  /**
+   * @description gey all items with filters. Open  Api
+   * @param filterDtoAllItems
+   * @returns
+   */
+  @ApiTags('Nft Item')
+  @ApiOperation({ summary: 'it will fetch nft items according to filters' })
+  @ApiResponse({
+    status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
+    description: ResponseMessage.INTERNAL_SERVER_ERROR,
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.OK,
+    description: 'Nft Fetch all from a collection',
+  })
+  @Get('allItems')
+  async getAllItems(
+    @Query() filterDtoAllItems: FilterDtoAllItems,
+  ): Promise<any> {
+    return this.nftItemService.getAllItems(filterDtoAllItems);
+  }
 }
