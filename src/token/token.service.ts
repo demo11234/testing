@@ -5,12 +5,16 @@ import { CreateTokensDto } from '../token/dto/create-tokens.dto';
 import { UpdateTokensDto } from './dto/update-tokens.dto';
 import { Tokens } from './entities/tokens.entity';
 import { Chains } from 'src/chains/entities/chains.entity';
+import { ResponseModel } from 'src/responseModel';
+import { ResponseMessage } from 'shared/ResponseMessage';
+import { ResponseStatusCode } from 'shared/ResponseStatusCode';
 
 @Injectable()
 export class TokenService {
   constructor(
     @InjectRepository(Tokens) private tokensRepository: Repository<Tokens>,
     @InjectRepository(Chains) private chainsRepository: Repository<Chains>,
+    private readonly responseModel: ResponseModel,
   ) {}
 
   /**
@@ -90,5 +94,29 @@ export class TokenService {
       },
     });
     return tokens;
+  }
+
+  /**
+   * @description getAllActive will fetch all active tokens and return their details
+   * @returns it returns all active tokens with details
+   * @author Ansh Arora
+   */
+  async getAllActive(response): Promise<any> {
+    try {
+      const tokens = await this.tokensRepository.find({ active: true });
+      return this.responseModel.response(
+        tokens,
+        ResponseStatusCode.OK,
+        true,
+        response,
+      );
+    } catch (error) {
+      return this.responseModel.response(
+        error,
+        ResponseStatusCode.INTERNAL_SERVER_ERROR,
+        false,
+        response,
+      );
+    }
   }
 }
