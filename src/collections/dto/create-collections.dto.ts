@@ -42,7 +42,7 @@ export class CreateCollectionsDto {
   @ApiPropertyOptional({ description: 'Collection urlSlug' })
   @IsString()
   @IsOptional()
-  urlSlug: string;
+  slug: string;
 
   @ApiPropertyOptional({
     description: 'Description about collection',

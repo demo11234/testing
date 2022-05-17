@@ -45,10 +45,10 @@ export class CollectionsService {
       collection.featureImage = createCollectionDto.featureImage;
       collection.banner = createCollectionDto.banner;
       collection.name = createCollectionDto.name;
-      if (createCollectionDto.urlSlug){
-        collection.slug = createCollectionDto.urlSlug;
-      }else{
-        collection.slug = createCollectionDto.name.replace(/\s+/g, '-')
+      if (createCollectionDto.slug) {
+        collection.slug = createCollectionDto.slug;
+      } else {
+        collection.slug = createCollectionDto.name.replace(/\s+/g, '-');
       }
       collection.description = createCollectionDto.description;
       collection.websiteLink = createCollectionDto.websiteLink;
@@ -64,7 +64,7 @@ export class CollectionsService {
       collection.explicitOrSensitiveContent =
         createCollectionDto.explicitOrSensitiveContent;
       collection.owner = owner;
-      collection.ownerWalletAddress = owner.walletAddress
+      collection.ownerWalletAddress = owner.walletAddress;
 
       collection = await this.collectionRepository.save(collection);
       return collection;
@@ -145,17 +145,17 @@ export class CollectionsService {
    */
   async findOne(id: string): Promise<any> {
     try {
-      let collection
-      if (validator.isUUID(id)){
+      let collection;
+      if (validator.isUUID(id)) {
         collection = await this.collectionRepository.findOne({
-          where: {id:id}
-        })
+          where: { id: id },
+        });
       } else {
         collection = await this.collectionRepository.findOne({
-          where: {slug:id}
-        })
+          where: { slug: id },
+        });
       }
-      return collection
+      return collection;
     } catch (error) {
       return { msg: ResponseMessage.INTERNAL_SERVER_ERROR };
     }
@@ -192,7 +192,7 @@ export class CollectionsService {
    * @param collectionId , collecton id to perform the update
    * @returns Promise
    */
-   async addUserInCollaborators(
+  async addUserInCollaborators(
     ownerWalletAddress: string,
     updateCollaboratorDto: UpdateCollaboratorDto,
   ): Promise<any> {
@@ -250,7 +250,7 @@ export class CollectionsService {
     }
   }
 
-   /**
+  /**
    * Function to remove a user from collaborator
    * @param walletAddress , wallet address for the current user
    * @param collectionId collection id to add collaborator
@@ -349,7 +349,7 @@ export class CollectionsService {
   /**
    * Functio to remove collection from watchlist
    * @param walletAddress , wallet address of an user
-   * @param collectionId Collection id 
+   * @param collectionId Collection id
    * @returns Promise
    */
   async removeUseFromWatchlist(
@@ -441,34 +441,38 @@ export class CollectionsService {
    * @author vipin
    */
   async deleteCollection(id: string, request): Promise<any> {
-    try{
+    try {
       //-- fetching collection using given id
-      const collection = await this.collectionRepository.findOne({id});
+      const collection = await this.collectionRepository.findOne({ id });
 
-      if (!collection) throw new NotFoundException(ResponseMessage.COLLECTION_DOES_NOT_EXIST)
-      if (request.user.walletAddress !== collection.ownerWalletAddress) throw new ConflictException (ResponseMessage.USER_DOES_NOT_OWN_COLLECTION)
+      if (!collection)
+        throw new NotFoundException(ResponseMessage.COLLECTION_DOES_NOT_EXIST);
+      if (request.user.walletAddress !== collection.ownerWalletAddress)
+        throw new ConflictException(
+          ResponseMessage.USER_DOES_NOT_OWN_COLLECTION,
+        );
 
       //-- fetching all item from this collection
       const item = await this.nftItemRepository.find({
-        where: {collection: {id}},
-        relations:['collection'],
-      })
+        where: { collection: { id } },
+        relations: ['collection'],
+      });
 
       let flag = 0;
       item.forEach((item) => {
-        if (item.owner !== request.user.walletAddress)
-        flag = 1
-      })
+        if (item.owner !== request.user.walletAddress) flag = 1;
+      });
 
-      if (flag === 1) throw new BadRequestException(ResponseMessage.USER_DOSENT_OWN_ALL_ITEM)
+      if (flag === 1)
+        throw new BadRequestException(ResponseMessage.USER_DOSENT_OWN_ALL_ITEM);
       collection.isDeleted = true;
 
       await this.collectionRepository.update(id, collection);
-      await this.collectionRepository.softDelete({id});
+      await this.collectionRepository.softDelete({ id });
       await this.nftItemRepository.softRemove(item);
 
       return ResponseMessage.COLLECTION_DELETED;
-      } catch(error) {
+    } catch (error) {
       return error;
     }
   }
