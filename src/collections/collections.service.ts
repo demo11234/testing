@@ -18,6 +18,7 @@ import { ResponseStatusCode } from 'shared/ResponseStatusCode';
 import { UniqueCollectionCheck } from './dto/unique-collection-check.dto';
 import { NftItem } from 'src/nft-item/entities/nft-item.entities';
 import { NotFoundException } from '@nestjs/common';
+import validator from 'validator';
 // import { UserRepository } from 'src/user/repositories/user.repository';
 
 @Injectable()
@@ -44,7 +45,11 @@ export class CollectionsService {
       collection.featureImage = createCollectionDto.featureImage;
       collection.banner = createCollectionDto.banner;
       collection.name = createCollectionDto.name;
-      collection.url = createCollectionDto.url;
+      if (createCollectionDto.urlSlug){
+        collection.slug = createCollectionDto.urlSlug;
+      }else{
+        collection.slug = createCollectionDto.name.replace(/\s+/g, '-')
+      }
       collection.description = createCollectionDto.description;
       collection.websiteLink = createCollectionDto.websiteLink;
       collection.categoryId = createCollectionDto.categoryId;
@@ -136,18 +141,21 @@ export class CollectionsService {
   /**
    * Function to find a single collection using id
    * @param id , id of the collection
-   * @param owner , owner to check if current collection belong to current owner or not
    * @returns Promise
    */
-  async findOne(id: string, owner: string): Promise<any> {
+  async findOne(id: string): Promise<any> {
     try {
-      const collection = await this.collectionRepository.findOne({
-        where: [{ id: id, isDeleted: false, owner: owner }],
-      });
-      if (collection) return collection;
-      else {
-        return { msg: ResponseMessage.COLLECTION_DOES_NOT_EXIST };
+      let collection
+      if (validator.isUUID(id)){
+        collection = await this.collectionRepository.findOne({
+          where: {id:id}
+        })
+      } else {
+        collection = await this.collectionRepository.findOne({
+          where: {slug:id}
+        })
       }
+      return collection
     } catch (error) {
       return { msg: ResponseMessage.INTERNAL_SERVER_ERROR };
     }
@@ -172,6 +180,8 @@ export class CollectionsService {
       if (!isUpdated) return null;
       return isUpdated;
     } catch (error) {
+      if (error.code === ResponseStatusCode.UNIQUE_CONSTRAINTS)
+        throw new ConflictException(ResponseMessage.UNIQUE_CONSTRAINTS_NAME);
       throw new Error(error);
     }
   }
@@ -410,9 +420,9 @@ export class CollectionsService {
         result = !!collectionByName;
       }
 
-      if (uniqueCollectionCheck.url) {
+      if (uniqueCollectionCheck.urlSlug) {
         const collectionByUrl = await this.collectionRepository.findOne({
-          url: uniqueCollectionCheck.url,
+          slug: uniqueCollectionCheck.urlSlug,
         });
         result = !!collectionByUrl;
       }

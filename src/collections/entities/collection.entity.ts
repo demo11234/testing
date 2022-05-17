@@ -63,9 +63,9 @@ export class Collection {
   @ApiProperty()
   explicitOrSensitiveContent: boolean;
 
-  @Column({ nullable: true })
-  @ApiProperty()
-  url: string;
+  // @Column({ nullable: true })
+  // @ApiProperty()
+  // url: string;
 
   @Column({ nullable: true })
   @ApiProperty()
@@ -141,7 +141,7 @@ export class Collection {
   @ApiProperty({ default: false })
   isSafelisted: boolean;
 
-  @Column({ nullable: true })
+  @Column({ unique: true, nullable: true })
   @ApiProperty()
   slug: string;
 
