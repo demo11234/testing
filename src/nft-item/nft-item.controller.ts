@@ -33,6 +33,7 @@ import { CreateNftItemDto } from './dto/nft-item.dto';
 import { UpdateNftItemDto } from './dto/update.nftItem.dto';
 import { NftItemService } from './nft-item.service';
 import { eventType, eventActions } from '../../shared/Constants';
+import { FilterDtoAllItems } from './dto/filter-Dto-All-items';
 import { Delete } from '@nestjs/common';
 import { TransferItemDto } from './dto/transferItem.dto';
 import { UserFavouritesDto } from './dto/user-favourites.dto';
@@ -381,7 +382,7 @@ export class NftItemController {
       throw new BadRequestException(e.message);
     }
   }
-  
+
   /**
    * @description: This api fetch all the item of a collection except one
    * @param id
@@ -481,9 +482,7 @@ export class NftItemController {
           response,
         );
       if (req.user.walletAddress === item.owner) {
-        const data = await this.nftItemService.deleteItem(
-          id,
-        );
+        const data = await this.nftItemService.deleteItem(id);
         return this.responseModel.response(
           data,
           ResponseStatusCode.OK,
@@ -515,7 +514,7 @@ export class NftItemController {
    * @author: vipin
    */
   @ApiTags('Nft Item')
-   @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'it will transfer nft item' })
   @ApiResponse({
     status: ResponseStatusCode.OK,
@@ -538,7 +537,7 @@ export class NftItemController {
     description: ResponseMessage.INTERNAL_SERVER_ERROR,
   })
   @ApiBearerAuth()
-  @Patch('transfer/:id')  
+  @Patch('transfer/:id')
   async transferItem(
     @Param('id') id: string,
     @Request() req,
@@ -554,7 +553,7 @@ export class NftItemController {
           false,
           response,
         );
-      if (req.user.walletAddress === transferDto.userWalletAddress){
+      if (req.user.walletAddress === transferDto.userWalletAddress) {
         return this.responseModel.response(
           ResponseMessage.BAD_REQUEST_TRANSFER,
           ResponseStatusCode.BAD_REQUEST,
@@ -563,7 +562,11 @@ export class NftItemController {
         );
       }
       if (req.user.walletAddress === item.owner) {
-        const data = await this.nftItemService.transferItem(id, transferDto, item);
+        const data = await this.nftItemService.transferItem(
+          id,
+          transferDto,
+          item,
+        );
         return this.responseModel.response(
           data,
           ResponseStatusCode.OK,
@@ -578,7 +581,7 @@ export class NftItemController {
           response,
         );
       }
-    } catch(error) {
+    } catch (error) {
       return this.responseModel.response(
         error,
         ResponseStatusCode.INTERNAL_SERVER_ERROR,
@@ -586,5 +589,27 @@ export class NftItemController {
         response,
       );
     }
+  }
+  /**
+   * @description gey all items with filters. Open  Api
+   * @param filterDtoAllItems
+   * @returns array of items based on filters
+   * @author Mohan
+   */
+  @ApiTags('Nft Item')
+  @ApiOperation({ summary: 'it will fetch nft items according to filters' })
+  @ApiResponse({
+    status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
+    description: ResponseMessage.INTERNAL_SERVER_ERROR,
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.OK,
+    description: 'Nft Fetch all from a collection',
+  })
+  @Get('allItems')
+  async getAllItems(
+    @Query() filterDtoAllItems: FilterDtoAllItems,
+  ): Promise<any> {
+    return this.nftItemService.getAllItems(filterDtoAllItems);
   }
 }

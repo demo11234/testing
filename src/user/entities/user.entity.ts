@@ -46,6 +46,12 @@ export class User {
   @Column({ default: '' })
   imageUrl: string;
 
+  @Column({ default: false })
+  isOneTimeFees: boolean;
+
+  @Column({ default: '0' })
+  oneTimeFees: string;
+
   @Column({ default: '' })
   bannerUrl: string;
 

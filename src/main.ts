@@ -1,12 +1,12 @@
 import { BadRequestException, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import * as cookieParser from 'cookie-parser';
-import * as compression from 'compression';
-import * as helmet from 'helmet';
-import * as csurf from 'csurf';
-import * as xssClean from 'xss-clean';
-import * as hpp from 'hpp';
+import cookieParser from 'cookie-parser';
+import compression from 'compression';
+import helmet from 'helmet';
+import csurf from 'csurf';
+import xssClean from 'xss-clean';
+import hpp from 'hpp';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './core/httpexception.filter';
 import { ValidationError } from 'class-validator';
