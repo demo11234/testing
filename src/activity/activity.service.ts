@@ -139,15 +139,11 @@ export class ActivityService {
     try {
       const activity = await this.activityRepository
         .createQueryBuilder('activity')
-        .innerJoinAndSelect('activity.nftItem', 'nftItem', 'nftItem.id = :id', {
-          id,
-        })
-        .select([
-          'activity',
-          'nftItem.fileName',
-          'nftItem.fileUrl',
-          'nftItem.tokenId',
-        ])
+        .leftJoinAndSelect('activity.fromAccount', 'fromAccount')
+        .leftJoinAndSelect('activity.toAccount', 'toAccount')
+        .leftJoinAndSelect('activity.winnerAccount', 'winnerAccount')
+        .leftJoinAndSelect('activity.nftItem', 'nftItem')
+        .where('nftItem.id = :id', { id })
         .getMany();
       return activity;
     } catch (error) {

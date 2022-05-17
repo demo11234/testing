@@ -1,3 +1,4 @@
+import { Collection } from 'src/collections/entities/collection.entity';
 import { NftItem } from 'src/nft-item/entities/nft-item.entities';
 import { OneToMany } from 'typeorm';
 import {
@@ -46,6 +47,6 @@ export class Chains {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @OneToMany(()=> NftItem, (nftItem)=> nftItem.blockChain)
+  @OneToMany(() => NftItem, (nftItem) => nftItem.blockChain)
   nftChainName: NftItem;
 }
