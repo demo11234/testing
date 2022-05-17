@@ -56,9 +56,13 @@ export class Activity {
   @ApiProperty()
   isPrivate: boolean;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, type: 'decimal' })
   @ApiProperty()
   totalPrice: number;
+
+  @Column({ nullable: true, type: 'decimal' })
+  @ApiProperty()
+  previousPrice: number;
 
   @Column()
   @ApiProperty()

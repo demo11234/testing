@@ -5,8 +5,6 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
-  JoinTable,
-  ManyToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -84,10 +82,6 @@ export class Auction {
   @ApiProperty()
   @Column({ type: 'jsonb', nullable: true })
   reservedAuction: ReservedAuction;
-
-  @Column({ nullable: true, type: 'decimal' })
-  @ApiProperty()
-  price: number;
 
   @Column({ nullable: true, type: 'decimal' })
   @ApiProperty()

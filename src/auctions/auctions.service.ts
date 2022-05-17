@@ -71,7 +71,7 @@ export class AuctionsService {
     auction.auction_collection = collection;
 
     if (createAuctionInterface.auctionType == auctionType.FIXED_PRICE) {
-      auction.price = createAuctionInterface.price;
+      auction.startingPrice = createAuctionInterface.startingPrice;
       if (createAuctionInterface.bundle) {
         auction.bundle = createAuctionInterface.bundle;
         auction.auctionName = createAuctionInterface.bundle.name;
@@ -218,6 +218,7 @@ export class AuctionsService {
         'nft_item.id = :itemId',
         { itemId },
       )
+      .orderBy('auctions.startingPrice', 'ASC')
       .getMany();
 
     return auctions;
@@ -231,12 +232,27 @@ export class AuctionsService {
    */
   async updatePriceAndExpirationDate(
     updateAuctionInterface: UpdateAuctionInterface,
-  ): Promise<Auction[]> {
+  ): Promise<Auction> {
     const auction = await this.auctionRepository.findOne({
       where: {
         id: updateAuctionInterface.auctionId,
       },
+      relations: ['auction_item', 'auction_collection', 'creator', 'tokens'],
     });
-    return auctions;
+
+    delete auction.id;
+
+    let auctionUpdated = new Auction();
+    auctionUpdated = auction;
+
+    auctionUpdated.endDate = updateAuctionInterface.endDate
+      ? updateAuctionInterface.endDate
+      : auction.endDate;
+
+    auctionUpdated.startingPrice = updateAuctionInterface.price
+      ? updateAuctionInterface.price
+      : auction.startingPrice;
+
+    return this.auctionRepository.save(auctionUpdated);
   }
 }
