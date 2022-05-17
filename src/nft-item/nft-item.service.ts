@@ -382,6 +382,7 @@ export class NftItemService {
     } catch (error) {
       console.log(error);
       return error;
+
     }
   }
 
@@ -390,12 +391,11 @@ export class NftItemService {
    * @returns: viewer count
    * @author: Susmita
    */
-
   async updateViewerCount(id: string): Promise<any> {
     try {
       const item = await this.findOne(id);
-      if (item) {
-        item.viwes = item.viwes + 1;
+      if (item){
+        item.views= item.views + 1;
         await this.nftItemRepository.update({ id }, item);
         return item;
       }

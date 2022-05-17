@@ -14,4 +14,10 @@ export class UpdateCollaboratorDto {
   })
   @IsNotEmpty()
   updateType: collaboratorUpdateType.ADD | collaboratorUpdateType.REMOVE;
+
+  @ApiProperty({
+    description: 'Wallet address of the user to be added',
+  })
+  @IsNotEmpty()
+  walletAddress: string;
 }
