@@ -29,7 +29,7 @@ export class ActivityService {
   ): Promise<Activity> {
     try {
       const activity = new Activity();
-      const activityInfo = Object.assign({},createActivityInterface);
+      const activityInfo = Object.assign({}, createActivityInterface);
 
       if (activityInfo.toAccount) {
         activity.toAccount = await this.userRepository.findOne({
@@ -139,9 +139,11 @@ export class ActivityService {
     try {
       const activity = await this.activityRepository
         .createQueryBuilder('activity')
-        .leftJoinAndSelect('activity.nftItem', 'nftItem', 'nftItem.id = :id', {
-          id,
-        })
+        .leftJoinAndSelect('activity.fromAccount', 'fromAccount')
+        .leftJoinAndSelect('activity.toAccount', 'toAccount')
+        .leftJoinAndSelect('activity.winnerAccount', 'winnerAccount')
+        .leftJoinAndSelect('activity.nftItem', 'nftItem')
+        .where('nftItem.id = :id', { id })
         .getMany();
       return activity;
     } catch (error) {

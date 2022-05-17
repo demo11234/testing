@@ -87,8 +87,8 @@ export class ActivityController {
       const activity = await this.activityService.getActivityByItemId(id);
       return this.responseModel.response(
         activity,
-        ResponseStatusCode.NOT_FOUND,
-        false,
+        ResponseStatusCode.OK,
+        true,
         response,
       );
     } catch (error) {
