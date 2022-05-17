@@ -82,16 +82,23 @@ export class UpdateCollectionsDto {
   earningFee: number;
 
   @ApiPropertyOptional({
-    description: 'Blockchain to be used in the collection',
+    description: 'Earning wallet address for the collection',
   })
   @IsOptional()
-  blockchain: string;
+  earningWalletAddress: string;
+
+  // @ApiPropertyOptional({
+  //   description: 'Blockchain to be used in the collection',
+  // })
+  // @IsOptional()
+  // blockchain: string;
 
   @ApiPropertyOptional({
     description: 'Payment token to be used in the collection',
   })
   @IsOptional()
-  paymentToken: string;
+  @IsArray()
+  paymentToken: string[];
 
   @ApiPropertyOptional({
     description: 'Display theme for the collection',
