@@ -256,6 +256,54 @@ export class CollectionsController {
   }
 
   /**
+   * @description: This api finds collections using Categoryid
+   * @param id
+   * @returns: Collections based on Categoryid
+   * @author: Ansh Arora
+   */
+  @Get('/category/:categoryId')
+  @ApiTags('Collection Module')
+  @ApiOperation({
+    summary: 'Find collections based on categoryId',
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.OK,
+    description: 'Collections based on categoryId',
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
+    description: ResponseMessage.INTERNAL_SERVER_ERROR,
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.NOT_FOUND,
+    description: ResponseMessage.COLLECTIONS_DO_NOT_EXIST,
+  })
+  async findByCategoryId(
+    @Param('categoryId') categoryId: string,
+    @Req() req,
+    @Response() response,
+  ): Promise<any> {
+    try {
+      const collection = await this.collectionService.findByCategoryId(
+        categoryId,
+      );
+      return this.responseModel.response(
+        collection,
+        ResponseStatusCode.OK,
+        true,
+        response,
+      );
+    } catch (error) {
+      return this.responseModel.response(
+        error,
+        ResponseStatusCode.INTERNAL_SERVER_ERROR,
+        false,
+        response,
+      );
+    }
+  }
+
+  /**
    * @description: This api updates the collection and returns status
    * @param id
    * @param updateCollectionDto
