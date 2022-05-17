@@ -46,8 +46,10 @@ export class NftItem {
   @Column({ nullable: true })
   description: string;
 
-  @ManyToOne(() => Collection, (collection) => collection.nftItem,
-  {onDelete: "CASCADE", eager: true})
+  @ManyToOne(() => Collection, (collection) => collection.nftItem, {
+    onDelete: 'CASCADE',
+    eager: true,
+  })
   @JoinColumn()
   collection: Collection;
 
@@ -108,25 +110,25 @@ export class NftItem {
   @ManyToMany(() => User)
   @JoinTable({
     name: 'favourites',
-    joinColumn: { name: 'collection_id', referencedColumnName: 'id' },
+    joinColumn: { name: 'item_id', referencedColumnName: 'id' },
     inverseJoinColumn: { name: 'user_id', referencedColumnName: 'id' },
   })
   favourites: User[];
 
   @ApiProperty()
-  @Column({default: false})
+  @Column({ default: false })
   buyNow: boolean;
 
   @ApiProperty()
-  @Column({default: false})
+  @Column({ default: false })
   onAuction: boolean;
 
   @ApiProperty()
-  @Column({default: false})
+  @Column({ default: false })
   hasOffer: boolean;
 
   @ApiProperty()
-  @Column({default: false})
+  @Column({ default: false })
   isFreezed?: boolean;
 
   @ApiProperty()
@@ -140,7 +142,7 @@ export class NftItem {
   @ApiProperty()
   @Column({ type: 'float' })
   timeStamp: number;
- 
+
   @ApiProperty()
   @Column({ nullable: true, default: 0 })
   viwes: number;
