@@ -5,8 +5,6 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
-  JoinTable,
-  ManyToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -16,6 +14,7 @@ import { auctionType, timedAuctionMethod } from 'shared/Constants';
 import { Tokens } from '../../../src/token/entities/tokens.entity';
 import { NftItem } from '../../../src/nft-item/entities/nft-item.entities';
 import { User } from 'src/user/entities/user.entity';
+import { Collection } from 'src/collections/entities/collection.entity';
 
 export class Bundle {
   @ApiProperty()
@@ -47,13 +46,13 @@ export class Auction {
   @ApiProperty()
   auctionName: string;
 
-  @ManyToMany(() => NftItem)
-  @JoinTable({
-    name: 'auction_item',
-    joinColumn: { name: 'auction_id', referencedColumnName: 'id' },
-    inverseJoinColumn: { name: 'nft-item_id', referencedColumnName: 'id' },
-  })
-  auction_item: NftItem[];
+  @ManyToOne(() => NftItem)
+  @JoinColumn()
+  auction_item: NftItem;
+
+  @ManyToOne(() => Collection)
+  @JoinColumn()
+  auction_collection: Collection;
 
   @Column({ type: 'float' })
   @ApiProperty()
@@ -110,7 +109,16 @@ export class Auction {
     | timedAuctionMethod.SELL_WITH_DECLINING_PRICE;
 
   @Column({ default: true })
+  @ApiProperty()
   isActive: boolean;
+
+  @Column({ default: false })
+  @ApiProperty()
+  isCancelled: boolean;
+
+  @Column({ default: 0 })
+  @ApiProperty()
+  quantity: number;
 
   @CreateDateColumn()
   @ApiProperty()

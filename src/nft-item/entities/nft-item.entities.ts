@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsNumber, IsString } from 'class-validator';
 import { Chains } from 'src/chains/entities/chains.entity';
 import { Collection } from 'src/collections/entities/collection.entity';
+import { User } from 'src/user/entities/user.entity';
 import { Offer } from 'src/offer/entities/offer.entity';
 import {
   CreateDateColumn,
@@ -9,6 +10,8 @@ import {
   Column,
   Entity,
   UpdateDateColumn,
+  ManyToMany,
+  JoinTable,
   OneToMany,
   DeleteDateColumn,
 } from 'typeorm';
@@ -43,10 +46,8 @@ export class NftItem {
   @Column({ nullable: true })
   description: string;
 
-  @ManyToOne(() => Collection, (collection) => collection.nftItem, {
-    eager: true,
-  onDelete: "CASCADE",
-  })
+  @ManyToOne(() => Collection, (collection) => collection.nftItem,
+  {onDelete: "CASCADE", eager: true})
   @JoinColumn()
   collection: Collection;
 
@@ -104,6 +105,14 @@ export class NftItem {
   @Column()
   walletAddress: string;
 
+  @ManyToMany(() => User)
+  @JoinTable({
+    name: 'favourites',
+    joinColumn: { name: 'collection_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'user_id', referencedColumnName: 'id' },
+  })
+  favourites: User[];
+
   @ApiProperty()
   @Column({default: false})
   buyNow: boolean;
@@ -115,6 +124,10 @@ export class NftItem {
   @ApiProperty()
   @Column({default: false})
   hasOffer: boolean;
+
+  @ApiProperty()
+  @Column({default: false})
+  isFreezed?: boolean;
 
   @ApiProperty()
   @CreateDateColumn()
