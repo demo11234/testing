@@ -158,10 +158,14 @@ export class Collection {
   updatedAt: Date;
 
   @OneToMany(() => NftItem, (nftItem) => nftItem.collection, {
-    eager: false,
+    lazy: true,
     cascade: true,
   })
-  nftItem: NftItem[];
+  nftItem: Promise<NftItem[]>;
+
+  @ApiProperty()
+  @Column({ type: 'jsonb', nullable: true })
+  stats: Stats[];
 
   @Column()
   @ApiProperty()
@@ -169,4 +173,69 @@ export class Collection {
 
   @DeleteDateColumn()
   deletedAt: Date;
+}
+
+export class Stats {
+  @ApiProperty({ default: 0 })
+  one_day_volume: number;
+
+  @ApiProperty({ default: 0 })
+  one_day_change: number;
+
+  @ApiProperty({ default: 0 })
+  one_day_sales: number;
+
+  @ApiProperty({ default: 0 })
+  one_day_average_price: number;
+
+  @ApiProperty({ default: 0 })
+  seven_day_volume: number;
+
+  @ApiProperty({ default: 0 })
+  seven_day_change: number;
+
+  @ApiProperty({ default: 0 })
+  seven_day_sales: number;
+
+  @ApiProperty({ default: 0 })
+  seven_day_average_price: number;
+
+  @ApiProperty({ default: 0 })
+  thirty_day_volume: number;
+
+  @ApiProperty({ default: 0 })
+  thirty_day_change: number;
+
+  @ApiProperty({ default: 0 })
+  thirty_day_sales: number;
+
+  @ApiProperty({ default: 0 })
+  thirty_day_average_price: number;
+
+  @ApiProperty({ default: 0 })
+  total_volume: number;
+
+  @ApiProperty({ default: 0 })
+  total_sales: number;
+
+  @ApiProperty({ default: 0 })
+  total_supply: number;
+
+  @ApiProperty({ default: 0 })
+  count: number;
+
+  @ApiProperty({ default: 0 })
+  num_owners: number;
+
+  @ApiProperty({ default: 0 })
+  average_price: number;
+
+  @ApiProperty({ default: 0 })
+  num_reports: number;
+
+  @ApiProperty({ default: 0 })
+  market_cap: number;
+
+  @ApiProperty({ default: 0 })
+  floor_price: number;
 }
