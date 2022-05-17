@@ -32,6 +32,12 @@ export class CollectionsService {
     private readonly nftItemRepository: Repository<NftItem>,
   ) {}
 
+  /**
+   * Function to create a collection
+   * @param owner Owner for the collection
+   * @param createCollectionDto collection DTo for creating a collection
+   * @returns Promise
+   */
   async create(owner: User, createCollectionDto: CreateCollectionsDto) {
     try {
       let collection = new Collection();
@@ -70,6 +76,11 @@ export class CollectionsService {
     }
   }
 
+  /**
+   * Function to fetch collection by owner or collaborator
+   * @param id id of the the user/collaborator
+   * @returns Promise
+   */
   async findByOwnerOrCollaborator(id: string): Promise<any> {
     try {
       const isDeletedFalse = false;
@@ -102,6 +113,11 @@ export class CollectionsService {
     }
   }
 
+  /**
+   * Function to fetch collections based on filters
+   * @param filterDto filters to fetch collectoions
+   * @returns Promise
+   */
   async findAll(filterDto: FilterDto): Promise<any> {
     try {
       const { take, skip } = filterDto;
@@ -122,6 +138,11 @@ export class CollectionsService {
     }
   }
 
+  /**
+   * Function to find a single collection using id
+   * @param id , id of the collection
+   * @returns Promise
+   */
   async findOne(id: string): Promise<any> {
     try {
       let collection
@@ -140,6 +161,12 @@ export class CollectionsService {
     }
   }
 
+  /**
+   * Function to update a collection
+   * @param id , id of collection
+   * @param updateCollectionDto , update object
+   * @returns Promise
+   */
   async update(
     id: string,
     updateCollectionDto: UpdateCollectionsDto,
@@ -165,17 +192,22 @@ export class CollectionsService {
    * @param collectionId , collecton id to perform the update
    * @returns Promise
    */
-  async addUserInCollaborators(
-    walletAddress: string,
-    collectionId: string,
+   async addUserInCollaborators(
+    ownerWalletAddress: string,
+    updateCollaboratorDto: UpdateCollaboratorDto,
   ): Promise<any> {
     try {
       const collection = await this.collectionRepository.findOne({
-        where: { id: collectionId },
+        where: { id: updateCollaboratorDto.collectionId },
         relations: ['collaborators'],
       });
       if (!collection) return null;
-      if (collection.owner.walletAddress === walletAddress) {
+      if (collection.owner.walletAddress !== ownerWalletAddress) {
+        return { status: 401, msg: ResponseMessage.UNAUTHORIZED };
+      }
+      if (
+        collection.owner.walletAddress === updateCollaboratorDto.walletAddress
+      ) {
         return {
           status: ResponseStatusCode.CONFLICT,
           msg: ResponseMessage.OWNER_CANNOT_BE_ADDED_AS_COLLABORATOR,
@@ -183,20 +215,23 @@ export class CollectionsService {
       }
       let flag = 0;
       for (let i = 0; i < collection.collaborators.length; i++) {
-        if (collection.collaborators[i].walletAddress === walletAddress) {
+        if (
+          collection.collaborators[i].walletAddress ===
+          updateCollaboratorDto.walletAddress
+        ) {
           flag = 1;
         }
       }
       if (flag === 1) {
         return {
-          Status: ResponseStatusCode.CONFLICT,
+          status: ResponseStatusCode.CONFLICT,
           msg: ResponseMessage.USER_ALREADY_IN_COLLABORATORS,
         };
       }
 
       const user = await this.userRepository.findOne({
         where: {
-          walletAddress: walletAddress,
+          walletAddress: updateCollaboratorDto.walletAddress,
         },
       });
       if (!user) return null;
@@ -215,28 +250,56 @@ export class CollectionsService {
     }
   }
 
-  /**
+   /**
    * Function to remove a user from collaborator
    * @param walletAddress , wallet address for the current user
    * @param collectionId collection id to add collaborator
    * @returns Promise
    */
   async removeUserFromCollaborators(
-    walletAddress: string,
-    collectionId: string,
-  ): Promise<boolean> {
+    ownerWalletAddress: string,
+    updateCollaboratorDto: UpdateCollaboratorDto,
+  ): Promise<any> {
     try {
       const user = await this.userRepository.findOne({
         where: {
-          walletAddress: walletAddress,
+          walletAddress: updateCollaboratorDto.walletAddress,
         },
       });
+      const collection = await this.collectionRepository.findOne({
+        where: { id: updateCollaboratorDto.collectionId },
+        relations: ['collaborators'],
+      });
+      if (!collection) return null;
+      if (collection.owner.walletAddress !== ownerWalletAddress) {
+        return { status: 401, msg: ResponseMessage.UNAUTHORIZED };
+      }
+      if (
+        collection.owner.walletAddress === updateCollaboratorDto.walletAddress
+      ) {
+        return {
+          status: ResponseStatusCode.CONFLICT,
+          msg: ResponseMessage.OWNER_CANNOT_BE_ADDED_AS_COLLABORATOR,
+        };
+      }
       if (!user) return null;
+      let flag = 0;
+      for (let i = 0; i < collection.collaborators.length; i++) {
+        if (
+          collection.collaborators[i].walletAddress ===
+          updateCollaboratorDto.walletAddress
+        ) {
+          flag = 1;
+        }
+      }
+      if (flag === 0) {
+        return { status: 409, msg: 'Already deleted' };
+      }
 
       await this.collectionRepository
         .createQueryBuilder()
         .relation(Collection, 'collaborators')
-        .of(collectionId)
+        .of(updateCollaboratorDto.collectionId)
         .remove(user.id);
 
       return true;
@@ -283,6 +346,12 @@ export class CollectionsService {
     }
   }
 
+  /**
+   * Functio to remove collection from watchlist
+   * @param walletAddress , wallet address of an user
+   * @param collectionId Collection id 
+   * @returns Promise
+   */
   async removeUseFromWatchlist(
     walletAddress: string,
     collectionId: string,
@@ -307,6 +376,11 @@ export class CollectionsService {
     }
   }
 
+  /**
+   * Function to get collection for user that are under watchlist
+   * @param walletAddress current user wallet address
+   * @returns Promise
+   */
   async getCollectionForUserWatchlist(
     walletAddress: string,
   ): Promise<Collection[]> {
