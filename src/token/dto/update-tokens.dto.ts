@@ -38,4 +38,7 @@ export class UpdateTokensDto {
 
   @ApiProperty()
   active: boolean;
+
+  @ApiProperty()
+  defaultToken: boolean;
 }
