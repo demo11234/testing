@@ -29,7 +29,7 @@ export class ActivityService {
   ): Promise<Activity> {
     try {
       const activity = new Activity();
-      const activityInfo = Object.assign({},createActivityInterface);
+      const activityInfo = Object.assign({}, createActivityInterface);
 
       if (activityInfo.toAccount) {
         activity.toAccount = await this.userRepository.findOne({
@@ -142,6 +142,9 @@ export class ActivityService {
         .leftJoinAndSelect('activity.nftItem', 'nftItem', 'nftItem.id = :id', {
           id,
         })
+        .leftJoinAndSelect('activity.fromAccount', 'fromAccount')
+        .leftJoinAndSelect('activity.toAccount', 'toAccount')
+        .leftJoinAndSelect('activity.winnerAccount', 'winnerAccount')
         .getMany();
       return activity;
     } catch (error) {
