@@ -110,7 +110,7 @@ export class NftItem {
   @ManyToMany(() => User)
   @JoinTable({
     name: 'favourites',
-    joinColumn: { name: 'collection_id', referencedColumnName: 'id' },
+    joinColumn: { name: 'item_id', referencedColumnName: 'id' },
     inverseJoinColumn: { name: 'user_id', referencedColumnName: 'id' },
   })
   favourites: User[];

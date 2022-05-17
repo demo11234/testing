@@ -14,6 +14,7 @@ import { FileUpload } from 'src/user/utils/s3.upload';
 import { Notification } from 'src/notification/entity/notification.entity';
 import { ConfigService } from '@nestjs/config';
 import { NftItem } from 'src/nft-item/entities/nft-item.entities';
+import { Chains } from 'src/chains/entities/chains.entity';
 
 @Module({
   imports: [
@@ -23,7 +24,8 @@ import { NftItem } from 'src/nft-item/entities/nft-item.entities';
       User,
       UserRepository,
       Notification,
-      NftItem
+      NftItem,
+      Chains,
     ]),
   ],
   controllers: [CollectionsController],

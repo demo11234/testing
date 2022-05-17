@@ -19,6 +19,7 @@ import { UniqueCollectionCheck } from './dto/unique-collection-check.dto';
 import { NftItem } from 'src/nft-item/entities/nft-item.entities';
 import { NotFoundException } from '@nestjs/common';
 import validator from 'validator';
+import { Chains } from 'src/chains/entities/chains.entity';
 // import { UserRepository } from 'src/user/repositories/user.repository';
 
 @Injectable()
@@ -30,6 +31,8 @@ export class CollectionsService {
     private readonly userRepository: Repository<User>,
     @InjectRepository(NftItem)
     private readonly nftItemRepository: Repository<NftItem>,
+    @InjectRepository(Chains)
+    private chainsRepository: Repository<Chains>,
   ) {}
 
   /**
@@ -58,7 +61,12 @@ export class CollectionsService {
       collection.mediumLink = createCollectionDto.mediumLink;
       collection.telegramLink = createCollectionDto.telegramLink;
       collection.earningFee = createCollectionDto.earningFee;
-      collection.blockchain = createCollectionDto.blockchain;
+      collection.earningWalletAddress =
+        createCollectionDto.earningWalletAddress;
+      const chains = await this.chainsRepository.findOne({
+        where: { id: createCollectionDto.blockchain },
+      });
+      collection.blockchain = chains;
       collection.paymentToken = createCollectionDto.paymentToken;
       collection.displayTheme = createCollectionDto.displayTheme;
       collection.explicitOrSensitiveContent =

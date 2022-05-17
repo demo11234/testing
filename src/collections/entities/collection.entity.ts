@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum } from 'class-validator';
+import { Chains } from 'src/chains/entities/chains.entity';
 import { NftItem } from 'src/nft-item/entities/nft-item.entities';
 import { User } from 'src/user/entities/user.entity';
 import {
@@ -51,13 +52,13 @@ export class Collection {
   @ApiProperty()
   categoryId: string;
 
-  @Column({ nullable: true })
-  @ApiProperty()
-  blockchain: string;
+  @ManyToOne(() => Chains, { eager: true })
+  @JoinColumn()
+  blockchain: Chains;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, type: 'simple-array' })
   @ApiProperty()
-  paymentToken: string;
+  paymentToken: string[];
 
   @Column({ default: true })
   @ApiProperty()
