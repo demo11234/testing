@@ -85,10 +85,6 @@ export class Auction {
 
   @Column({ nullable: true, type: 'decimal' })
   @ApiProperty()
-  price: number;
-
-  @Column({ nullable: true, type: 'decimal' })
-  @ApiProperty()
   startingPrice: number;
 
   @Column({ nullable: true, type: 'decimal' })
