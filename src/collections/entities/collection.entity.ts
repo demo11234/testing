@@ -164,7 +164,7 @@ export class Collection {
   nftItem: Promise<NftItem[]>;
 
   @ApiProperty()
-  @Column({ type: 'jsonb', nullable: true })
+  @Column({ type: 'jsonb', nullable: true, default: [] })
   stats: Stats[];
 
   @Column()
@@ -176,66 +176,66 @@ export class Collection {
 }
 
 export class Stats {
-  @ApiProperty({ default: 0 })
+  @ApiProperty()
   one_day_volume: number;
 
-  @ApiProperty({ default: 0 })
+  @ApiProperty()
   one_day_change: number;
 
-  @ApiProperty({ default: 0 })
+  @ApiProperty()
   one_day_sales: number;
 
-  @ApiProperty({ default: 0 })
+  @ApiProperty()
   one_day_average_price: number;
 
-  @ApiProperty({ default: 0 })
+  @ApiProperty()
   seven_day_volume: number;
 
-  @ApiProperty({ default: 0 })
+  @ApiProperty()
   seven_day_change: number;
 
-  @ApiProperty({ default: 0 })
+  @ApiProperty()
   seven_day_sales: number;
 
-  @ApiProperty({ default: 0 })
+  @ApiProperty()
   seven_day_average_price: number;
 
-  @ApiProperty({ default: 0 })
+  @ApiProperty()
   thirty_day_volume: number;
 
-  @ApiProperty({ default: 0 })
+  @ApiProperty()
   thirty_day_change: number;
 
-  @ApiProperty({ default: 0 })
+  @ApiProperty()
   thirty_day_sales: number;
 
-  @ApiProperty({ default: 0 })
+  @ApiProperty()
   thirty_day_average_price: number;
 
-  @ApiProperty({ default: 0 })
+  @ApiProperty()
   total_volume: number;
 
-  @ApiProperty({ default: 0 })
+  @ApiProperty()
   total_sales: number;
 
-  @ApiProperty({ default: 0 })
+  @ApiProperty()
   total_supply: number;
 
-  @ApiProperty({ default: 0 })
+  @ApiProperty()
   count: number;
 
-  @ApiProperty({ default: 0 })
+  @ApiProperty()
   num_owners: number;
 
-  @ApiProperty({ default: 0 })
+  @ApiProperty()
   average_price: number;
 
-  @ApiProperty({ default: 0 })
+  @ApiProperty()
   num_reports: number;
 
-  @ApiProperty({ default: 0 })
+  @ApiProperty()
   market_cap: number;
 
-  @ApiProperty({ default: 0 })
+  @ApiProperty()
   floor_price: number;
 }
