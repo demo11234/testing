@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { NftItem } from 'src/nft-item/entities/nft-item.entities';
 import { User } from 'src/user/entities/user.entity';
@@ -148,6 +148,25 @@ export class ActivityService {
       return activity;
     } catch (error) {
       console.log(error);
+    }
+  }
+  /**
+   * @description Find all activities for perticular user
+   * @param id
+   * @returns Array of all activities
+   * @author Mohan
+   */
+  async findActivitiesForUser(id: string): Promise<any> {
+    try {
+      const activities = await this.activityRepository.find({
+        where: [{ toAccount: { id } }, { fromAccount: { id } }],
+        relations: ['toAccount', 'fromAccount'],
+      });
+
+      return activities;
+    } catch (error) {
+      console.log(error);
+      throw new InternalServerErrorException();
     }
   }
 }
