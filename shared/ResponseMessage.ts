@@ -67,7 +67,7 @@ export const ResponseMessage = {
   USER_DOES_NOT_OWN_ITEM: 'User does not own the item',
   ITEM_ACTIVITIES: 'Item Activities',
   ACTIVITIES: 'Activities',
-  UNIQUE_CONSTRAINTS_NAME: 'Name of the collection must be unique',
+  UNIQUE_CONSTRAINTS_NAME: 'Name and URL of the collection must be unique',
 
   COLLECTION_NAME: 'Collection Name is Empty',
   UNIQUE_COLLECTION_CHECK: 'Boolean Values for Collection Name and url',
@@ -81,11 +81,13 @@ export const ResponseMessage = {
   USER_DOSENT_OWN_ALL_ITEM: 'User dosent own all item in collection',
   FAVOURITES_ADDED: 'User has been added in Favourites',
   FAVOURITES_REMOVED: 'User has been removed from Favourites',
+  UPDATION_ERROR_FEES: 'Error in updating fees paid',
+  FEES_NOT_PAID:
+    'Pay firsttime fees. If paid already wait for some time to reflect in blockchain',
   ITEM_IS_FREEZED: 'Can not update item is Freezed',
   ITEM_DELETED:'Item is deleted',
   ITEM_TRANSFERED: 'Item transfered',
   BAD_REQUEST_TRANSFER: 'Bad request transfer',
-
   AUCTION_CANCELLED: 'Auction Cancelled',
   AUCTION_CANNOT_BE_CANCELLED: 'Auction cannot be Cancelled',
   ITEMS_LIST: 'List of Items',

@@ -25,6 +25,7 @@ export class AuthService {
 
       const payload = {
         walletAddress,
+        userId: user.id,
         data: base64String,
       };
 

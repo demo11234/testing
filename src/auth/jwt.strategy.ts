@@ -32,6 +32,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       // }
       return {
         walletAddress: payload.walletAddress,
+        userId: payload.userId,
         data: decodedString,
       };
     } else if (decodedString === Constants.ADMIN) {

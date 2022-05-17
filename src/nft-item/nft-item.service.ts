@@ -14,6 +14,7 @@ import { ResponseMessage } from 'shared/ResponseMessage';
 import { TransferItemDto } from './dto/transferItem.dto';
 import { ActivityService } from 'src/activity/activity.service';
 import { eventType, eventActions } from '../../shared/Constants';
+import { FilterDtoAllItems } from './dto/filter-Dto-All-items';
 
 @Injectable()
 export class NftItemService {
@@ -79,7 +80,6 @@ export class NftItemService {
             walletAddress: user.walletAddress,
           },
         });
-
 
         const collection = await this.collectionRepository.find({
           where: {
@@ -382,20 +382,20 @@ export class NftItemService {
     } catch (error) {
       console.log(error);
       return error;
+
     }
   }
-      
-   /* @description: This api for count the viewer of nft Item
+
+  /* @description: This api for count the viewer of nft Item
    * @param: id
    * @returns: viewer count
    * @author: Susmita
    */
-
   async updateViewerCount(id: string): Promise<any> {
     try {
       const item = await this.findOne(id);
       if (item){
-        item.viwes= item.viwes + 1;
+        item.views= item.views + 1;
         await this.nftItemRepository.update({ id }, item);
         return item;
       }
@@ -403,7 +403,7 @@ export class NftItemService {
       throw new Error(error);
     }
   }
-      
+
   /* @description: This api fetch all the item of a collection except one
    * @param id
    * @returns: all Item from a collection
@@ -424,7 +424,7 @@ export class NftItemService {
       });
       return data;
     } catch (error) {
-      return error;
+      console.log(error);
     }
   }
 
@@ -436,7 +436,7 @@ export class NftItemService {
    */
   async deleteItem(id: string): Promise<any> {
     try {
-      await this.nftItemRepository.softDelete({ id});
+      await this.nftItemRepository.softDelete({ id });
       return ResponseMessage.ITEM_DELETED;
     } catch (error) {
       return error;
@@ -449,11 +449,15 @@ export class NftItemService {
    * @returns: status and message
    * @author: vipin
    */
-  async transferItem(id: string, transferDto: TransferItemDto, item): Promise<any> {
-    try{
+  async transferItem(
+    id: string,
+    transferDto: TransferItemDto,
+    item,
+  ): Promise<any> {
+    try {
       const transferNftItem = new NftItem();
-      transferNftItem.owner = transferDto.userWalletAddress
-      await this.nftItemRepository.update({id}, transferNftItem)
+      transferNftItem.owner = transferDto.userWalletAddress;
+      await this.nftItemRepository.update({ id }, transferNftItem);
 
       await this.activityService.createActivity({
         eventActions: eventActions.TRANSFER,
@@ -464,13 +468,125 @@ export class NftItemService {
         totalPrice: null,
         isPrivate: false,
         collectionId: item.collection.id,
-        winnerAccount: null
+        winnerAccount: null,
       });
 
       return ResponseMessage.ITEM_TRANSFERED;
-    } catch(error){
-      console.log(error)
+    } catch (error) {
+      console.log(error);
       return error;
+    }
+  }
+  /**
+   * @description function to retrieve all items based on filters
+   * @param filterDtoAllItems
+   * @returns filtered array of
+   * @author Mohan
+   */
+  async getAllItems(filterDtoAllItems: FilterDtoAllItems): Promise<NftItem[]> {
+    try {
+      const {
+        collectionsId,
+        chainsId,
+        categories,
+        priceType,
+        status,
+        paymentTokens,
+        priceRange,
+        sortBy,
+        limit,
+        page,
+        order: orderBy,
+      } = filterDtoAllItems;
+
+      const where: any = {};
+
+      if (collectionsId) {
+        const collectionId = collectionsId.split(',').map((s) => s.trim());
+        where.collection = { id: In(collectionId) };
+      }
+
+      if (categories) {
+        where.collection = { categoryID: categories };
+      }
+
+      if (chainsId) {
+        const chainId = chainsId.split(',').map((s) => s.trim());
+        where.blockChain = { id: In(chainId) };
+      }
+
+      if (status) {
+        const statusArr = status.split(',').map((s) => s.trim());
+
+        if (statusArr.includes('new')) {
+          const BetweenDates = () =>
+            Between(Date.now() - 1000 * 60 * 60 * 24 * 1, Date.now());
+          where.timeStamp = BetweenDates();
+        }
+
+        // const timeStamp = moment()
+        //   .subtract(4, 'h')
+        //   .format('YYYY-MM-DD HH:MM:SS.SSSSSS');
+        // where.createdAt = MoreThan(timeStamp);
+
+        if (statusArr.includes('buynow')) {
+          where.buyNow = true;
+        }
+
+        if (statusArr.includes('onAuction')) {
+          where.onAuction = true;
+        }
+
+        if (statusArr.includes('hasOffer')) {
+          where.hasOffer = true;
+        }
+      }
+
+      //make relation with Auction first
+
+      // if(priceRange){
+      //     const priceValue = priceRange.split(',').map(s=>s.trim())
+      //     where.itemPrice = Between(priceValue[0], priceVlaue[1])
+      // }
+
+      //make relation with Auction first
+
+      if (paymentTokens) {
+        const tokens = paymentTokens.split(',').map((s) => s.trim());
+        where.paymentToken = In(tokens);
+      }
+
+      const order = {};
+      if (sortBy === 'date') {
+        switch (orderBy) {
+          case 'asc':
+            order['createdAt'] = 'ASC';
+            break;
+          case 'desc':
+            order['createdAt'] = 'DESC';
+            break;
+          default:
+            order['id'] = 'ASC';
+        }
+      }
+
+      const data = await this.nftItemRepository.find({
+        where,
+        order,
+        relations: ['collection', 'blockChain'],
+        skip: (+page - 1) * +limit,
+        take: +limit,
+      });
+
+      // if (paymentTokens) {
+      //   paymentTokens.;
+      //   const filteredData = data.filter((item) => {
+      //     item.allowedTokens.includes();
+      //   });
+      // }
+      return data;
+    } catch (error) {
+      console.log(error);
     }
   }
 }

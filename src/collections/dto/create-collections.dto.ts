@@ -39,10 +39,10 @@ export class CreateCollectionsDto {
   @IsNotEmpty()
   name: string;
 
-  @ApiPropertyOptional({ description: 'Collection url' })
+  @ApiPropertyOptional({ description: 'Collection urlSlug' })
   @IsString()
   @IsOptional()
-  url: string;
+  urlSlug: string;
 
   @ApiPropertyOptional({
     description: 'Description about collection',

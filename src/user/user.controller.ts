@@ -9,6 +9,9 @@ import {
   UploadedFile,
   Get,
   Param,
+  BadRequestException,
+  Req,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 
@@ -29,6 +32,7 @@ import {
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../src/auth/jwt-auth.guard';
 import { SignedUrlDto } from './dto/signed-url.dto';
+import { FeesPaidDto } from './dto/fees-paid-dto';
 
 @Controller('user')
 export class UserController {
@@ -67,6 +71,13 @@ export class UserController {
     @Response() response,
   ): Promise<any> {
     try {
+      // const verifiedSignature = await this.userService.signatureAuth({
+      //   wallet_address: createUserDto.walletAddress,
+      //   signature: createUserDto.signature,
+      //   signature_message: createUserDto.signature_message,
+      // });
+      // if (!verifiedSignature) throw new UnauthorizedException();
+
       let user = await this.userService.findUser(createUserDto);
       if (user) {
         const details = await this.authService.createUserToken(
@@ -81,6 +92,7 @@ export class UserController {
         );
       } else {
         user = await this.userService.createUser(createUserDto);
+
         const details = await this.authService.createUserToken(
           createUserDto.walletAddress,
           user,
@@ -342,5 +354,37 @@ export class UserController {
   @ApiResponse({ description: 'Array of all categories' })
   async getAllCategories() {
     return this.userService.findAllCategories();
+  }
+  /**
+   *  @description updates fees paid
+   * @param feesPaidDto
+   * @param request
+   * @returns object with status
+   * @author Mohan
+   */
+
+  @ApiTags('User Module')
+  @UseGuards(JwtAuthGuard)
+  @Patch('feesPaid')
+  @ApiOperation({
+    summary: 'Api request to update feespaid ',
+  })
+  @ApiResponse({ description: 'object with success response' })
+  @ApiBearerAuth()
+  async updateOneTimeFees(@Body() feesPaidDto: FeesPaidDto, @Req() req) {
+    console.log(req.user);
+
+    try {
+      await this.authService.checkUser(req.user.data, req.user.walletAddress);
+
+      return await this.userService.updateOneTimeFees(
+        req.user.walletAddress,
+        feesPaidDto,
+      );
+    } catch (error) {
+      console.log(error);
+
+      throw new BadRequestException(error);
+    }
   }
 }

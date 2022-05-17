@@ -5,5 +5,5 @@ export class UniqueCollectionCheck {
   name: string;
 
   @ApiPropertyOptional()
-  url: string;
+  urlSlug: string;
 }

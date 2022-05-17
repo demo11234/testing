@@ -1,16 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsHexadecimal,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-} from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 
-export class CreateUserDto {
+export class SignatureDto {
   @ApiProperty()
-  @IsNotEmpty()
-  @IsHexadecimal()
-  walletAddress: string;
+  @IsString()
+  wallet_address: string;
 
   @ApiProperty()
   @IsOptional()
