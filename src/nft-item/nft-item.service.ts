@@ -382,6 +382,7 @@ export class NftItemService {
     } catch (error) {
       console.log(error);
       return error;
+
     }
   }
       
@@ -390,12 +391,11 @@ export class NftItemService {
    * @returns: viewer count
    * @author: Susmita
    */
-
   async updateViewerCount(id: string): Promise<any> {
     try {
       const item = await this.findOne(id);
       if (item){
-        item.viwes= item.viwes + 1;
+        item.views= item.views + 1;
         await this.nftItemRepository.update({ id }, item);
         return item;
       }
@@ -453,6 +453,7 @@ export class NftItemService {
     try{
       const transferNftItem = new NftItem();
       transferNftItem.owner = transferDto.userWalletAddress
+
       await this.nftItemRepository.update({id}, transferNftItem)
 
       await this.activityService.createActivity({
@@ -464,7 +465,8 @@ export class NftItemService {
         totalPrice: null,
         isPrivate: false,
         collectionId: item.collection.id,
-        winnerAccount: null
+        winnerAccount: null,
+
       });
 
       return ResponseMessage.ITEM_TRANSFERED;

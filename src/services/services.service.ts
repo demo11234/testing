@@ -107,7 +107,7 @@ export class ServicesService {
         'name',
         'banner',
         'blockchain',
-        'url',
+        'slug',
         'isVerified',
         'isMintable',
         'isSafelisted',

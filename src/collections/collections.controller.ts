@@ -207,7 +207,6 @@ export class CollectionsController {
    * @author: Ansh Arora
    */
   @Get('/:id')
-  @UseGuards(JwtAuthGuard)
   @ApiTags('Collection Module')
   @ApiOperation({
     summary: 'Find one collection',
@@ -230,8 +229,7 @@ export class CollectionsController {
     @Response() response,
   ): Promise<any> {
     try {
-      const owner = req.user;
-      const collection = await this.collectionService.findOne(id, owner);
+      const collection = await this.collectionService.findOne(id);
       if (collection) {
         return this.responseModel.response(
           collection,
@@ -295,14 +293,10 @@ export class CollectionsController {
     @Response() response,
   ): Promise<any> {
     try {
-      const owner = await this.userService.findUserByWalletAddress(
-        req.user.walletAddress,
-      );
       const collection = await this.collectionService.findOne(
         id,
-        owner.walletAddress,
       );
-      if (owner.walletAddress === collection.owner) {
+      if (req.user.walletAddress === collection.owner.walletAddress) {
         console.log('inside If id', id);
         const updatedCollection = await this.collectionService.update(
           id,

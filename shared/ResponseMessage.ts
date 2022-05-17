@@ -67,7 +67,7 @@ export const ResponseMessage = {
   USER_DOES_NOT_OWN_ITEM: 'User does not own the item',
   ITEM_ACTIVITIES: 'Item Activities',
   ACTIVITIES: 'Activities',
-  UNIQUE_CONSTRAINTS_NAME: 'Name of the collection must be unique',
+  UNIQUE_CONSTRAINTS_NAME: 'Name and URL of the collection must be unique',
 
   COLLECTION_NAME: 'Collection Name is Empty',
   UNIQUE_COLLECTION_CHECK: 'Boolean Values for Collection Name and url',
