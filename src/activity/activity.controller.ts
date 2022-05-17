@@ -100,4 +100,26 @@ export class ActivityController {
       );
     }
   }
+  /**
+   * @description Find activities for a partiular User
+   * @param id
+   * @returns Array of actities
+   * @author Mohan
+   */
+  @Get('user/:id')
+  @ApiTags('Activity Module')
+  @ApiOperation({
+    summary: 'Find activities for a partiular User',
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.OK,
+    description: ResponseMessage.USER_ACTIVITIES,
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
+    description: ResponseMessage.INTERNAL_SERVER_ERROR,
+  })
+  async findActivitiesForUser(@Param('id') id: string): Promise<any> {
+    return await this.activityService.findActivitiesForUser(id);
+  }
 }
