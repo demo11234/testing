@@ -197,7 +197,7 @@ export class NftItemService {
       const data = await this.nftItemRepository.find({
         where,
         order,
-        relations: ['collection', 'blockChain'],
+        relations: ['collection', 'blockChain', 'favourites'],
         skip: (+page - 1) * +limit,
         take: +limit,
       });
@@ -382,7 +382,6 @@ export class NftItemService {
     } catch (error) {
       console.log(error);
       return error;
-
     }
   }
 
@@ -394,8 +393,8 @@ export class NftItemService {
   async updateViewerCount(id: string): Promise<any> {
     try {
       const item = await this.findOne(id);
-      if (item){
-        item.views= item.views + 1;
+      if (item) {
+        item.views = item.views + 1;
         await this.nftItemRepository.update({ id }, item);
         return item;
       }

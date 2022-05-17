@@ -37,6 +37,7 @@ import { FilterDtoAllItems } from './dto/filter-Dto-All-items';
 import { Delete } from '@nestjs/common';
 import { TransferItemDto } from './dto/transferItem.dto';
 import { UserFavouritesDto } from './dto/user-favourites.dto';
+import 'dotenv/config';
 
 @Controller('nft-item')
 @UsePipes(ValidationPipe)
@@ -90,10 +91,10 @@ export class NftItemController {
         eventActions: eventActions.MINTED,
         nftItem: create.id,
         eventType: eventType.TRANSFERS,
-        fromAccount: null,
+        fromAccount: process.env.MINTING_ACCOUNT_ADDRESS,
         toAccount: req.user.walletAddress,
         totalPrice: null,
-        isPrivate: false,
+        isPrivate: create?.isExplicit ?? false,
         collectionId: nftItemDto.collectionId,
         winnerAccount: null,
       });
