@@ -17,6 +17,7 @@ import { User } from 'src/user/entities/user.entity';
 import { Repository } from 'typeorm';
 import { Auction } from './entities/auctions.entity';
 import { CreateAuctionInterface } from './interface/create-auction.interface';
+import { UpdateAuctionInterface } from './interface/update-auction.interface';
 
 @Injectable()
 export class AuctionsService {
@@ -70,7 +71,7 @@ export class AuctionsService {
     auction.auction_collection = collection;
 
     if (createAuctionInterface.auctionType == auctionType.FIXED_PRICE) {
-      auction.price = createAuctionInterface.price;
+      auction.startingPrice = createAuctionInterface.startingPrice;
       if (createAuctionInterface.bundle) {
         auction.bundle = createAuctionInterface.bundle;
         auction.auctionName = createAuctionInterface.bundle.name;
@@ -217,8 +218,41 @@ export class AuctionsService {
         'nft_item.id = :itemId',
         { itemId },
       )
+      .orderBy('auctions.startingPrice', 'ASC')
       .getMany();
 
     return auctions;
+  }
+
+  /**
+   * @description getListingByItemId will return the details of the listing of the given item id
+   * @param itemId
+   * @returns it will return Array of Listings
+   * @author Jeetanshu Srivastava
+   */
+  async updatePriceAndExpirationDate(
+    updateAuctionInterface: UpdateAuctionInterface,
+  ): Promise<Auction> {
+    const auction = await this.auctionRepository.findOne({
+      where: {
+        id: updateAuctionInterface.auctionId,
+      },
+      relations: ['auction_item', 'auction_collection', 'creator', 'tokens'],
+    });
+
+    delete auction.id;
+
+    let auctionUpdated = new Auction();
+    auctionUpdated = auction;
+
+    auctionUpdated.endDate = updateAuctionInterface.endDate
+      ? updateAuctionInterface.endDate
+      : auction.endDate;
+
+    auctionUpdated.startingPrice = updateAuctionInterface.price
+      ? updateAuctionInterface.price
+      : auction.startingPrice;
+
+    return this.auctionRepository.save(auctionUpdated);
   }
 }
