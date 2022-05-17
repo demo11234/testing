@@ -31,6 +31,12 @@ export class CollectionsService {
     private readonly nftItemRepository: Repository<NftItem>,
   ) {}
 
+  /**
+   * Function to create a collection
+   * @param owner Owner for the collection
+   * @param createCollectionDto collection DTo for creating a collection
+   * @returns Promise
+   */
   async create(owner: User, createCollectionDto: CreateCollectionsDto) {
     try {
       let collection = new Collection();
@@ -65,6 +71,11 @@ export class CollectionsService {
     }
   }
 
+  /**
+   * Function to fetch collection by owner or collaborator
+   * @param id id of the the user/collaborator
+   * @returns Promise
+   */
   async findByOwnerOrCollaborator(id: string): Promise<any> {
     try {
       const isDeletedFalse = false;
@@ -97,6 +108,11 @@ export class CollectionsService {
     }
   }
 
+  /**
+   * Function to fetch collections based on filters
+   * @param filterDto filters to fetch collectoions
+   * @returns Promise
+   */
   async findAll(filterDto: FilterDto): Promise<any> {
     try {
       const { take, skip } = filterDto;
@@ -117,6 +133,12 @@ export class CollectionsService {
     }
   }
 
+  /**
+   * Function to find a single collection using id
+   * @param id , id of the collection
+   * @param owner , owner to check if current collection belong to current owner or not
+   * @returns Promise
+   */
   async findOne(id: string, owner: string): Promise<any> {
     try {
       const collection = await this.collectionRepository.findOne({
@@ -131,6 +153,12 @@ export class CollectionsService {
     }
   }
 
+  /**
+   * Function to update a collection
+   * @param id , id of collection
+   * @param updateCollectionDto , update object
+   * @returns Promise
+   */
   async update(
     id: string,
     updateCollectionDto: UpdateCollectionsDto,
@@ -212,6 +240,12 @@ export class CollectionsService {
     }
   }
 
+   /**
+   * Function to remove a user from collaborator
+   * @param walletAddress , wallet address for the current user
+   * @param collectionId collection id to add collaborator
+   * @returns Promise
+   */
   async removeUserFromCollaborators(
     ownerWalletAddress: string,
     updateCollaboratorDto: UpdateCollaboratorDto,
@@ -302,6 +336,12 @@ export class CollectionsService {
     }
   }
 
+  /**
+   * Functio to remove collection from watchlist
+   * @param walletAddress , wallet address of an user
+   * @param collectionId Collection id 
+   * @returns Promise
+   */
   async removeUseFromWatchlist(
     walletAddress: string,
     collectionId: string,
@@ -326,6 +366,11 @@ export class CollectionsService {
     }
   }
 
+  /**
+   * Function to get collection for user that are under watchlist
+   * @param walletAddress current user wallet address
+   * @returns Promise
+   */
   async getCollectionForUserWatchlist(
     walletAddress: string,
   ): Promise<Collection[]> {
