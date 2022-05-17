@@ -48,6 +48,9 @@ export class Tokens {
   @Column({ default: true })
   active: boolean;
 
+  @Column({ default: false })
+  defaultToken: boolean;
+
   @CreateDateColumn()
   createdAt: Date;
 
