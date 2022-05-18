@@ -83,7 +83,7 @@ export class NftItem {
   @JoinColumn()
   offers: Offer[];
 
-  @ManyToOne(() => Chains, (chains) => chains.nftChainName)
+  @ManyToOne(() => Chains, (chains) => chains.nftChainName, { eager: true })
   @JoinColumn()
   blockChain: Chains;
 
@@ -110,7 +110,7 @@ export class NftItem {
   @ManyToMany(() => User)
   @JoinTable({
     name: 'favourites',
-    joinColumn: { name: 'collection_id', referencedColumnName: 'id' },
+    joinColumn: { name: 'item_id', referencedColumnName: 'id' },
     inverseJoinColumn: { name: 'user_id', referencedColumnName: 'id' },
   })
   favourites: User[];

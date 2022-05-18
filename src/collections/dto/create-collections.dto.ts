@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
+  IsArray,
   IsBoolean,
   IsEnum,
   IsNotEmpty,
@@ -39,7 +40,7 @@ export class CreateCollectionsDto {
   @IsNotEmpty()
   name: string;
 
-  @ApiPropertyOptional({ description: 'Collection urlSlug' })
+  @ApiPropertyOptional({ description: 'slug for this collection' })
   @IsString()
   @IsOptional()
   slug: string;
@@ -101,7 +102,8 @@ export class CreateCollectionsDto {
     description: 'Payment Token being used for this collection',
   })
   @IsOptional()
-  paymentToken: string;
+  @IsArray()
+  paymentToken: string[];
 
   @ApiPropertyOptional({
     description: 'Display Theme for collection',

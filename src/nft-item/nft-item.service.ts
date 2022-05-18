@@ -211,7 +211,7 @@ export class NftItemService {
       const data = await this.nftItemRepository.find({
         where,
         order,
-        relations: ['collection', 'blockChain'],
+        relations: ['collection', 'blockChain', 'favourites'],
         skip: (+page - 1) * +limit,
         take: +limit,
       });

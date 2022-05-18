@@ -14,6 +14,9 @@ export class CreateChainsDto {
   imageUrl: string;
 
   @ApiProperty()
+  baseUrl: string;
+
+  @ApiProperty()
   description: string;
 
   @ApiProperty()

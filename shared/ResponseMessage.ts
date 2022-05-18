@@ -93,4 +93,6 @@ export const ResponseMessage = {
   ITEMS_LIST: 'List of Items',
   TOKENS_NOT_FOUND: 'Tokens not found',
   SUPPLY_ERROR: 'You dont have enough supply',
+  USER_ACTIVITIES: 'User Activities',
+  CATEGORY_NOT_FOUND: 'Unable to find category. Please check details.',
 };
