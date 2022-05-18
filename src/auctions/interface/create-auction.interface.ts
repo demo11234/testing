@@ -11,7 +11,6 @@ export class CreateAuctionInterface {
   bundle?: Bundle;
   reservedAuction?: ReservedAuction;
   quantity?: number;
-  price?: number;
   startingPrice?: number;
   endingPrice?: number;
   reservedPrice?: number;

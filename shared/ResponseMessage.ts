@@ -85,11 +85,14 @@ export const ResponseMessage = {
   FEES_NOT_PAID:
     'Pay firsttime fees. If paid already wait for some time to reflect in blockchain',
   ITEM_IS_FREEZED: 'Can not update item is Freezed',
-  ITEM_DELETED:'Item is deleted',
+  ITEM_DELETED: 'Item is deleted',
   ITEM_TRANSFERED: 'Item transfered',
   BAD_REQUEST_TRANSFER: 'Bad request transfer',
   AUCTION_CANCELLED: 'Auction Cancelled',
   AUCTION_CANNOT_BE_CANCELLED: 'Auction cannot be Cancelled',
   ITEMS_LIST: 'List of Items',
   TOKENS_NOT_FOUND: 'Tokens not found',
+  SUPPLY_ERROR: 'You dont have enough supply',
+  USER_ACTIVITIES: 'User Activities',
+  CATEGORY_NOT_FOUND: 'Unable to find category. Please check details.',
 };

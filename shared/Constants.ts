@@ -42,3 +42,4 @@ export enum timedAuctionMethod {
 }
 
 export const registerProxyAddr = '0x044A33A53AD47b6bA4E5A598Ef2651eAfe4aAfB6';
+export const nftItemAddr = '0x1492bC58C647e022dEef9ccda0288b10818e7905';

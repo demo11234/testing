@@ -31,4 +31,7 @@ export class CreateTokensDto {
 
   @ApiProperty()
   usdPrice: number;
+
+  @ApiProperty()
+  defaultToken: boolean;
 }

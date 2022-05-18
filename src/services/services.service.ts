@@ -106,6 +106,7 @@ export class ServicesService {
         'id',
         'name',
         'banner',
+        'logo',
         'blockchain',
         'slug',
         'isVerified',
@@ -122,10 +123,15 @@ export class ServicesService {
           updatedAt: MoreThan(timeStamp),
         },
       ],
+      relations: ['blockchain'],
     });
+    let arr: any = [];
+    arr = result.reduce((p1, p2) => {
+      return [...p1, { ...p2, totalCount: 0 }];
+    }, []);
 
     const success = await collectionIndex
-      .saveObjects(result, {
+      .saveObjects(arr, {
         autoGenerateObjectIDIfNotExist: true,
       })
       .then(({ objectIDs }) => {

@@ -22,6 +22,7 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { ResponseModel } from 'src/responseModel';
 import { AuctionsService } from './auctions.service';
 import { CreateAuctionDto } from './dto/create-auction.dto';
+import { UpdateAuctionDto } from './dto/update-auction.dto';
 
 @Controller('auctions')
 export class AuctionsController {
@@ -68,7 +69,7 @@ export class AuctionsController {
         eventType: eventType.LISTING,
         fromAccount: request.user.walletAddress,
         toAccount: null,
-        totalPrice: null,
+        totalPrice: auction.startingPrice,
         isPrivate: false,
         collectionId: createAuctionDto.auction_collection,
         winnerAccount: null,
@@ -248,6 +249,63 @@ export class AuctionsController {
         result.message,
         result.status,
         result.success,
+        response,
+      );
+    } catch (error) {
+      return this.responseModel.response(
+        error,
+        ResponseStatusCode.INTERNAL_SERVER_ERROR,
+        false,
+        response,
+      );
+    }
+  }
+
+  /**
+   * @description updatePriceAndExpirationDate will update the auction
+   * @param UpdateAuctionInterface
+   * @returns it will return auction details
+   * @author Jeetanshu Srivastava
+   */
+  @Post('/update')
+  @UseGuards(JwtAuthGuard)
+  @ApiTags('Auctions Module')
+  @ApiOperation({
+    summary: 'Update the Auction Price and Expiration Date',
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.OK,
+    description: ResponseMessage.AUCTION_DETAILS,
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
+    description: ResponseMessage.INTERNAL_SERVER_ERROR,
+  })
+  @ApiBearerAuth()
+  async updatePriceAndExpirationDate(
+    @Body() updateAuctionDto: UpdateAuctionDto,
+    @Response() response,
+    @Request() request,
+  ): Promise<any> {
+    try {
+      const auction = await this.auctionsService.updatePriceAndExpirationDate(
+        updateAuctionDto,
+      );
+      await this.activityService.createActivity({
+        eventActions: eventActions.LISTED,
+        nftItem: auction.auction_item.id,
+        eventType: eventType.LISTING,
+        fromAccount: request.user.walletAddress,
+        toAccount: null,
+        totalPrice: auction.startingPrice,
+        isPrivate: false,
+        collectionId: auction.auction_collection.id,
+        winnerAccount: null,
+      });
+      return this.responseModel.response(
+        auction,
+        ResponseStatusCode.CREATED,
+        true,
         response,
       );
     } catch (error) {

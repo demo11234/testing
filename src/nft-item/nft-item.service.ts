@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Chains } from 'src/chains/entities/chains.entity';
 import { Collection } from 'src/collections/entities/collection.entity';
@@ -8,13 +8,15 @@ import { CreateNftItemDto } from './dto/nft-item.dto';
 import { UpdateNftItemDto } from './dto/update.nftItem.dto';
 import { NftItem } from './entities/nft-item.entities';
 import { Between } from 'typeorm';
-import { Constants } from 'shared/Constants';
+import { Constants, nftItemAddr } from 'shared/Constants';
 import { User } from 'src/user/entities/user.entity';
 import { ResponseMessage } from 'shared/ResponseMessage';
 import { TransferItemDto } from './dto/transferItem.dto';
 import { ActivityService } from 'src/activity/activity.service';
 import { eventType, eventActions } from '../../shared/Constants';
 import { FilterDtoAllItems } from './dto/filter-Dto-All-items';
+import { createContractInstance } from 'shared/contract-instance';
+import { nftABI } from 'shared/ABI/nftItemBlockchain';
 
 @Injectable()
 export class NftItemService {
@@ -109,6 +111,18 @@ export class NftItemService {
         nftItem.collection = collection;
       }
 
+      //--  to mint item in blockchain
+      // const transferItemInstance = await createContractInstance(
+      //   nftABI,
+      //   nftItemAddr,
+      // );
+      // const isMinted = await transferItemInstance.methods.mint(
+      //   nftItem.owner,
+      //   nftItem.tokenId,
+      //   nftItem.supply,
+      //   null, // for now null until we know
+      // );
+
       const data = await this.nftItemRepository.save(nftItem);
 
       if (data) return data;
@@ -197,7 +211,7 @@ export class NftItemService {
       const data = await this.nftItemRepository.find({
         where,
         order,
-        relations: ['collection', 'blockChain'],
+        relations: ['collection', 'blockChain', 'favourites'],
         skip: (+page - 1) * +limit,
         take: +limit,
       });
@@ -382,7 +396,6 @@ export class NftItemService {
     } catch (error) {
       console.log(error);
       return error;
-
     }
   }
 
@@ -394,8 +407,8 @@ export class NftItemService {
   async updateViewerCount(id: string): Promise<any> {
     try {
       const item = await this.findOne(id);
-      if (item){
-        item.views= item.views + 1;
+      if (item) {
+        item.views = item.views + 1;
         await this.nftItemRepository.update({ id }, item);
         return item;
       }
@@ -425,6 +438,7 @@ export class NftItemService {
       return data;
     } catch (error) {
       console.log(error);
+      return error;
     }
   }
 
@@ -436,6 +450,20 @@ export class NftItemService {
    */
   async deleteItem(id: string): Promise<any> {
     try {
+      const item = await this.findOne(id);
+
+      //--  to delete item from blockchain
+      const transferItemInstance = await createContractInstance(
+        nftABI,
+        nftItemAddr,
+      );
+      const isDeleted = await transferItemInstance.methods.burn(
+        item.owner,
+        item.tokenId,
+        item.supply,
+      );
+      // console.log(isDeleted);
+
       await this.nftItemRepository.softDelete({ id });
       return ResponseMessage.ITEM_DELETED;
     } catch (error) {
@@ -455,8 +483,38 @@ export class NftItemService {
     item,
   ): Promise<any> {
     try {
+      if (item.supply - transferDto.supply < 0) {
+        return {
+          success: false,
+          status: HttpStatus.BAD_REQUEST,
+          message: ResponseMessage.SUPPLY_ERROR,
+        };
+      }
+
+      //--  code to transfer item blockchain from one user to another user
+      const transferItemInstance = await createContractInstance(
+        nftABI,
+        nftItemAddr,
+      );
+      const isTransfered = await transferItemInstance.methods.safeTransferFrom(
+        item.owner,
+        transferDto.userWalletAddress,
+        item.tokenId,
+        transferDto.supply,
+        null, // for transfer data can be null
+      );
+      // console.log(isTransfered);
+      // if (isTransfered.length) {
+      //   return {
+      //     success: false,
+      //     status: HttpStatus.BAD_REQUEST,
+      //     message: ResponseMessage.BAD_REQUEST_TRANSFER,
+      //   };
+      // }
+
       const transferNftItem = new NftItem();
       transferNftItem.owner = transferDto.userWalletAddress;
+      transferNftItem.supply = item.supply - transferDto.supply;
       await this.nftItemRepository.update({ id }, transferNftItem);
 
       await this.activityService.createActivity({

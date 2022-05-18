@@ -11,7 +11,6 @@ import { UpdateCollectionsDto } from './dto/update-collection.dto';
 import { Collection } from './entities/collection.entity';
 import { FilterDto } from './dto/filter.dto';
 import { UpdateCollaboratorDto } from './dto/update-collaborator.dto';
-import { collaboratorUpdateType } from './enums/collaborator-update-type.enum';
 import { ResponseMessage } from 'shared/ResponseMessage';
 import { User } from '../../src/user/entities/user.entity';
 import { ResponseStatusCode } from 'shared/ResponseStatusCode';
@@ -19,6 +18,8 @@ import { UniqueCollectionCheck } from './dto/unique-collection-check.dto';
 import { NftItem } from 'src/nft-item/entities/nft-item.entities';
 import { NotFoundException } from '@nestjs/common';
 import validator from 'validator';
+import { Chains } from 'src/chains/entities/chains.entity';
+import { Category } from 'src/admin/entities/categories.entity';
 // import { UserRepository } from 'src/user/repositories/user.repository';
 
 @Injectable()
@@ -30,6 +31,10 @@ export class CollectionsService {
     private readonly userRepository: Repository<User>,
     @InjectRepository(NftItem)
     private readonly nftItemRepository: Repository<NftItem>,
+    @InjectRepository(Chains)
+    private chainsRepository: Repository<Chains>,
+    @InjectRepository(Category)
+    private categoryRepository: Repository<Category>,
   ) {}
 
   /**
@@ -45,8 +50,8 @@ export class CollectionsService {
       collection.featureImage = createCollectionDto.featureImage;
       collection.banner = createCollectionDto.banner;
       collection.name = createCollectionDto.name;
-      if (createCollectionDto.urlSlug) {
-        collection.slug = createCollectionDto.urlSlug;
+      if (createCollectionDto.slug) {
+        collection.slug = createCollectionDto.slug;
       } else {
         collection.slug = createCollectionDto.name.replace(/\s+/g, '-');
       }
@@ -58,7 +63,12 @@ export class CollectionsService {
       collection.mediumLink = createCollectionDto.mediumLink;
       collection.telegramLink = createCollectionDto.telegramLink;
       collection.earningFee = createCollectionDto.earningFee;
-      collection.blockchain = createCollectionDto.blockchain;
+      collection.earningWalletAddress =
+        createCollectionDto.earningWalletAddress;
+      const chains = await this.chainsRepository.findOne({
+        where: { id: createCollectionDto.blockchain },
+      });
+      collection.blockchain = chains;
       collection.paymentToken = createCollectionDto.paymentToken;
       collection.displayTheme = createCollectionDto.displayTheme;
       collection.explicitOrSensitiveContent =
@@ -156,6 +166,39 @@ export class CollectionsService {
         });
       }
       return collection;
+    } catch (error) {
+      return { msg: ResponseMessage.INTERNAL_SERVER_ERROR };
+    }
+  }
+
+  /**
+   * Function to find collections using category slug
+   * @param id , id of the category
+   * @returns Promise
+   */
+  async findByCategory(categorySlug: string): Promise<any> {
+    let categoryDetails: any;
+
+    // category lookup
+    try {
+      categoryDetails = await this.categoryRepository.findOne({
+        categorySlug: categorySlug,
+      });
+
+      if (!categoryDetails) {
+        return { msg: ResponseMessage.CATEGORY_NOT_FOUND };
+      }
+    } catch (err) {
+      console.log('Error while validating category');
+      return { msg: ResponseMessage.INTERNAL_SERVER_ERROR };
+    }
+
+    // fetch all collection based on selected category
+    try {
+      const collections = await this.collectionRepository.find({
+        where: { categoryId: categoryDetails.id },
+      });
+      return collections;
     } catch (error) {
       return { msg: ResponseMessage.INTERNAL_SERVER_ERROR };
     }
@@ -420,9 +463,9 @@ export class CollectionsService {
         result = !!collectionByName;
       }
 
-      if (uniqueCollectionCheck.urlSlug) {
+      if (uniqueCollectionCheck.slug) {
         const collectionByUrl = await this.collectionRepository.findOne({
-          slug: uniqueCollectionCheck.urlSlug,
+          slug: uniqueCollectionCheck.slug,
         });
         result = !!collectionByUrl;
       }

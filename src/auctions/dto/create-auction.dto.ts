@@ -45,11 +45,6 @@ export class CreateAuctionDto {
   @ApiPropertyOptional()
   @IsOptional()
   @IsNumber()
-  price: number;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsNumber()
   startingPrice: number;
 
   @ApiPropertyOptional()
