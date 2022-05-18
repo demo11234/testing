@@ -261,7 +261,7 @@ export class CollectionsController {
    * @returns: Collections based on Categoryid
    * @author: Ansh Arora
    */
-  @Get('/category/:categoryId')
+  @Get('/getByCategoryId/:categoryId')
   @ApiTags('Collection Module')
   @ApiOperation({
     summary: 'Find collections based on categoryId',
