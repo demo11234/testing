@@ -38,6 +38,8 @@ import { Delete } from '@nestjs/common';
 import { TransferItemDto } from './dto/transferItem.dto';
 import { UserFavouritesDto } from './dto/user-favourites.dto';
 import 'dotenv/config';
+import { AuthService } from 'src/auth/auth.service';
+import { UpdateCashbackDto } from './dto/updatecashback.dto';
 
 @Controller('nft-item')
 @UsePipes(ValidationPipe)
@@ -46,6 +48,7 @@ export class NftItemController {
     private readonly nftItemService: NftItemService,
     private readonly responseModel: ResponseModel,
     private readonly activityService: ActivityService,
+    private readonly authService: AuthService,
   ) {}
 
   /**
@@ -613,4 +616,34 @@ export class NftItemController {
   ): Promise<any> {
     return this.nftItemService.getAllItems(filterDtoAllItems);
   }
+
+ /**
+   * @description: This api updates the cashback an item
+   * @param UpdateNftItemDto
+   * @returns: Update cashback
+   * @author: susmita
+   */
+  @ApiTags('Nft Item')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+   @ApiResponse({
+    status: ResponseStatusCode.OK,
+    description: ResponseMessage.TOKEN_DETAILS,
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
+    description: ResponseMessage.INTERNAL_SERVER_ERROR,
+  })
+  @Put('/updatecashback')
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({ description: 'UPDATE CASHBACK ON AN ITEM' })
+  async updateCashback(@Request() request,@Body() updateCashbackDto: UpdateCashbackDto,) {
+    try {
+      await this.authService.checkAdmin(request.user.data);
+      return await this.nftItemService.updateCashback(updateCashbackDto);
+    } catch (e) {
+      throw new BadRequestException(e.message);
+     }
+  }
+
 }
