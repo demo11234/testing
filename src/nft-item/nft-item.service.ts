@@ -389,7 +389,8 @@ export class NftItemService {
           'favourites.walletAddress = :walletAddress',
           { walletAddress },
         )
-        .select(['items'])
+        .innerJoinAndSelect('items.blockChain', 'blockChain')
+        .select(['items', 'blockChain'])
         .getMany();
 
       return items;
