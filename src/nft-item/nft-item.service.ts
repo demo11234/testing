@@ -381,16 +381,26 @@ export class NftItemService {
    */
   async getItemForUserFavourites(walletAddress: string): Promise<NftItem[]> {
     try {
+      const itemsId = await this.nftItemRepository
+        .createQueryBuilder('items')
+        .innerJoinAndSelect('items.favourites', 'favourites')
+        .where('favourites.walletAddress = :walletAddress', { walletAddress })
+        .select(['items.id'])
+        .getMany();
+
+      const id = [];
+      for (let i = 0; i < itemsId.length; i++) {
+        id.push(itemsId[i].id);
+      }
+
       const items = await this.nftItemRepository
         .createQueryBuilder('items')
-        .innerJoinAndSelect(
-          'items.favourites',
-          'favourites',
-          'favourites.walletAddress = :walletAddress',
-          { walletAddress },
-        )
+        .innerJoinAndSelect('items.favourites', 'favourites')
+        .innerJoinAndSelect('items.collection', 'collection')
+        .leftJoinAndSelect('collection.owner', 'owner')
         .innerJoinAndSelect('items.blockChain', 'blockChain')
-        .select(['items', 'blockChain'])
+        .where('items.id IN (:...id)', { id })
+        .select(['items', 'collection', 'owner', 'blockChain', 'favourites'])
         .getMany();
 
       return items;
