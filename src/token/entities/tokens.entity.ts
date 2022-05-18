@@ -16,10 +16,10 @@ export class Tokens {
   @Column({ default: '' })
   chainId: string;
 
-  @Column()
+  @Column({ default: '' })
   name: string;
 
-  @Column()
+  @Column({ default: '' })
   symbol: string;
 
   @Column()

@@ -16,6 +16,7 @@ import {
   DeleteDateColumn,
 } from 'typeorm';
 import { PrimaryGeneratedColumn, JoinColumn } from 'typeorm';
+import { Auction } from 'src/auctions/entities/auctions.entity';
 
 @Entity()
 export class NftItem {
@@ -86,6 +87,10 @@ export class NftItem {
   @ManyToOne(() => Chains, (chains) => chains.nftChainName, { eager: true })
   @JoinColumn()
   blockChain: Chains;
+
+  @OneToMany(() => Auction, (auction_item) => auction_item.auction_item)
+  @JoinColumn()
+  auction_item: Auction[];
 
   @ApiProperty()
   @Column({ nullable: true })

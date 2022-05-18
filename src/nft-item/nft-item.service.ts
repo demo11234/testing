@@ -561,6 +561,7 @@ export class NftItemService {
         priceType,
         status,
         paymentTokens,
+        isBundle,
         priceRange,
         sortBy,
         limit,
@@ -613,17 +614,14 @@ export class NftItemService {
 
       //make relation with Auction first
 
-      // if(priceRange){
-      //     const priceValue = priceRange.split(',').map(s=>s.trim())
-      //     where.itemPrice = Between(priceValue[0], priceVlaue[1])
+      // if (paymentTokens) {
+      //   const tokens = paymentTokens.split(',').map((s) => s.trim());
+      //   console.log(tokens);
+      //   //  .where("post.authorId IN (:...authors)", { authors: [3, 7, 9] })
+      //   // (where.auction_item = 'auction_item IN (:...auction_item)'),
+      //   //   { tokens: In(tokens) };
+      //     where.auction_item  = { tokens: { name: In(tokens) } };
       // }
-
-      //make relation with Auction first
-
-      if (paymentTokens) {
-        const tokens = paymentTokens.split(',').map((s) => s.trim());
-        where.paymentToken = In(tokens);
-      }
 
       const order = {};
       if (sortBy === 'date') {
@@ -642,18 +640,62 @@ export class NftItemService {
       const data = await this.nftItemRepository.find({
         where,
         order,
-        relations: ['collection', 'blockChain'],
+        relations: ['collection', 'blockChain', 'auction_item'],
         skip: (+page - 1) * +limit,
         take: +limit,
       });
 
-      // if (paymentTokens) {
-      //   paymentTokens.;
-      //   const filteredData = data.filter((item) => {
-      //     item.allowedTokens.includes();
-      //   });
-      // }
-      return data;
+      const arr: any = [];
+      if (priceRange) {
+        const priceValue = priceRange.split(',').map((s) => s.trim());
+
+        for (let i = 0; i < data.length; i++) {
+          for (let j = 0; j < data[i].auction_item.length; j++) {
+            if (
+              data[i].auction_item[j].startingPrice >=
+                parseInt(priceValue[0]) &&
+              data[i].auction_item[j].startingPrice <= parseInt(priceValue[1])
+            ) {
+              arr.push(data[i]);
+            }
+          }
+        }
+      }
+
+      //if it is a bundle
+      if (isBundle) {
+        for (let i = 0; i < data.length; i++) {
+          for (let j = 0; j < data[i].auction_item.length; j++) {
+            if (
+              data[i].auction_item[j] &&
+              data[i].auction_item[j].bundle.isBundle == true
+            ) {
+              if (arr.includes(data[i])) break;
+              arr.push(data[i]);
+            }
+          }
+        }
+      }
+      //for payment Tokens
+
+      if (paymentTokens) {
+        const tokens = paymentTokens.split(',').map((s) => s.trim());
+
+        for (let i = 0; i < data.length; i++) {
+          for (let j = 0; j < data[i].auction_item.length; j++) {
+            console.log(data[i].auction_item[j].tokens.symbol);
+            if (
+              data[i].auction_item[j].tokens.symbol &&
+              tokens.includes(data[i].auction_item[j].tokens.symbol)
+            ) {
+              if (arr.includes(data[i])) break;
+              arr.push(data[i]);
+            }
+          }
+        }
+      }
+      if (arr) return arr;
+      else return data;
     } catch (error) {
       console.log(error);
     }
