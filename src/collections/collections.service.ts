@@ -177,20 +177,19 @@ export class CollectionsService {
    * @returns Promise
    */
   async findByCategory(categorySlug: string): Promise<any> {
-
-    let categoryDetails:any;
+    let categoryDetails: any;
 
     // category lookup
-    try{  
+    try {
       categoryDetails = await this.categoryRepository.findOne({
-        categorySlug: categorySlug
+        categorySlug: categorySlug,
       });
 
-      if(!categoryDetails){
+      if (!categoryDetails) {
         return { msg: ResponseMessage.CATEGORY_NOT_FOUND };
       }
-    }catch(err){
-      console.log("Error while validating category")
+    } catch (err) {
+      console.log('Error while validating category');
       return { msg: ResponseMessage.INTERNAL_SERVER_ERROR };
     }
 

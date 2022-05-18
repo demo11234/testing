@@ -29,7 +29,7 @@ export class Chains {
   @Column()
   address: string;
 
-  @Column()
+  @Column({ nullable: true })
   baseUrl: string;
 
   @Column()
