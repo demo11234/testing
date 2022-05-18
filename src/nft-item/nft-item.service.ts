@@ -694,7 +694,7 @@ export class NftItemService {
           }
         }
       }
-      if (arr) return arr;
+      if (arr.length > 0) return arr;
       else return data;
     } catch (error) {
       console.log(error);
