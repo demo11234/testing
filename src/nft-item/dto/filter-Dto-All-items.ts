@@ -57,6 +57,10 @@ export class FilterDtoAllItems {
 
   @ApiPropertyOptional()
   @IsOptional()
+  isBundle?: boolean;
+
+  @ApiPropertyOptional()
+  @IsOptional()
   onSale?: string;
 
   @ApiPropertyOptional({ enum: { date: 'date' } })
