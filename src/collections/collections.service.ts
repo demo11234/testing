@@ -525,4 +525,20 @@ export class CollectionsService {
       return error;
     }
   }
+
+  /**
+   * Function to find collections using categoryId
+   * @param id , id of the category
+   * @returns Promise
+   */
+  async findStatsByCollectionId(collectionId: string): Promise<any> {
+    try {
+      const collection = await this.collectionRepository.findOne({
+        where: { id: collectionId },
+      });
+      return collection.stats;
+    } catch (error) {
+      return { msg: ResponseMessage.INTERNAL_SERVER_ERROR };
+    }
+  }
 }
