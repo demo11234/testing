@@ -11,7 +11,6 @@ import { UpdateCollectionsDto } from './dto/update-collection.dto';
 import { Collection } from './entities/collection.entity';
 import { FilterDto } from './dto/filter.dto';
 import { UpdateCollaboratorDto } from './dto/update-collaborator.dto';
-import { collaboratorUpdateType } from './enums/collaborator-update-type.enum';
 import { ResponseMessage } from 'shared/ResponseMessage';
 import { User } from '../../src/user/entities/user.entity';
 import { ResponseStatusCode } from 'shared/ResponseStatusCode';
@@ -164,6 +163,22 @@ export class CollectionsService {
         });
       }
       return collection;
+    } catch (error) {
+      return { msg: ResponseMessage.INTERNAL_SERVER_ERROR };
+    }
+  }
+
+  /**
+   * Function to find collections using categoryId
+   * @param id , id of the category
+   * @returns Promise
+   */
+  async findByCategoryId(categoryId: string): Promise<any> {
+    try {
+      const collections = await this.collectionRepository.find({
+        where: { categoryId: categoryId },
+      });
+      return collections;
     } catch (error) {
       return { msg: ResponseMessage.INTERNAL_SERVER_ERROR };
     }
