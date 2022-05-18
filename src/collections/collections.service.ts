@@ -20,7 +20,7 @@ import { NotFoundException } from '@nestjs/common';
 import validator from 'validator';
 import { Chains } from 'src/chains/entities/chains.entity';
 import { Category } from 'src/admin/entities/categories.entity';
-// import { UserRepository } from 'src/user/repositories/user.repository';
+import { UserRepository } from 'src/user/repositories/user.repository';
 
 @Injectable()
 export class CollectionsService {
@@ -272,12 +272,18 @@ export class CollectionsService {
         };
       }
 
-      const user = await this.userRepository.findOne({
+      let user: User;
+      user = await this.userRepository.findOne({
         where: {
           walletAddress: updateCollaboratorDto.walletAddress,
         },
       });
-      if (!user) return null;
+      if (!user) {
+        const temp = this.userRepository.create({
+          walletAddress: updateCollaboratorDto.walletAddress,
+        });
+        user = await this.userRepository.save(temp);
+      }
 
       if (collection.collaborators) {
         collection.collaborators.push(user);
