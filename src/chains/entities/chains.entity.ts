@@ -30,6 +30,9 @@ export class Chains {
   address: string;
 
   @Column()
+  baseUrl: string;
+
+  @Column()
   decimals: number;
 
   @Column()

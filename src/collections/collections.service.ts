@@ -19,6 +19,7 @@ import { NftItem } from 'src/nft-item/entities/nft-item.entities';
 import { NotFoundException } from '@nestjs/common';
 import validator from 'validator';
 import { Chains } from 'src/chains/entities/chains.entity';
+import { Category } from 'src/admin/entities/categories.entity';
 // import { UserRepository } from 'src/user/repositories/user.repository';
 
 @Injectable()
@@ -32,6 +33,8 @@ export class CollectionsService {
     private readonly nftItemRepository: Repository<NftItem>,
     @InjectRepository(Chains)
     private chainsRepository: Repository<Chains>,
+    @InjectRepository(Category)
+    private categoryRepository: Repository<Category>,
   ) {}
 
   /**
@@ -47,8 +50,8 @@ export class CollectionsService {
       collection.featureImage = createCollectionDto.featureImage;
       collection.banner = createCollectionDto.banner;
       collection.name = createCollectionDto.name;
-      if (createCollectionDto.urlSlug) {
-        collection.slug = createCollectionDto.urlSlug;
+      if (createCollectionDto.slug) {
+        collection.slug = createCollectionDto.slug;
       } else {
         collection.slug = createCollectionDto.name.replace(/\s+/g, '-');
       }
@@ -169,14 +172,32 @@ export class CollectionsService {
   }
 
   /**
-   * Function to find collections using categoryId
+   * Function to find collections using category slug
    * @param id , id of the category
    * @returns Promise
    */
-  async findByCategoryId(categoryId: string): Promise<any> {
+  async findByCategory(categorySlug: string): Promise<any> {
+
+    let categoryDetails:any;
+
+    // category lookup
+    try{  
+      categoryDetails = await this.categoryRepository.findOne({
+        categorySlug: categorySlug
+      });
+
+      if(!categoryDetails){
+        return { msg: ResponseMessage.CATEGORY_NOT_FOUND };
+      }
+    }catch(err){
+      console.log("Error while validating category")
+      return { msg: ResponseMessage.INTERNAL_SERVER_ERROR };
+    }
+
+    // fetch all collection based on selected category
     try {
       const collections = await this.collectionRepository.find({
-        where: { categoryId: categoryId },
+        where: { categoryId: categoryDetails.id },
       });
       return collections;
     } catch (error) {
@@ -443,9 +464,9 @@ export class CollectionsService {
         result = !!collectionByName;
       }
 
-      if (uniqueCollectionCheck.urlSlug) {
+      if (uniqueCollectionCheck.slug) {
         const collectionByUrl = await this.collectionRepository.findOne({
-          slug: uniqueCollectionCheck.urlSlug,
+          slug: uniqueCollectionCheck.slug,
         });
         result = !!collectionByUrl;
       }

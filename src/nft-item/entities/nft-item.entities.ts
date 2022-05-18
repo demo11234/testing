@@ -83,7 +83,7 @@ export class NftItem {
   @JoinColumn()
   offers: Offer[];
 
-  @ManyToOne(() => Chains, (chains) => chains.nftChainName)
+  @ManyToOne(() => Chains, (chains) => chains.nftChainName, { eager: true })
   @JoinColumn()
   blockChain: Chains;
 

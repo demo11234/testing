@@ -18,6 +18,9 @@ export class UpdateChainsDto {
   imageUrl: string;
 
   @ApiProperty()
+  baseUrl: string;
+
+  @ApiProperty()
   description: string;
 
   @ApiProperty()

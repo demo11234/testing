@@ -4,6 +4,7 @@ export interface UpdateChainsInterface {
   name: string;
   symbol: string;
   imageUrl?: string;
+  baseUrl?: string;
   description?: string;
   address?: string;
   decimals?: number;

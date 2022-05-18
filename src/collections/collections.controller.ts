@@ -261,14 +261,14 @@ export class CollectionsController {
    * @returns: Collections based on Categoryid
    * @author: Ansh Arora
    */
-  @Get('/getByCategoryId/:categoryId')
+  @Get('/getByCategory/:categorySlug')
   @ApiTags('Collection Module')
   @ApiOperation({
-    summary: 'Find collections based on categoryId',
+    summary: 'Find collections based on category slug',
   })
   @ApiResponse({
     status: ResponseStatusCode.OK,
-    description: 'Collections based on categoryId',
+    description: 'Collections based on category slug',
   })
   @ApiResponse({
     status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
@@ -279,13 +279,13 @@ export class CollectionsController {
     description: ResponseMessage.COLLECTIONS_DO_NOT_EXIST,
   })
   async findByCategoryId(
-    @Param('categoryId') categoryId: string,
+    @Param('categorySlug') categorySlug: string,
     @Req() req,
     @Response() response,
   ): Promise<any> {
     try {
-      const collection = await this.collectionService.findByCategoryId(
-        categoryId,
+      const collection = await this.collectionService.findByCategory(
+        categorySlug,
       );
       return this.responseModel.response(
         collection,
