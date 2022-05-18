@@ -10,4 +10,8 @@ export class TransferItemDto {
   @IsNumber()
   @IsOptional()
   supply: number;
+
+  @ApiProperty()
+  @IsString()
+  hash: string;
 }

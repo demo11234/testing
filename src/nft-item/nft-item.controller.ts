@@ -462,6 +462,7 @@ export class NftItemController {
   @Delete('delete/:id')
   async deleteItem(
     @Param('id') id: string,
+    @Param('hash') hash: string,
     @Request() req,
     @Response() response,
   ): Promise<any> {
@@ -483,7 +484,7 @@ export class NftItemController {
           response,
         );
       if (req.user.walletAddress === item.owner) {
-        const data = await this.nftItemService.deleteItem(id);
+        const data = await this.nftItemService.deleteItem(id, hash);
         return this.responseModel.response(
           data,
           ResponseStatusCode.OK,
