@@ -68,18 +68,28 @@ export class FilterDtoAllItems {
   @IsString()
   sortBy?: string;
 
-  @ApiPropertyOptional({ enum: { asc: 'asc', desc: 'desc' } })
+  @ApiPropertyOptional({
+    enum: {
+      recentlyCreated: 'recentlyCreated',
+      oldest: 'oldest',
+      endingSoon: 'endingSoon',
+      endDate: 'endDate',
+      recentlyListed: 'recentlyListed',
+      HighestLastSale: 'HighestLastSale',
+      priceH2L: 'priceH2L',
+      priceL2H: 'priceL2H',
+      recentlyReceived: 'recentlyReceived',
+    },
+  })
   @IsOptional()
   @IsString()
   order?: string;
 
-  @ApiPropertyOptional({ description: 'no. of records per page' })
+  @ApiPropertyOptional()
   @IsOptional()
-  @IsNumberString({ message: 'value must greater than 0' })
-  limit?: string;
+  take?: number;
 
-  @ApiPropertyOptional({ description: 'page no. to view' })
+  @ApiPropertyOptional()
   @IsOptional()
-  @IsNumberString({ message: 'value must greater than 0' })
-  page?: string;
+  skip?: number;
 }
