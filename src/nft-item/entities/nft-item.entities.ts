@@ -134,7 +134,15 @@ export class NftItem {
 
   @ApiProperty()
   @Column({ default: false })
+  hasCashback: boolean;
+
+  @ApiProperty()
+  @Column({ default: false })
   isFreezed?: boolean;
+
+  @ApiProperty()
+  @Column({ nullable: true })
+  hash?: string;
 
   @ApiProperty()
   @CreateDateColumn()

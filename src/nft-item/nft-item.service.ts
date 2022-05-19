@@ -8,13 +8,15 @@ import { CreateNftItemDto } from './dto/nft-item.dto';
 import { UpdateNftItemDto } from './dto/update.nftItem.dto';
 import { NftItem } from './entities/nft-item.entities';
 import { Between } from 'typeorm';
-import { Constants, nftItemAddr } from 'shared/Constants';
+import { Constants } from 'shared/Constants';
 import { User } from 'src/user/entities/user.entity';
 import { ResponseMessage } from 'shared/ResponseMessage';
 import { TransferItemDto } from './dto/transferItem.dto';
 import { ActivityService } from 'src/activity/activity.service';
 import { eventType, eventActions } from '../../shared/Constants';
 import { FilterDtoAllItems } from './dto/filter-Dto-All-items';
+import { fetchTransactionReceipt } from 'shared/contract-instance';
+import { BadRequestException } from '@nestjs/common';
 import { createContractInstance } from 'shared/contract-instance';
 import { nftABI } from 'shared/ABI/nftItemBlockchain';
 import { UpdateCashbackDto } from './dto/updatecashback.dto';
@@ -112,18 +114,6 @@ export class NftItemService {
         nftItem.collection = collection;
       }
 
-      //--  to mint item in blockchain
-      // const transferItemInstance = await createContractInstance(
-      //   nftABI,
-      //   nftItemAddr,
-      // );
-      // const isMinted = await transferItemInstance.methods.mint(
-      //   nftItem.owner,
-      //   nftItem.tokenId,
-      //   nftItem.supply,
-      //   null, // for now null until we know
-      // );
-
       const data = await this.nftItemRepository.save(nftItem);
 
       if (data) return data;
@@ -149,6 +139,7 @@ export class NftItemService {
         priceType,
         status,
         priceRange,
+        onSale,
         sortBy,
         limit,
         page,
@@ -166,7 +157,7 @@ export class NftItemService {
         const chainId = chainsId.split(',').map((s) => s.trim());
         where.blockChain = { id: In(chainId) };
       }
-      // let a = []
+
       if (status) {
         const statusArr = status.split(',').map((s) => s.trim());
 
@@ -184,10 +175,18 @@ export class NftItemService {
         if (statusArr.includes('hasOffer')) {
           where.hasOffer = true;
         }
+        if (statusArr.includes('hasCashback')) {
+          where.hasCashback = true;
+        }
       }
 
       if (categories) {
         where.collection = { categoryID: categories };
+      }
+
+      if (onSale) {
+        const tokenArr = onSale.split(',').map((s) => s.trim());
+        where.allowedTokens = In(tokenArr);
       }
 
       // if(priceRange){
@@ -460,24 +459,17 @@ export class NftItemService {
    * @returns: status and message
    * @author: vipin
    */
-  async deleteItem(id: string): Promise<any> {
+  async deleteItem(id: string, hash: string): Promise<any> {
     try {
-      const item = await this.findOne(id);
-
-      //--  to delete item from blockchain
-      const transferItemInstance = await createContractInstance(
-        nftABI,
-        nftItemAddr,
-      );
-      const isDeleted = await transferItemInstance.methods.burn(
-        item.owner,
-        item.tokenId,
-        item.supply,
-      );
-      // console.log(isDeleted);
-
-      await this.nftItemRepository.softDelete({ id });
-      return ResponseMessage.ITEM_DELETED;
+      const receipt = await fetchTransactionReceipt(hash);
+      if (receipt.status === true) {
+        await this.nftItemRepository.softDelete({ id });
+        return ResponseMessage.ITEM_DELETED;
+      } else {
+        throw new BadRequestException(
+          ResponseMessage.ITEM_DELETE_BLOCKCHAIN_ERROR,
+        );
+      }
     } catch (error) {
       return error;
     }
@@ -502,46 +494,34 @@ export class NftItemService {
           message: ResponseMessage.SUPPLY_ERROR,
         };
       }
-
       //--  code to transfer item blockchain from one user to another user
-      const transferItemInstance = await createContractInstance(
-        nftABI,
-        nftItemAddr,
-      );
-      const isTransfered = await transferItemInstance.methods.safeTransferFrom(
-        item.owner,
-        transferDto.userWalletAddress,
-        item.tokenId,
-        transferDto.supply,
-        null, // for transfer data can be null
-      );
-      // console.log(isTransfered);
-      // if (isTransfered.length) {
-      //   return {
-      //     success: false,
-      //     status: HttpStatus.BAD_REQUEST,
-      //     message: ResponseMessage.BAD_REQUEST_TRANSFER,
-      //   };
-      // }
+      const receipt = await fetchTransactionReceipt(transferDto.hash);
 
-      const transferNftItem = new NftItem();
-      transferNftItem.owner = transferDto.userWalletAddress;
-      transferNftItem.supply = item.supply - transferDto.supply;
-      await this.nftItemRepository.update({ id }, transferNftItem);
+      if (receipt.status === true) {
+        const transferNftItem = new NftItem();
+        transferNftItem.owner = transferDto.userWalletAddress;
+        transferNftItem.supply = item.supply - transferDto.supply;
+        transferNftItem.hash = transferDto.hash;
+        await this.nftItemRepository.update({ id }, transferNftItem);
 
-      await this.activityService.createActivity({
-        eventActions: eventActions.TRANSFER,
-        nftItem: item.id,
-        eventType: eventType.TRANSFERS,
-        fromAccount: item.owner,
-        toAccount: transferDto.userWalletAddress,
-        totalPrice: null,
-        isPrivate: false,
-        collectionId: item.collection.id,
-        winnerAccount: null,
-      });
+        await this.activityService.createActivity({
+          eventActions: eventActions.TRANSFER,
+          nftItem: item.id,
+          eventType: eventType.TRANSFERS,
+          fromAccount: item.owner,
+          toAccount: transferDto.userWalletAddress,
+          totalPrice: null,
+          isPrivate: false,
+          collectionId: item.collection.id,
+          winnerAccount: null,
+        });
 
-      return ResponseMessage.ITEM_TRANSFERED;
+        return ResponseMessage.ITEM_TRANSFERED;
+      } else {
+        throw new BadRequestException(
+          ResponseMessage.ITEM_TRANSFER_BLOCKCHAIN_ERROR,
+        );
+      }
     } catch (error) {
       console.log(error);
       return error;
