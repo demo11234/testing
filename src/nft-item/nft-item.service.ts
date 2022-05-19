@@ -393,15 +393,19 @@ export class NftItemService {
         id.push(itemsId[i].id);
       }
 
-      const items = await this.nftItemRepository
-        .createQueryBuilder('items')
-        .innerJoinAndSelect('items.favourites', 'favourites')
-        .innerJoinAndSelect('items.collection', 'collection')
-        .leftJoinAndSelect('collection.owner', 'owner')
-        .innerJoinAndSelect('items.blockChain', 'blockChain')
-        .where('items.id IN (:...id)', { id })
-        .select(['items', 'collection', 'owner', 'blockChain', 'favourites'])
-        .getMany();
+      let items: any = [];
+
+      if (id.length) {
+        items = await this.nftItemRepository
+          .createQueryBuilder('items')
+          .where('items.id IN (:...id)', { id })
+          .innerJoinAndSelect('items.favourites', 'favourites')
+          .innerJoinAndSelect('items.collection', 'collection')
+          .leftJoinAndSelect('collection.owner', 'owner')
+          .innerJoinAndSelect('items.blockChain', 'blockChain')
+          .select(['items', 'collection', 'owner', 'blockChain', 'favourites'])
+          .getMany();
+      }
 
       return items;
     } catch (error) {
