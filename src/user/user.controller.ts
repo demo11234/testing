@@ -71,12 +71,12 @@ export class UserController {
     @Response() response,
   ): Promise<any> {
     try {
-      // const verifiedSignature = await this.userService.signatureAuth({
-      //   wallet_address: createUserDto.walletAddress,
-      //   signature: createUserDto.signature,
-      //   signature_message: createUserDto.signature_message,
-      // });
-      // if (!verifiedSignature) throw new UnauthorizedException();
+       const verifiedSignature = await this.userService.signatureAuth({
+         wallet_address: createUserDto.walletAddress,
+         signature: createUserDto.signature,
+         signature_message: createUserDto.signature_message,
+       });
+       if (!verifiedSignature) throw new UnauthorizedException();
 
       let user = await this.userService.findUser(createUserDto);
       if (user) {

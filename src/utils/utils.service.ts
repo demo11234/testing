@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { Collection } from 'src/collections/entities/collection.entity';
+import { LivePriceDto } from 'src/offer/dto/live-price.dto';
 import { User } from 'src/user/entities/user.entity';
 import { Repository } from 'typeorm';
+import coingecko from 'coingecko-api';
 
 @Injectable()
 export class UtilsService {
@@ -23,5 +25,15 @@ export class UtilsService {
     } catch (error) {
       throw new Error(error);
     }
+  }
+
+  async getLivePrice(livePriceDto: LivePriceDto): Promise<any> {
+    const coin = new coingecko();
+    const { cryptoName, currencies } = livePriceDto;
+    const price = await coin.simple.price({
+      ids: cryptoName,
+      vs_currencies: currencies,
+    });
+    return price;
   }
 }

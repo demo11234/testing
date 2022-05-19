@@ -123,6 +123,7 @@ export class ActivityService {
       return activity
         .skip((skip - 1) * take)
         .take(take)
+        .orderBy('activity.createdDate', 'DESC')
         .getMany();
     } catch (error) {
       console.log(error);
@@ -144,6 +145,7 @@ export class ActivityService {
         .leftJoinAndSelect('activity.winnerAccount', 'winnerAccount')
         .leftJoinAndSelect('activity.nftItem', 'nftItem')
         .where('nftItem.id = :id', { id })
+        .orderBy('activity.createdDate', 'DESC')
         .getMany();
       return activity;
     } catch (error) {
@@ -161,6 +163,7 @@ export class ActivityService {
       const activities = await this.activityRepository.find({
         where: [{ toAccount: { id } }, { fromAccount: { id } }],
         relations: ['toAccount', 'fromAccount'],
+        order: { createdDate: 'DESC' },
       });
 
       return activities;

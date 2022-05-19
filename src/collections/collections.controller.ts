@@ -673,4 +673,48 @@ export class CollectionsController {
       );
     }
   }
+
+  /**
+   * @description: This api finds stats for a given collectionId
+   * @param id
+   * @returns: Collections stats based on collectionId
+   * @author: Ansh Arora
+   */
+  @Get('/stats/:collectionId')
+  @ApiTags('Collection Module')
+  @ApiOperation({
+    summary: 'Find collections stats for collectionId',
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.OK,
+    description: 'Collections stats for collectionId',
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
+    description: ResponseMessage.INTERNAL_SERVER_ERROR,
+  })
+  async findStatsByCollectionId(
+    @Param('collectionId') collectionId: string,
+    @Req() req,
+    @Response() response,
+  ): Promise<any> {
+    try {
+      const stats = await this.collectionService.findStatsByCollectionId(
+        collectionId,
+      );
+      return this.responseModel.response(
+        stats,
+        ResponseStatusCode.OK,
+        true,
+        response,
+      );
+    } catch (error) {
+      return this.responseModel.response(
+        error,
+        ResponseStatusCode.INTERNAL_SERVER_ERROR,
+        false,
+        response,
+      );
+    }
+  }
 }

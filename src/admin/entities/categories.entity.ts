@@ -23,12 +23,12 @@ export class Category {
   @ApiProperty({ default: true })
   categoryStatus: boolean;
 
-  @Column({ length: 50 })
+  @Column()
   @ApiProperty()
   @IsUrl()
   categoryImageUrl: string;
 
-  @Column({ length: 50, unique: true })
+  @Column({ unique: true })
   @ApiProperty()
   categorySlug: string;
 

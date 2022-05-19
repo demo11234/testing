@@ -46,7 +46,7 @@ export class Auction {
   @ApiProperty()
   auctionName: string;
 
-  @ManyToOne(() => NftItem)
+  @ManyToOne(() => NftItem, (auction_item) => auction_item)
   @JoinColumn()
   auction_item: NftItem;
 
@@ -66,7 +66,10 @@ export class Auction {
   @JoinColumn()
   creator: User;
 
-  @ManyToOne(() => Tokens)
+  @ManyToOne(() => Tokens, {
+    eager: true,
+    cascade: true,
+  })
   @JoinColumn()
   tokens: Tokens;
 

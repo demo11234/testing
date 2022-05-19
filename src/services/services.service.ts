@@ -65,9 +65,9 @@ export class ServicesService {
         {
           createdAt: MoreThan(timeStamp),
         },
-        {
-          updatedAt: MoreThan(timeStamp),
-        },
+        // {
+        //   updatedAt: MoreThan(timeStamp),
+        // },
       ],
     });
 
@@ -119,9 +119,9 @@ export class ServicesService {
         {
           createdAt: MoreThan(timeStamp),
         },
-        {
-          updatedAt: MoreThan(timeStamp),
-        },
+        // {
+        //   updatedAt: MoreThan(timeStamp),
+        // },
       ],
       relations: ['blockchain'],
     });
