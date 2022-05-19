@@ -10,12 +10,20 @@ import { Chains } from 'src/chains/entities/chains.entity';
 import { ActivityService } from 'src/activity/activity.service';
 import { Activity } from 'src/activity/entities/activity.entity';
 import { User } from 'src/user/entities/user.entity';
+import { JwtModule } from '@nestjs/jwt';
+import { Constants } from 'shared/Constants';
+import { AuthService } from 'src/auth/auth.service';
+import { UserRepository } from 'src/user/repositories/user.repository';
 
 @Module({
   imports: [
+    JwtModule.register({
+      secret: Constants.JWT_SECRET_KEY,
+      signOptions: { expiresIn: Constants.USER_TOKEN_VALIDITY },
+    }),
     TypeOrmModule.forFeature([NftItem, Collection, Chains, Activity, User]),
   ],
   controllers: [NftItemController],
-  providers: [NftItemService, ResponseModel, FileUpload, ActivityService],
+  providers: [NftItemService, ResponseModel, FileUpload, ActivityService,AuthService,UserRepository],
 })
 export class NftItemModule {}

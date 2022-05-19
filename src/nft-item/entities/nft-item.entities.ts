@@ -152,6 +152,10 @@ export class NftItem {
   @Column({ nullable: true, default: 0 })
   viwes: number;
 
+  @ApiProperty()
+  @Column({ nullable: true, type:'decimal', default: 0 })
+  cashback: number;
+
   @DeleteDateColumn()
   deletedAt: Date;
 }
