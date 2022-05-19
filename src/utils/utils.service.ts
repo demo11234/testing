@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Collection } from 'src/collections/entities/collection.entity';
-import { LivePriceDto } from 'src/offer/dto/live-price.dto';
+import { LivePriceDto } from './dto/get-price.dto';
 import { User } from 'src/user/entities/user.entity';
 import { Repository } from 'typeorm';
 import coingecko from 'coingecko-api';
