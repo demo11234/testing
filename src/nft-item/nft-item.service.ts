@@ -709,6 +709,7 @@ export class NftItemService {
     } catch (error) {
       throw new Error(error);
     }
+  }
 
   /**
    * @description: hidden adds or removes item from user hidden items
