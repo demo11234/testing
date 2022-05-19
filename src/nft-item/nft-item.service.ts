@@ -17,8 +17,6 @@ import { eventType, eventActions } from '../../shared/Constants';
 import { FilterDtoAllItems } from './dto/filter-Dto-All-items';
 import { fetchTransactionReceipt } from 'shared/contract-instance';
 import { BadRequestException } from '@nestjs/common';
-import { createContractInstance } from 'shared/contract-instance';
-import { nftABI } from 'shared/ABI/nftItemBlockchain';
 import { UpdateCashbackDto } from './dto/updatecashback.dto';
 
 @Injectable()
@@ -687,24 +685,59 @@ export class NftItemService {
   }
 
   /* @param :UpdateCashbackDto
-  * @returns: updated item after adding cashback
-  * @author: susmita
-  */
+   * @returns: updated item after adding cashback
+   * @author: susmita
+   */
+  async updateCashback(updateCashbackDto: UpdateCashbackDto): Promise<any> {
+    try {
+      const item = await this.findOne(updateCashbackDto.itemID);
+      if (item) {
+        item.cashback = updateCashbackDto.cashback;
+        await this.nftItemRepository.update(
+          { id: updateCashbackDto.itemID },
+          item,
+        );
+        return item;
+      }
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
 
- async updateCashback(updateCashbackDto: UpdateCashbackDto): Promise<any> {
-   try {
-     const item = await this.findOne(updateCashbackDto.itemID);
-     if (item) {
-       item.cashback = updateCashbackDto.cashback;
-       await this.nftItemRepository.update(
-         { id: updateCashbackDto.itemID },
-         item,
-       );
-       return item;
-     }
-   } catch (error) {
-     throw new Error(error);
-   }
- }
+  /**
+   * @description: hidden adds or removes item from user hidden items
+   * @param itemId
+   * @param isExplicit
+   * @returns: Updates Status
+   * @author Jeetanshu Srivastava
+   */
+  async hideItem(
+    itemId: string,
+    isExplicit: boolean,
+    walletAddress: string,
+  ): Promise<boolean> {
+    const item = await this.nftItemRepository.findOne({ id: itemId });
+    if (!item) return null;
+    if (item.owner == walletAddress) {
+      await this.nftItemRepository.update({ id: itemId }, { isExplicit });
+      return true;
+    }
+    return null;
+  }
 
+  /**
+   * @description: getHiddenItems for current user
+   * @param walletAddress
+   * @returns: Updates Status
+   * @author Jeetanshu Srivastava
+   */
+  async getHiddenItems(walletAddress: string): Promise<NftItem[]> {
+    const items = await this.nftItemRepository.find({
+      where: {
+        walletAddress,
+        isExplicit: true,
+      },
+    });
+    return items;
+  }
 }
