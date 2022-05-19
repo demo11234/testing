@@ -119,13 +119,13 @@ export class NftItemController {
   }
 
   /**
-   * @description: This api fetch item and returns status
+   * @description: This api fetch item of a user  with filters and returns array of items
    * @param FilterDto
    * @returns: fetch Items with filters
    * @author: vipin
    */
   @ApiTags('Nft Item')
-  @ApiOperation({ summary: 'it will fetch nft item' })
+  @ApiOperation({ summary: 'it will fetch nft item of a user with filters' })
   @ApiResponse({
     status: ResponseStatusCode.OK,
     description: 'Nft Fetch',
@@ -618,7 +618,7 @@ export class NftItemController {
     return this.nftItemService.getAllItems(filterDtoAllItems);
   }
 
- /**
+  /**
    * @description: This api updates the cashback an item
    * @param UpdateNftItemDto
    * @returns: Update cashback
@@ -627,7 +627,7 @@ export class NftItemController {
   @ApiTags('Nft Item')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-   @ApiResponse({
+  @ApiResponse({
     status: ResponseStatusCode.OK,
     description: ResponseMessage.TOKEN_DETAILS,
   })
@@ -638,13 +638,15 @@ export class NftItemController {
   @Put('/updatecashback')
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse({ description: 'UPDATE CASHBACK ON AN ITEM' })
-  async updateCashback(@Request() request,@Body() updateCashbackDto: UpdateCashbackDto,) {
+  async updateCashback(
+    @Request() request,
+    @Body() updateCashbackDto: UpdateCashbackDto,
+  ) {
     try {
       await this.authService.checkAdmin(request.user.data);
       return await this.nftItemService.updateCashback(updateCashbackDto);
     } catch (e) {
       throw new BadRequestException(e.message);
-     }
+    }
   }
-
 }

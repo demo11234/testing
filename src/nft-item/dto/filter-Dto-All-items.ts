@@ -10,7 +10,7 @@ import { StatusEnum } from '../enum/filter.status.enum';
 export class FilterDtoAllItems {
   @ApiPropertyOptional({
     description:
-      "give single or multiple input from 'new', 'buynow', 'onAuction', 'hasOffer' seprated by ' , '",
+      "give single or multiple input from 'new', 'buynow', 'onAuction', 'hasOffer', 'hasCashback' seprated by ' , '",
   })
   @IsOptional()
   // @IsEnum(StatusEnum)
