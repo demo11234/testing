@@ -593,6 +593,10 @@ export class NftItemService {
         if (statusArr.includes('hasOffer')) {
           where.hasOffer = true;
         }
+
+        if (statusArr.includes('hasCashback')) {
+          where.hasCashback = true;
+        }
       }
 
       //make relation with Auction first
@@ -684,10 +688,13 @@ export class NftItemService {
     }
   }
 
-  /* @param :UpdateCashbackDto
+  /**
+   * @description to update item for chashback
+   * @param :UpdateCashbackDto
    * @returns: updated item after adding cashback
    * @author: susmita
    */
+
   async updateCashback(updateCashbackDto: UpdateCashbackDto): Promise<any> {
     try {
       const item = await this.findOne(updateCashbackDto.itemID);
@@ -702,7 +709,6 @@ export class NftItemService {
     } catch (error) {
       throw new Error(error);
     }
-  }
 
   /**
    * @description: hidden adds or removes item from user hidden items

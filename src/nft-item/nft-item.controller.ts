@@ -120,13 +120,13 @@ export class NftItemController {
   }
 
   /**
-   * @description: This api fetch item and returns status
+   * @description: This api fetch item of a user  with filters and returns array of items
    * @param FilterDto
    * @returns: fetch Items with filters
    * @author: vipin
    */
   @ApiTags('Nft Item')
-  @ApiOperation({ summary: 'it will fetch nft item' })
+  @ApiOperation({ summary: 'it will fetch nft item of a user with filters' })
   @ApiResponse({
     status: ResponseStatusCode.OK,
     description: 'Nft Fetch',
