@@ -392,12 +392,22 @@ export class NftItemController {
   async hiddItem(
     @Body() hideItemDto: HideItemDto,
     @Response() response,
+    @Request() request,
   ): Promise<any> {
     try {
       const result = await this.nftItemService.hideItem(
         hideItemDto.itemId,
         hideItemDto.isExplicit,
+        request.user.walletAddress,
       );
+      if (!result) {
+        return this.responseModel.response(
+          result,
+          ResponseStatusCode.BAD_REQUEST,
+          true,
+          response,
+        );
+      }
       return this.responseModel.response(
         result,
         ResponseStatusCode.OK,

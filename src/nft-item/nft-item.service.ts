@@ -707,9 +707,18 @@ export class NftItemService {
    * @returns: Updates Status
    * @author Jeetanshu Srivastava
    */
-  async hideItem(itemId: string, isExplicit: boolean): Promise<boolean> {
-    await this.nftItemRepository.update({ id: itemId }, { isExplicit });
-    return true;
+  async hideItem(
+    itemId: string,
+    isExplicit: boolean,
+    walletAddress: string,
+  ): Promise<boolean> {
+    const item = await this.nftItemRepository.findOne({ id: itemId });
+    if (!item) return null;
+    if (item.owner == walletAddress) {
+      await this.nftItemRepository.update({ id: itemId }, { isExplicit });
+      return true;
+    }
+    return null;
   }
 
   /**
