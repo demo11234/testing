@@ -22,7 +22,7 @@ export class ServicesService {
    * @description cron job for uplading data to algolia
    * @author Mohan Chaudhari
    */
-  @Cron(CronExpression.EVERY_5_MINUTES)
+  @Cron(CronExpression.EVERY_10_SECONDS)
   handleCron() {
     console.log('calling algolia user upload function every 4 hours');
     this.algoliaUserUpload();
@@ -46,7 +46,7 @@ export class ServicesService {
 
     //User adding
     const timeStamp = moment()
-      .subtract({'minutes': '5'})
+      .subtract({ minutes: '10' })
       .format('YYYY-MM-DD HH:MM:SS.SSSSSS');
 
     const result = await this.userRepository.find({
@@ -57,7 +57,7 @@ export class ServicesService {
         'imageUrl',
         'isBlocked',
         'createdAt',
-        'objectID'
+        'objectID',
       ],
       where: [
         {
@@ -73,19 +73,22 @@ export class ServicesService {
       .saveObjects(result, {
         autoGenerateObjectIDIfNotExist: true,
       })
-      .then(async (objectIDs) => {
+      .then(async ({ objectIDs }) => {
         //[TODO] we need to update the id for each user record.
         // [TODO] filter the records that don;t have objectID and update the objectId using the index
-        let filterObjects = [];
-        result.forEach((val:any, idx: any)=>{
-          if(!val.objectID){
+        const filterObjects = [];
+
+        result.forEach((val: any, idx: any) => {
+          if (!val.objectID) {
             filterObjects.push(
-              this.userRepository.update({id: val.id},{objectID: objectIDs[idx]})
-            )
+              this.userRepository.update(
+                { id: val.id },
+                { objectID: objectIDs[idx] },
+              ),
+            );
           }
-        })
-        if(filterObjects.length)
-          await Promise.all(filterObjects);
+        });
+        if (filterObjects.length) await Promise.all(filterObjects);
         return objectIDs;
       })
       .catch((err) => {
@@ -107,7 +110,7 @@ export class ServicesService {
     const collectionIndex = client.initIndex('collection_content');
 
     const timeStamp = moment()
-      .subtract({'minutes': '5'})
+      .subtract({ minutes: '5' })
       .format('YYYY-MM-DD HH:MM:SS.SSSSSS');
 
     //collection adding
@@ -124,7 +127,7 @@ export class ServicesService {
         'isSafelisted',
         'slug',
         'status',
-        'objectID'
+        'objectID',
       ],
       where: [
         // {
@@ -138,28 +141,29 @@ export class ServicesService {
     });
 
     // adding total count for items
-    let arr = result.map(val=>{
-      let obj = Object.assign({},val);
+    const arr = result.map((val) => {
+      const obj: any = Object.assign({}, val);
       obj.totalCount = 0;
       return obj;
-    })
+    });
 
     const success = await collectionIndex
       .saveObjects(arr, {
         autoGenerateObjectIDIfNotExist: true,
       })
-      .then(({ objectIDs }) => {
-        console.log(objectIDs);
-        let filterObjects = [];
-        arr.forEach((val:any, idx: any)=>{
-          if(!val.objectID){
+      .then(async ({ objectIDs }) => {
+        const filterObjects = [];
+        arr.forEach((val: any, idx: any) => {
+          if (!val.objectID) {
             filterObjects.push(
-              this.collectionRepository.update({id: val.id},{objectID: objectIDs[idx]})
-            )
+              this.collectionRepository.update(
+                { id: val.id },
+                { objectID: objectIDs[idx] },
+              ),
+            );
           }
-        })
-        if(filterObjects.length)
-          await Promise.all(filterObjects);
+        });
+        if (filterObjects.length) await Promise.all(filterObjects);
         return objectIDs;
       })
       .catch((err) => {
