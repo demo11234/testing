@@ -40,6 +40,7 @@ import { UserFavouritesDto } from './dto/user-favourites.dto';
 import 'dotenv/config';
 import { AuthService } from 'src/auth/auth.service';
 import { UpdateCashbackDto } from './dto/updatecashback.dto';
+import { HideItemDto } from './dto/hide-item.dto';
 
 @Controller('nft-item')
 @UsePipes(ValidationPipe)
@@ -256,7 +257,7 @@ export class NftItemController {
 
   /**
    * @description: favourites adds or removes user from favourites depending upon the value of isFavourite
-   * @param UserWatchlistDto
+   * @param UserFavouritesDto
    * @returns: Updates Status
    * @author Jeetanshu Srivastava
    */
@@ -345,6 +346,97 @@ export class NftItemController {
   ): Promise<any> {
     try {
       const items = await this.nftItemService.getItemForUserFavourites(
+        request.user.walletAddress,
+      );
+      return this.responseModel.response(
+        items,
+        ResponseStatusCode.OK,
+        true,
+        response,
+      );
+    } catch (error) {
+      return this.responseModel.response(
+        error,
+        ResponseStatusCode.INTERNAL_SERVER_ERROR,
+        false,
+        response,
+      );
+    }
+  }
+
+  /**
+   * @description: hidden adds or removes item from user hidden items
+   * @param HideItemDto
+   * @returns: Updates Status
+   * @author Jeetanshu Srivastava
+   */
+  @Put('/hideitem')
+  @UseGuards(JwtAuthGuard)
+  @ApiTags('Nft Item')
+  @ApiOperation({
+    summary: 'Add and Removes items from Users Hidden Items',
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.OK,
+    description: ResponseMessage.ITEM_HAS_BEEN_HIDDEN,
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.OK,
+    description: ResponseMessage.ITEM_HAS_BEEN_REMOVED_FROM_HIDDEN,
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
+    description: ResponseMessage.INTERNAL_SERVER_ERROR,
+  })
+  @ApiBearerAuth()
+  async hiddItem(
+    @Body() hideItemDto: HideItemDto,
+    @Response() response,
+  ): Promise<any> {
+    try {
+      const result = await this.nftItemService.hideItem(
+        hideItemDto.itemId,
+        hideItemDto.isExplicit,
+      );
+      return this.responseModel.response(
+        result,
+        ResponseStatusCode.OK,
+        true,
+        response,
+      );
+    } catch (error) {
+      return this.responseModel.response(
+        error,
+        ResponseStatusCode.INTERNAL_SERVER_ERROR,
+        false,
+        response,
+      );
+    }
+  }
+
+  /**
+   * @description: getHiddenItems returns the items for current user
+   * @returns: Items
+   * @author Jeetanshu Srivastava
+   */
+  @Get('/getHiddenItems')
+  @UseGuards(JwtAuthGuard)
+  @ApiTags('Nft Item')
+  @ApiOperation({
+    summary: 'Returns Hidden Items for Current User',
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.OK,
+    description: ResponseMessage.ITEMS_LIST,
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
+    description: ResponseMessage.INTERNAL_SERVER_ERROR,
+  })
+  @ApiBearerAuth()
+  async getHiddenItems(@Response() response, @Request() request): Promise<any> {
+    try {
+      const items = await this.nftItemService.getHiddenItems(
         request.user.walletAddress,
       );
       return this.responseModel.response(
@@ -618,7 +710,7 @@ export class NftItemController {
     return this.nftItemService.getAllItems(filterDtoAllItems);
   }
 
- /**
+  /**
    * @description: This api updates the cashback an item
    * @param UpdateNftItemDto
    * @returns: Update cashback
@@ -627,7 +719,7 @@ export class NftItemController {
   @ApiTags('Nft Item')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-   @ApiResponse({
+  @ApiResponse({
     status: ResponseStatusCode.OK,
     description: ResponseMessage.TOKEN_DETAILS,
   })
@@ -638,13 +730,15 @@ export class NftItemController {
   @Put('/updatecashback')
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse({ description: 'UPDATE CASHBACK ON AN ITEM' })
-  async updateCashback(@Request() request,@Body() updateCashbackDto: UpdateCashbackDto,) {
+  async updateCashback(
+    @Request() request,
+    @Body() updateCashbackDto: UpdateCashbackDto,
+  ) {
     try {
       await this.authService.checkAdmin(request.user.data);
       return await this.nftItemService.updateCashback(updateCashbackDto);
     } catch (e) {
       throw new BadRequestException(e.message);
-     }
+    }
   }
-
 }
