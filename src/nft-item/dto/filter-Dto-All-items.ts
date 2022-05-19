@@ -46,8 +46,7 @@ export class FilterDtoAllItems {
   collectionsId?: string;
 
   @ApiPropertyOptional({
-    description:
-      "give single chain id or multiple separated by ' , ' like MATIC, Eth",
+    description: "give single chain id or multiple chain Ids separated by ','",
   })
   @IsOptional()
   chainsId?: string;
