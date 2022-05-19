@@ -141,6 +141,7 @@ export class CollectionsService {
         take,
         skip,
         where: filter,
+        relations: ['watchlist'],
       });
       return collections;
     } catch (error) {
