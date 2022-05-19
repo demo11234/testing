@@ -365,6 +365,49 @@ export class NftItemController {
   }
 
   /**
+   * @description getItemFavouritesCount returns the number of favourites for item
+   * @param itemId
+   * @returns number of favourites for item
+   * @author Jeetanshu Srivastava
+   */
+  @Get('/getFavouriteItemsCount/:itemId')
+  @ApiTags('Nft Item')
+  @ApiOperation({
+    summary: 'Returns Number of Favourites for an Item',
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.OK,
+    description: ResponseMessage.ITEMS_FAVOURITE_COUNT,
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
+    description: ResponseMessage.INTERNAL_SERVER_ERROR,
+  })
+  async getItemFavouritesCount(
+    @Param('itemId') itemId: string,
+    @Response() response,
+  ): Promise<any> {
+    try {
+      const favouritesCount = await this.nftItemService.getItemFavouritesCount(
+        itemId,
+      );
+      return this.responseModel.response(
+        favouritesCount,
+        ResponseStatusCode.OK,
+        true,
+        response,
+      );
+    } catch (error) {
+      return this.responseModel.response(
+        error,
+        ResponseStatusCode.INTERNAL_SERVER_ERROR,
+        false,
+        response,
+      );
+    }
+  }
+
+  /**
    * @description: hidden adds or removes item from user hidden items
    * @param HideItemDto
    * @returns: Updates Status
@@ -697,6 +740,7 @@ export class NftItemController {
       );
     }
   }
+
   /**
    * @description gey all items with filters. Open  Api
    * @param filterDtoAllItems
