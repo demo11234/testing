@@ -110,7 +110,7 @@ export class ServicesService {
     const collectionIndex = client.initIndex('collection_content');
 
     const timeStamp = moment()
-      .subtract({ minutes: '5' })
+      .subtract({ minutes: '10' })
       .format('YYYY-MM-DD HH:MM:SS.SSSSSS');
 
     //collection adding
