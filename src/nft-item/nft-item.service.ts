@@ -412,6 +412,27 @@ export class NftItemService {
     }
   }
 
+  /**
+   * @description getItemFavouritesCount returns the number of favourites for item
+   * @param itemId
+   * @returns number of favourites for item
+   * @author Jeetanshu Srivastava
+   */
+  async getItemFavouritesCount(itemId: string): Promise<number> {
+    try {
+      const item = await this.nftItemRepository
+        .createQueryBuilder('items')
+        .leftJoinAndSelect('items.favourites', 'favourites')
+        .where('items.id = :itemId', { itemId })
+        .getOne();
+
+      return item.favourites.length;
+    } catch (error) {
+      console.log(error);
+      return error;
+    }
+  }
+
   /* @description: This api for count the viewer of nft Item
    * @param: id
    * @returns: viewer count

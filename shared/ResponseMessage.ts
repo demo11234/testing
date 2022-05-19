@@ -100,4 +100,6 @@ export const ResponseMessage = {
 
   ITEM_HAS_BEEN_HIDDEN: 'Item has been Hidden',
   ITEM_HAS_BEEN_REMOVED_FROM_HIDDEN: 'Item has been removed from Hidden',
+
+  ITEMS_FAVOURITE_COUNT: 'Items Favourite Count',
 };
