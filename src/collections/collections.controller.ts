@@ -256,6 +256,54 @@ export class CollectionsController {
   }
 
   /**
+   * @description: This api finds collections using Categoryid
+   * @param id
+   * @returns: Collections based on Categoryid
+   * @author: Ansh Arora
+   */
+  @Get('/getByCategory/:categorySlug')
+  @ApiTags('Collection Module')
+  @ApiOperation({
+    summary: 'Find collections based on category slug',
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.OK,
+    description: 'Collections based on category slug',
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
+    description: ResponseMessage.INTERNAL_SERVER_ERROR,
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.NOT_FOUND,
+    description: ResponseMessage.COLLECTIONS_DO_NOT_EXIST,
+  })
+  async findByCategoryId(
+    @Param('categorySlug') categorySlug: string,
+    @Req() req,
+    @Response() response,
+  ): Promise<any> {
+    try {
+      const collection = await this.collectionService.findByCategory(
+        categorySlug,
+      );
+      return this.responseModel.response(
+        collection,
+        ResponseStatusCode.OK,
+        true,
+        response,
+      );
+    } catch (error) {
+      return this.responseModel.response(
+        error,
+        ResponseStatusCode.INTERNAL_SERVER_ERROR,
+        false,
+        response,
+      );
+    }
+  }
+
+  /**
    * @description: This api updates the collection and returns status
    * @param id
    * @param updateCollectionDto
@@ -612,6 +660,50 @@ export class CollectionsController {
       const data = await this.collectionService.deleteCollection(id, request);
       return this.responseModel.response(
         data,
+        ResponseStatusCode.OK,
+        true,
+        response,
+      );
+    } catch (error) {
+      return this.responseModel.response(
+        error,
+        ResponseStatusCode.INTERNAL_SERVER_ERROR,
+        false,
+        response,
+      );
+    }
+  }
+
+  /**
+   * @description: This api finds stats for a given collectionId
+   * @param id
+   * @returns: Collections stats based on collectionId
+   * @author: Ansh Arora
+   */
+  @Get('/stats/:collectionId')
+  @ApiTags('Collection Module')
+  @ApiOperation({
+    summary: 'Find collections stats for collectionId',
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.OK,
+    description: 'Collections stats for collectionId',
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
+    description: ResponseMessage.INTERNAL_SERVER_ERROR,
+  })
+  async findStatsByCollectionId(
+    @Param('collectionId') collectionId: string,
+    @Req() req,
+    @Response() response,
+  ): Promise<any> {
+    try {
+      const stats = await this.collectionService.findStatsByCollectionId(
+        collectionId,
+      );
+      return this.responseModel.response(
+        stats,
         ResponseStatusCode.OK,
         true,
         response,

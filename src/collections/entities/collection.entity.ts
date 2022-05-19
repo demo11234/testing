@@ -18,6 +18,71 @@ import {
 } from 'typeorm';
 import { displayTheme } from '../enums/display-themes.enum';
 
+export class Stats {
+  @ApiProperty()
+  one_day_volume: number;
+
+  @ApiProperty()
+  one_day_change: number;
+
+  @ApiProperty()
+  one_day_sales: number;
+
+  @ApiProperty()
+  one_day_average_price: number;
+
+  @ApiProperty()
+  seven_day_volume: number;
+
+  @ApiProperty()
+  seven_day_change: number;
+
+  @ApiProperty()
+  seven_day_sales: number;
+
+  @ApiProperty()
+  seven_day_average_price: number;
+
+  @ApiProperty()
+  thirty_day_volume: number;
+
+  @ApiProperty()
+  thirty_day_change: number;
+
+  @ApiProperty()
+  thirty_day_sales: number;
+
+  @ApiProperty()
+  thirty_day_average_price: number;
+
+  @ApiProperty()
+  total_volume: number;
+
+  @ApiProperty()
+  total_sales: number;
+
+  @ApiProperty()
+  total_supply: number;
+
+  @ApiProperty()
+  count: number;
+
+  @ApiProperty()
+  num_owners: number;
+
+  @ApiProperty()
+  average_price: number;
+
+  @ApiProperty()
+  num_reports: number;
+
+  @ApiProperty()
+  market_cap: number;
+
+  @ApiProperty()
+  floor_price: number;
+}
+
 @Entity()
 export class Collection {
   @PrimaryGeneratedColumn('uuid')
@@ -159,10 +224,14 @@ export class Collection {
   updatedAt: Date;
 
   @OneToMany(() => NftItem, (nftItem) => nftItem.collection, {
-    eager: false,
+    lazy: true,
     cascade: true,
   })
-  nftItem: NftItem[];
+  nftItem: Promise<NftItem[]>;
+
+  @ApiProperty()
+  @Column({ type: 'jsonb', nullable: true, default: {} })
+  stats: Stats;
 
   @Column()
   @ApiProperty()
@@ -170,4 +239,7 @@ export class Collection {
 
   @DeleteDateColumn()
   deletedAt: Date;
+
+  @Column({nullable: true, default: ''})
+  objectID: string;
 }

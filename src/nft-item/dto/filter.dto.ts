@@ -19,7 +19,7 @@ export class FilterDto {
 
   @ApiPropertyOptional({
     description:
-      "give single or multiple input from 'new', 'buynow', 'onAuction', 'hasOffer' seprated by ' , '",
+      "give single or multiple input from 'new', 'buynow', 'onAuction', 'hasOffer', 'hasCashback' seprated by ' , '",
   })
   @IsOptional()
   // @IsEnum(StatusEnum)
@@ -53,11 +53,15 @@ export class FilterDto {
   @IsOptional()
   chainsId?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({
+    description: 'give categories id',
+  })
   @IsOptional()
   categories?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({
+    description: "give single token id or multiple seprated by ' , '",
+  })
   @IsOptional()
   onSale?: string;
 

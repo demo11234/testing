@@ -218,7 +218,10 @@ export class AuctionsService {
         'nft_item.id = :itemId',
         { itemId },
       )
+      .innerJoinAndSelect('auctions.tokens', 'tokens')
+      .innerJoinAndSelect('auctions.creator', 'creator')
       .orderBy('auctions.startingPrice', 'ASC')
+      .select(['auctions', 'tokens', 'creator'])
       .getMany();
 
     return auctions;

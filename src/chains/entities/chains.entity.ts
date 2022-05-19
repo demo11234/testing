@@ -29,6 +29,9 @@ export class Chains {
   @Column()
   address: string;
 
+  @Column({ nullable: true })
+  baseUrl: string;
+
   @Column()
   decimals: number;
 

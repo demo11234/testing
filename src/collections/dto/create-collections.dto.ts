@@ -40,10 +40,10 @@ export class CreateCollectionsDto {
   @IsNotEmpty()
   name: string;
 
-  @ApiPropertyOptional({ description: 'Collection urlSlug' })
+  @ApiPropertyOptional({ description: 'slug for this collection' })
   @IsString()
   @IsOptional()
-  urlSlug: string;
+  slug: string;
 
   @ApiPropertyOptional({
     description: 'Description about collection',

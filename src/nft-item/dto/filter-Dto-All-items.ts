@@ -10,7 +10,7 @@ import { StatusEnum } from '../enum/filter.status.enum';
 export class FilterDtoAllItems {
   @ApiPropertyOptional({
     description:
-      "give single or multiple input from 'new', 'buynow', 'onAuction', 'hasOffer' seprated by ' , '",
+      "give single or multiple input from 'new', 'buynow', 'onAuction', 'hasOffer', 'hasCashback' seprated by ' , '",
   })
   @IsOptional()
   // @IsEnum(StatusEnum)
@@ -32,7 +32,8 @@ export class FilterDtoAllItems {
   priceRange?: string;
 
   @ApiPropertyOptional({
-    description: "give patmentToken Id separated by ' , '  eg.(1, 10) ",
+    description:
+      "give patmentToken Id separated by ' , '  eg.(1435435435, 103453455) ",
   })
   @IsOptional()
   @IsString()
@@ -46,7 +47,8 @@ export class FilterDtoAllItems {
   collectionsId?: string;
 
   @ApiPropertyOptional({
-    description: "give single chain id or multiple chain Ids separated by ','",
+    description:
+      "give single chain id or multiple separated by ' , ' like MATIC, Eth",
   })
   @IsOptional()
   chainsId?: string;

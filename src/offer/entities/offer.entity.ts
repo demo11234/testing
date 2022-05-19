@@ -13,7 +13,6 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { truncate } from 'fs';
 
 @Entity()
 export class Offer {

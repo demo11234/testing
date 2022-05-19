@@ -84,7 +84,7 @@ export class NftItem {
   @JoinColumn()
   offers: Offer[];
 
-  @ManyToOne(() => Chains, (chains) => chains.nftChainName)
+  @ManyToOne(() => Chains, (chains) => chains.nftChainName, { eager: true })
   @JoinColumn()
   blockChain: Chains;
 
@@ -134,7 +134,15 @@ export class NftItem {
 
   @ApiProperty()
   @Column({ default: false })
+  hasCashback: boolean;
+
+  @ApiProperty()
+  @Column({ default: false })
   isFreezed?: boolean;
+
+  @ApiProperty()
+  @Column({ nullable: true })
+  hash?: string;
 
   @ApiProperty()
   @CreateDateColumn()
@@ -150,7 +158,11 @@ export class NftItem {
 
   @ApiProperty()
   @Column({ nullable: true, default: 0 })
-  viwes: number;
+  views: number;
+
+  @ApiProperty()
+  @Column({ nullable: true, type: 'decimal', default: 0 })
+  cashback: number;
 
   @DeleteDateColumn()
   deletedAt: Date;
