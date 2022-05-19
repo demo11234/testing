@@ -130,18 +130,29 @@ export class OfferService {
     return offers;
   }
 
-  async findOwnedByUser(id: string): Promise<any> {
+  /**
+   * @description fetches offers sent by user
+   * @param userId
+   * @returns Details of the offers
+   * @author Ansh Arora
+   */
+  async findOwnedByUser(userId: string): Promise<any> {
     const offers = await this.offerRepository.find({
       where: {
-        owner: id,
+        owner: userId,
       },
     });
     return offers;
   }
 
-  async findRecievedByUser(id: string): Promise<any> {
-    const user = await this.userRepository.findOne({ where: { id: id } });
-    console.log('********', user);
+  /**
+   * @description fetches offers recieved by user
+   * @param userId
+   * @returns Details of the offers
+   * @author Ansh Arora
+   */
+  async findRecievedByUser(userId: string): Promise<any> {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
     const offers = await this.offerRepository.find({
       relations: ['item'],
       where: { item: { owner: user.walletAddress } },
