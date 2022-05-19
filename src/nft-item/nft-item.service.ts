@@ -675,11 +675,11 @@ export class NftItemService {
           .andWhere('tokens.symbol IN (:...tokens)', { tokens });
       }
 
-      if (isBundle) {
-        item = await item
-          .leftJoinAndSelect('auction_item.bundle', 'bundle')
-          .andWhere('bundle.isBundle = :isBundle', { isBundle: true });
-      }
+      // if (isBundle) {
+      //   item = await item.andWhere('auction_item.bundle = :isBundle', {
+      //     isBundle: true,
+      //   });
+      // }
 
       if (priceRange) {
         const [min1, max1] = priceRange.split(',').map((s) => s.trim());
@@ -716,13 +716,14 @@ export class NftItemService {
         const statusArr = status.split(',').map((s) => s.trim());
 
         if (statusArr.includes('new')) {
-          const timeStamp = moment()
-            .subtract(1, 'd')
-            .format('YYYY-MM-DD HH:MM:SS.SSSSSS');
-          console.log(timeStamp, moment().format('YYYY-MM-DD HH:MM:SS.SSSSSS'));
+          // const timeStamp = moment()
+          //   .subtract(10, 'd')
+          //   .format('YYYY-MM-DD HH:MM:SS.SSSSSS');
+          //   console.log(timeStamp, moment().format('YYYY-MM-DD HH:MM:SS.SSSSSS'));
+          const time = Date.now() - 1000 * 60 * 60 * 24 * 1;
 
-          item = item.andWhere('item.createdAt > :timeStamp', {
-            timeStamp,
+          item = item.andWhere('item.timeStamp > :time', {
+            time,
           });
         }
 

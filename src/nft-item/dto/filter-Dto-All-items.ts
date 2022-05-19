@@ -46,27 +46,21 @@ export class FilterDtoAllItems {
   collectionsId?: string;
 
   @ApiPropertyOptional({
-    description: "give single chain id or multiple separated by ' , '",
+    description:
+      "give single chain id or multiple separated by ' , ' like MATIC, Eth",
   })
   @IsOptional()
   chainsId?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({
+    description: 'only accepts single category Id',
+  })
   @IsOptional()
   categories?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
   isBundle?: boolean;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  onSale?: string;
-
-  @ApiPropertyOptional({ enum: { date: 'date' } })
-  @IsOptional()
-  @IsString()
-  sortBy?: string;
 
   @ApiPropertyOptional({
     enum: {
