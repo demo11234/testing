@@ -9,6 +9,7 @@ import { OfferFilterDto } from './dto/offer-filter.dto';
 import { UpdateOfferDto } from './dto/update-offer.dto';
 import { Offer } from './entities/offer.entity';
 import { ResponseMessage } from 'shared/ResponseMessage';
+import { off } from 'process';
 
 @Injectable()
 export class OfferService {
@@ -125,6 +126,36 @@ export class OfferService {
       take,
       skip,
       where: { item: offerFilerDto.item },
+    });
+    return offers;
+  }
+
+  /**
+   * @description fetches offers sent by user
+   * @param userId
+   * @returns Details of the offers
+   * @author Ansh Arora
+   */
+  async findOwnedByUser(userId: string): Promise<any> {
+    const offers = await this.offerRepository.find({
+      where: {
+        owner: userId,
+      },
+    });
+    return offers;
+  }
+
+  /**
+   * @description fetches offers recieved by user
+   * @param userId
+   * @returns Details of the offers
+   * @author Ansh Arora
+   */
+  async findRecievedByUser(userId: string): Promise<any> {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    const offers = await this.offerRepository.find({
+      relations: ['item'],
+      where: { item: { owner: user.walletAddress } },
     });
     return offers;
   }
