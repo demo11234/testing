@@ -13,5 +13,6 @@ export interface CreateActivityInterface {
   collectionId?: string;
   winnerAccount?: string;
   transactionHash?:string;
-  url?:string
+  url?:string;
+  amount?:number;
 }

@@ -87,4 +87,8 @@ export class Activity {
   @Column({nullable:true})
   @ApiProperty()
   url: string;
+
+  @Column({ nullable: true, type: 'decimal', default: 0 })
+  @ApiProperty()
+  amount: number;
 }

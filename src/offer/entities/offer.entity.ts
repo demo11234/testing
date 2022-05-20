@@ -52,6 +52,10 @@ export class Offer {
   @ApiProperty()
   transactionHash: string;
 
+  @Column({default:null})
+  @ApiProperty()
+  status:string;
+
   @CreateDateColumn()
   @ApiProperty()
   createdAt: Date;

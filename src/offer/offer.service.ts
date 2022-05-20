@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { NftItem } from 'src/nft-item/entities/nft-item.entities';
 import { Tokens } from 'src/token/entities/tokens.entity';
@@ -146,13 +150,17 @@ export class OfferService {
   ): Promise<any> {
     try {
       const offer = await this.offerRepository.findOne(acceptOfferDto.offerID);
+      if (!offer) return null;
       const item = await this.nftItemRepository.findOne({
         id: offer.item.id,
       });
+      if (!item) return null;
       if (item.owner === ownerWalletAddress) {
         offer.transactionHash = acceptOfferDto.transactionHash;
+        offer.status ='Accepted';
         await this.offerRepository.update({ id: offer.id }, offer);
         item.owner = offer.owner.walletAddress;
+
         await this.nftItemRepository.update({ id: item.id }, item);
 
         await this.activityService.createActivity({
@@ -167,6 +175,7 @@ export class OfferService {
           winnerAccount: null,
           transactionHash: acceptOfferDto.transactionHash,
           url: acceptOfferDto.url,
+          amount:offer.price,
         });
         await this.activityService.createActivity({
           eventActions: eventActions.TRANSFER,
@@ -180,40 +189,16 @@ export class OfferService {
           winnerAccount: null,
           transactionHash: acceptOfferDto.transactionHash,
           url: acceptOfferDto.url,
+          amount:offer.price,
         });
         return item;
+      } else {
+        throw new BadRequestException(
+          ResponseMessage.ITEM_DOES_NOT_BELONG_TO_OWNER,
+        );
       }
     } catch (error) {
       throw new Error(error);
     }
-  }
- /**
-   * @description fetches offers sent by user
-   * @param userId
-   * @returns Details of the offers
-   * @author Ansh Arora
-   */
-  async findOwnedByUser(userId: string): Promise<any> {
-    const offers = await this.offerRepository.find({
-      where: {
-        owner: userId,
-      },
-    });
-    return offers;
-  }
-
-  /**
-   * @description fetches offers recieved by user
-   * @param userId
-   * @returns Details of the offers
-   * @author Ansh Arora
-   */
-  async findRecievedByUser(userId: string): Promise<any> {
-    const user = await this.userRepository.findOne({ where: { id: userId } });
-    const offers = await this.offerRepository.find({
-      relations: ['item'],
-      where: { item: { owner: user.walletAddress } },
-    });
-    return offers;
   }
 }
