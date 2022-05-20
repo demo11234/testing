@@ -205,3 +205,4 @@ export class Stats {
   @IsNumber()
   maxValue: number;
 }
+

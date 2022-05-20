@@ -75,4 +75,12 @@ export class Activity {
   @CreateDateColumn()
   @ApiProperty()
   createdDate: Date;
+
+  @Column({nullable:true})
+  @ApiProperty()
+  transactionHash:string;
+
+  @Column({nullable:true})
+  @ApiProperty()
+  url: string;
 }

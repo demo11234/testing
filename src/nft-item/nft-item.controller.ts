@@ -645,6 +645,5 @@ export class NftItemController {
     } catch (e) {
       throw new BadRequestException(e.message);
      }
-  }
-
+  }  
 }

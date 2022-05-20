@@ -11,4 +11,6 @@ export interface CreateActivityInterface {
   previousTotalPrice?: number;
   collectionId?: string;
   winnerAccount?: string;
+  transactionHash?:string;
+  url?:string
 }

@@ -1,11 +1,15 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   Patch,
   Post,
+  Put,
   Query,
   Req,
   Response,
@@ -13,6 +17,7 @@ import {
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
+  ApiOkResponse,
   ApiOperation,
   ApiResponse,
   ApiTags,
@@ -22,9 +27,9 @@ import { ResponseMessage } from 'shared/ResponseMessage';
 import { ResponseStatusCode } from 'shared/ResponseStatusCode';
 import { ActivityService } from 'src/activity/activity.service';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { NftItemService } from 'src/nft-item/nft-item.service';
 import { ResponseModel } from 'src/responseModel';
 import { UserService } from 'src/user/user.service';
+import { AcceptOfferDto } from './dto/acceptOffer.dto';
 import { CreateOfferDto } from './dto/create-offer.dto';
 import { OfferFilterDto } from './dto/offer-filter.dto';
 import { UpdateOfferDto } from './dto/update-offer.dto';
@@ -299,4 +304,34 @@ export class OfferController {
       );
     }
   }
+
+ /**
+   * @description: This api accept the offer
+   * @returns: Null
+   * @author: Susmita
+   */
+
+  @ApiTags('Offer Module')
+   @UseGuards(JwtAuthGuard)
+   @ApiBearerAuth()
+   @ApiResponse({
+    status: ResponseStatusCode.OK,
+    description: ResponseMessage.TOKEN_DETAILS,
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
+    description: ResponseMessage.INTERNAL_SERVER_ERROR,
+  })
+  @Put('/acceptOffer')
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({ description: 'ACCEPT OFFER ON AN ITEM' })
+  async AcceptOffer(@Body() acceptOfferDto: AcceptOfferDto , @Req() req) {
+    try {
+      const ownerWalletAddress = req.user.walletAddress;
+      return await this.offerService.AcceptOffer(acceptOfferDto,ownerWalletAddress);
+    } catch (e) {
+      throw new BadRequestException(e.message);
+     }
+  }
+
 }

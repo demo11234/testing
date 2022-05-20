@@ -11,6 +11,7 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  Transaction,
   UpdateDateColumn,
 } from 'typeorm';
 
@@ -46,6 +47,10 @@ export class Offer {
   @Column({ default: false })
   @Exclude()
   isDeleted: boolean;
+
+  @Column({nullable:true})
+  @ApiProperty()
+  transactionHash: string;
 
   @CreateDateColumn()
   @ApiProperty()

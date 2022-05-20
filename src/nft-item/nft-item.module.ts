@@ -14,6 +14,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { Constants } from 'shared/Constants';
 import { AuthService } from 'src/auth/auth.service';
 import { UserRepository } from 'src/user/repositories/user.repository';
+import { OfferService } from 'src/offer/offer.service';
 
 @Module({
   imports: [
