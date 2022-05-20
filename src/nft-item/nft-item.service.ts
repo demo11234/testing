@@ -23,6 +23,7 @@ import { FilterDtoAllItems } from './dto/filter-Dto-All-items';
 import moment from 'moment';
 import { fetchTransactionReceipt } from 'shared/contract-instance';
 import { UpdateCashbackDto } from './dto/updatecashback.dto';
+import coingecko from 'coingecko-api';
 
 @Injectable()
 export class NftItemService {
@@ -610,8 +611,23 @@ export class NftItemService {
 
       if (priceRange) {
         const [min1, max1] = priceRange.split(',').map((s) => s.trim());
-        const min = parseInt(min1);
-        const max = parseInt(max1);
+        let min = parseInt(min1);
+        let max = parseInt(max1);
+        console.log(priceType);
+
+        if (priceType == 'usd') {
+          const coin = new coingecko();
+          console.log('***********');
+
+          const price = await coin.simple.price({
+            ids: 'ethereum',
+            vs_currencies: 'usd',
+          });
+          console.log(price);
+
+          min = min * (1 / price.data.ethereum.usd);
+          max = max * (1 / price.data.ethereum.usd);
+        }
         item = await item.andWhere(
           'auction_item.startingPrice BETWEEN :min AND :max',
           {
@@ -668,6 +684,11 @@ export class NftItemService {
             hasOffer: true,
           });
         }
+        if (statusArr.includes('hasCashback')) {
+          item = await item.andWhere('item.hasCashback = :hasCashback', {
+            hasCashback: true,
+          });
+        }
       }
 
       switch (order) {
@@ -677,9 +698,7 @@ export class NftItemService {
         case 'oldest':
           item.orderBy('item.createdAt', 'ASC');
           break;
-        case 'endDate':
-          item.orderBy('auction_item.endDate', 'ASC');
-          break;
+
         case 'endingSoon':
           item.orderBy('auction_item.endDate', 'ASC');
           break;
@@ -691,6 +710,9 @@ export class NftItemService {
           break;
         // case 'HighestLastSale':
         //   item.orderBy('auction_item.endingPrice', 'DESC');
+        //   break;
+        // case 'recentlySold':
+        //   item.orderBy('auction_item.', 'DESC');
         //   break;
         // case 'recentlyReceived':
         //   item.orderBy();
