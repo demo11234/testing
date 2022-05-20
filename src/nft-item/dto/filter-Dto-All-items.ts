@@ -10,7 +10,7 @@ import { StatusEnum } from '../enum/filter.status.enum';
 export class FilterDtoAllItems {
   @ApiPropertyOptional({
     description:
-      "give single or multiple input from 'new', 'buynow', 'onAuction', 'hasOffer' seprated by ' , '",
+      "give single or multiple input from 'new', 'buynow', 'onAuction', 'hasOffer', 'hasCashback' seprated by ' , '",
   })
   @IsOptional()
   // @IsEnum(StatusEnum)
@@ -32,7 +32,8 @@ export class FilterDtoAllItems {
   priceRange?: string;
 
   @ApiPropertyOptional({
-    description: "give patmentToken Id separated by ' , '  eg.(1, 10) ",
+    description:
+      "give patmentToken Id separated by ' , '  eg.(1435435435, 103453455) ",
   })
   @IsOptional()
   @IsString()
@@ -46,12 +47,15 @@ export class FilterDtoAllItems {
   collectionsId?: string;
 
   @ApiPropertyOptional({
-    description: "give single chain id or multiple separated by ' , '",
+    description:
+      "give single chain id or multiple separated by ' , ' like MATIC, Eth",
   })
   @IsOptional()
   chainsId?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({
+    description: 'only accepts single category Id',
+  })
   @IsOptional()
   categories?: string;
 
@@ -59,27 +63,28 @@ export class FilterDtoAllItems {
   @IsOptional()
   isBundle?: boolean;
 
-  @ApiPropertyOptional()
-  @IsOptional()
-  onSale?: string;
-
-  @ApiPropertyOptional({ enum: { date: 'date' } })
-  @IsOptional()
-  @IsString()
-  sortBy?: string;
-
-  @ApiPropertyOptional({ enum: { asc: 'asc', desc: 'desc' } })
+  @ApiPropertyOptional({
+    enum: {
+      recentlyCreated: 'recentlyCreated',
+      oldest: 'oldest',
+      endingSoon: 'endingSoon',
+      endDate: 'endDate',
+      recentlyListed: 'recentlyListed',
+      HighestLastSale: 'HighestLastSale',
+      priceH2L: 'priceH2L',
+      priceL2H: 'priceL2H',
+      recentlyReceived: 'recentlyReceived',
+    },
+  })
   @IsOptional()
   @IsString()
   order?: string;
 
-  @ApiPropertyOptional({ description: 'no. of records per page' })
+  @ApiPropertyOptional()
   @IsOptional()
-  @IsNumberString({ message: 'value must greater than 0' })
-  limit?: string;
+  take?: number;
 
-  @ApiPropertyOptional({ description: 'page no. to view' })
+  @ApiPropertyOptional()
   @IsOptional()
-  @IsNumberString({ message: 'value must greater than 0' })
-  page?: string;
+  skip?: number;
 }

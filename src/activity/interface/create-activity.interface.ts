@@ -9,6 +9,7 @@ export interface CreateActivityInterface {
   isPrivate?: boolean;
   totalPrice?: number;
   previousTotalPrice?: number;
+  quantity?: number;
   collectionId?: string;
   winnerAccount?: string;
   transactionHash?:string;

@@ -80,4 +80,7 @@ export class User {
   })
   @JoinColumn()
   collections: Collection[];
+
+  @Column({nullable: true, default: ''})
+  objectID: string;
 }

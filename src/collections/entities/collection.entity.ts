@@ -239,4 +239,7 @@ export class Collection {
 
   @DeleteDateColumn()
   deletedAt: Date;
+
+  @Column({nullable: true, default: ''})
+  objectID: string;
 }

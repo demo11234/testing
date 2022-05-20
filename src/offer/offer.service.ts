@@ -12,6 +12,7 @@ import { ResponseMessage } from 'shared/ResponseMessage';
 import { AcceptOfferDto } from './dto/acceptOffer.dto';
 import { eventActions, eventType } from 'shared/Constants';
 import { ActivityService } from 'src/activity/activity.service';
+import { off } from 'process';
 
 @Injectable()
 export class OfferService {
@@ -185,5 +186,34 @@ export class OfferService {
     } catch (error) {
       throw new Error(error);
     }
+  }
+ /**
+   * @description fetches offers sent by user
+   * @param userId
+   * @returns Details of the offers
+   * @author Ansh Arora
+   */
+  async findOwnedByUser(userId: string): Promise<any> {
+    const offers = await this.offerRepository.find({
+      where: {
+        owner: userId,
+      },
+    });
+    return offers;
+  }
+
+  /**
+   * @description fetches offers recieved by user
+   * @param userId
+   * @returns Details of the offers
+   * @author Ansh Arora
+   */
+  async findRecievedByUser(userId: string): Promise<any> {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    const offers = await this.offerRepository.find({
+      relations: ['item'],
+      where: { item: { owner: user.walletAddress } },
+    });
+    return offers;
   }
 }
