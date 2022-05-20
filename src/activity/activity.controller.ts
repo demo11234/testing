@@ -22,14 +22,15 @@ export class ActivityController {
   ) {}
 
   /**
-   * @description: This api returns all activities of a collection
-   * @returns: All activities of a collection
-   * @author: Ansh Arora
+   * @description: This api returns all activities
+   * @param ActivityFilterDto
+   * @returns: Activities
+   * @author Jeetanshu Srivastava
    */
   @Get()
   @ApiTags('Activity Module')
   @ApiOperation({
-    summary: 'Find All Activities of a collection',
+    summary: 'Find All Activities',
   })
   @ApiResponse({
     status: ResponseStatusCode.OK,

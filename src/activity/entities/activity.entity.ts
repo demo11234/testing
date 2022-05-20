@@ -64,6 +64,10 @@ export class Activity {
   @ApiProperty()
   previousPrice: number;
 
+  @Column({ default: 1 })
+  @ApiProperty()
+  quantity: number;
+
   @Column()
   @ApiProperty()
   collectionId: string;

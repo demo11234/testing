@@ -13,18 +13,24 @@ export class ActivityFilterDto {
   @IsNotEmpty()
   skip: number;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({
+    description: 'eventType must be comma seperated',
+  })
   @IsOptional()
   @IsNotEmpty()
-  eventType: eventType[];
+  eventType: eventType;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({
+    description: 'collectionId must be comma seperated',
+  })
   @IsNotEmpty()
   @IsOptional()
-  collectionId: string[];
+  collectionId: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({
+    description: 'chain must be comma seperated',
+  })
   @IsNotEmpty()
   @IsOptional()
-  chain: string[];
+  chain: string;
 }
