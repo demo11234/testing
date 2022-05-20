@@ -64,7 +64,7 @@ export class Activity {
   @ApiProperty()
   previousPrice: number;
 
-  @Column({ default: 1 })
+  @Column({ nullable: true, default: 1 })
   @ApiProperty()
   quantity: number;
 
