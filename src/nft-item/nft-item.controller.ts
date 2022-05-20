@@ -758,10 +758,10 @@ export class NftItemController {
     description: 'Nft Fetch all from a collection',
   })
   @Get('allItems')
-  async getAllItems(
+  async getAllItems1(
     @Query() filterDtoAllItems: FilterDtoAllItems,
   ): Promise<any> {
-    return this.nftItemService.getAllItems(filterDtoAllItems);
+    return this.nftItemService.getAllItems1(filterDtoAllItems);
   }
 
   /**

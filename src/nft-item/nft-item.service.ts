@@ -1,8 +1,13 @@
-import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Chains } from 'src/chains/entities/chains.entity';
 import { Collection } from 'src/collections/entities/collection.entity';
-import { In, Not, Repository } from 'typeorm';
+import { Any, In, Not, Repository } from 'typeorm';
 import { FilterDto } from './dto/filter.dto';
 import { CreateNftItemDto } from './dto/nft-item.dto';
 import { UpdateNftItemDto } from './dto/update.nftItem.dto';
@@ -15,8 +20,8 @@ import { TransferItemDto } from './dto/transferItem.dto';
 import { ActivityService } from 'src/activity/activity.service';
 import { eventType, eventActions } from '../../shared/Constants';
 import { FilterDtoAllItems } from './dto/filter-Dto-All-items';
+import moment from 'moment';
 import { fetchTransactionReceipt } from 'shared/contract-instance';
-import { BadRequestException } from '@nestjs/common';
 import { UpdateCashbackDto } from './dto/updatecashback.dto';
 
 @Injectable()
@@ -556,7 +561,8 @@ export class NftItemService {
    * @returns filtered array of
    * @author Mohan
    */
-  async getAllItems(filterDtoAllItems: FilterDtoAllItems): Promise<NftItem[]> {
+
+  async getAllItems1(filterDtoAllItems: FilterDtoAllItems): Promise<NftItem[]> {
     try {
       const {
         collectionsId,
@@ -567,143 +573,155 @@ export class NftItemService {
         paymentTokens,
         isBundle,
         priceRange,
-        sortBy,
-        limit,
-        page,
-        order: orderBy,
+        order,
       } = filterDtoAllItems;
 
-      const where: any = {};
+      let { take, skip } = filterDtoAllItems;
+
+      take = take ? take : 0;
+      skip = skip ? skip : 0;
+
+      let item = await this.nftItemRepository.createQueryBuilder('item');
+
+      item = await item.innerJoinAndSelect('item.auction_item', 'auction_item');
+      item = await item.leftJoinAndSelect('item.collection', 'collection');
 
       if (collectionsId) {
-        const collectionId = collectionsId.split(',').map((s) => s.trim());
-        where.collection = { id: In(collectionId) };
+        const collectionIdArray = collectionsId.split(',').map((s) => s.trim());
+        console.log(collectionIdArray);
+
+        item = await item.andWhere('collection.id IN (:...collectionIdArray)', {
+          collectionIdArray,
+        });
+      }
+      if (paymentTokens) {
+        const tokens = paymentTokens.split(',').map((s) => s.trim());
+
+        item = await item
+          .leftJoinAndSelect('auction_item.tokens', 'tokens')
+          .andWhere('tokens.symbol IN (:...tokens)', { tokens });
+      }
+
+      // if (isBundle) {
+      //   item = await item.andWhere('auction_item.bundle = :isBundle', {
+      //     isBundle: true,
+      //   });
+      // }
+
+      if (priceRange) {
+        const [min1, max1] = priceRange.split(',').map((s) => s.trim());
+        const min = parseInt(min1);
+        const max = parseInt(max1);
+        item = await item.andWhere(
+          'auction_item.startingPrice BETWEEN :min AND :max',
+          {
+            min,
+            max,
+          },
+        );
       }
 
       if (categories) {
-        where.collection = { categoryID: categories };
+        item = await item
+          .leftJoinAndSelect('item.collection', 'collection')
+          .andWhere('collection.categoryId = :categoryId', {
+            categoryId: categories,
+          });
       }
 
       if (chainsId) {
         const chainId = chainsId.split(',').map((s) => s.trim());
-        where.blockChain = { id: In(chainId) };
+        item = await item.leftJoinAndSelect(
+          'item.blockChain',
+          'blockChain',
+          'blockChain.id IN (:...chainId)',
+          { chainId },
+        );
       }
 
       if (status) {
         const statusArr = status.split(',').map((s) => s.trim());
 
         if (statusArr.includes('new')) {
-          const BetweenDates = () =>
-            Between(Date.now() - 1000 * 60 * 60 * 24 * 1, Date.now());
-          where.timeStamp = BetweenDates();
+          // const timeStamp = moment()
+          //   .subtract(10, 'd')
+          //   .format('YYYY-MM-DD HH:MM:SS.SSSSSS');
+          //   console.log(timeStamp, moment().format('YYYY-MM-DD HH:MM:SS.SSSSSS'));
+          const time = Date.now() - 1000 * 60 * 60 * 24 * 1;
+
+          item = item.andWhere('item.timeStamp > :time', {
+            time,
+          });
         }
 
-        // const timeStamp = moment()
-        //   .subtract(4, 'h')
-        //   .format('YYYY-MM-DD HH:MM:SS.SSSSSS');
-        // where.createdAt = MoreThan(timeStamp);
-
         if (statusArr.includes('buynow')) {
-          where.buyNow = true;
+          item = await item.andWhere('item.buyNow = :buyNow', { buyNow: true });
         }
 
         if (statusArr.includes('onAuction')) {
-          where.onAuction = true;
+          item = await item.andWhere('item.onAuction = :onAuction', {
+            onAuction: true,
+          });
         }
-
         if (statusArr.includes('hasOffer')) {
-          where.hasOffer = true;
-        }
-
-        if (statusArr.includes('hasCashback')) {
-          where.hasCashback = true;
+          item = await item.andWhere('item.hasOffer = :hasOffer', {
+            hasOffer: true,
+          });
         }
       }
 
-      //make relation with Auction first
+      switch (order) {
+        case 'recentlyCreated':
+          item.orderBy('item.createdAt', 'DESC');
+          break;
+        case 'oldest':
+          item.orderBy('item.createdAt', 'ASC');
+          break;
+        case 'endDate':
+          item.orderBy('auction_item.endDate', 'ASC');
+          break;
+        case 'endingSoon':
+          item.orderBy('auction_item.endDate', 'ASC');
+          break;
+        case 'priceL2H':
+          item.orderBy('auction_item.startingPrice', 'ASC');
+          break;
+        case 'priceH2L':
+          item.orderBy('auction_item.startingPrice', 'DESC');
+          break;
+        // case 'HighestLastSale':
+        //   item.orderBy('auction_item.endingPrice', 'DESC');
+        //   break;
+        // case 'recentlyReceived':
+        //   item.orderBy();
+        //   break;
+        case 'recentlyListed':
+          item.orderBy('auction_item.createdAt', 'DESC');
+          break;
 
-      // if (paymentTokens) {
-      //   const tokens = paymentTokens.split(',').map((s) => s.trim());
-      //   console.log(tokens);
-      //   //  .where("post.authorId IN (:...authors)", { authors: [3, 7, 9] })
-      //   // (where.auction_item = 'auction_item IN (:...auction_item)'),
-      //   //   { tokens: In(tokens) };
-      //     where.auction_item  = { tokens: { name: In(tokens) } };
+        default:
+          item.orderBy('item.id', 'ASC');
+      }
+
+      return item
+
+        .skip((skip - 1) * take)
+        .take(take)
+        .getMany();
+
+      // if (isBundle) {
+      //   for (let i = 0; i < data.length; i++) {
+      //     for (let j = 0; j < data[i].auction_item.length; j++) {
+      //       if (
+      //         data[i].auction_item[j] &&
+      //         data[i].auction_item[j].bundle.isBundle == true
+      //       ) {
+      //         if (arr.includes(data[i])) break;
+      //         arr.push(data[i]);
+      //       }
+      //     }
+      //   }
       // }
-
-      const order = {};
-      if (sortBy === 'date') {
-        switch (orderBy) {
-          case 'asc':
-            order['createdAt'] = 'ASC';
-            break;
-          case 'desc':
-            order['createdAt'] = 'DESC';
-            break;
-          default:
-            order['id'] = 'ASC';
-        }
-      }
-
-      const data = await this.nftItemRepository.find({
-        where,
-        order,
-        relations: ['collection', 'blockChain', 'auction_item'],
-        skip: (+page - 1) * +limit,
-        take: +limit,
-      });
-
-      const arr: any = [];
-      if (priceRange) {
-        const priceValue = priceRange.split(',').map((s) => s.trim());
-
-        for (let i = 0; i < data.length; i++) {
-          for (let j = 0; j < data[i].auction_item.length; j++) {
-            if (
-              data[i].auction_item[j].startingPrice >=
-                parseInt(priceValue[0]) &&
-              data[i].auction_item[j].startingPrice <= parseInt(priceValue[1])
-            ) {
-              arr.push(data[i]);
-            }
-          }
-        }
-      }
-
-      //if it is a bundle
-      if (isBundle) {
-        for (let i = 0; i < data.length; i++) {
-          for (let j = 0; j < data[i].auction_item.length; j++) {
-            if (
-              data[i].auction_item[j] &&
-              data[i].auction_item[j].bundle.isBundle == true
-            ) {
-              if (arr.includes(data[i])) break;
-              arr.push(data[i]);
-            }
-          }
-        }
-      }
-      //for payment Tokens
-
-      if (paymentTokens) {
-        const tokens = paymentTokens.split(',').map((s) => s.trim());
-
-        for (let i = 0; i < data.length; i++) {
-          for (let j = 0; j < data[i].auction_item.length; j++) {
-            console.log(data[i].auction_item[j].tokens.symbol);
-            if (
-              data[i].auction_item[j].tokens.symbol &&
-              tokens.includes(data[i].auction_item[j].tokens.symbol)
-            ) {
-              if (arr.includes(data[i])) break;
-              arr.push(data[i]);
-            }
-          }
-        }
-      }
-      if (arr.length > 0) return arr;
-      else return data;
     } catch (error) {
       console.log(error);
     }
