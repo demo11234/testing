@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Param,
+  Patch,
   Post,
   Request,
   Response,
@@ -22,6 +23,7 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { ResponseModel } from 'src/responseModel';
 import { AuctionsService } from './auctions.service';
 import { CreateAuctionDto } from './dto/create-auction.dto';
+import { CreateSignatureDto } from './dto/create-signature.dto';
 import { UpdateAuctionDto } from './dto/update-auction.dto';
 
 @Controller('auctions')
@@ -304,7 +306,49 @@ export class AuctionsController {
       });
       return this.responseModel.response(
         auction,
-        ResponseStatusCode.CREATED,
+        ResponseStatusCode.OK,
+        true,
+        response,
+      );
+    } catch (error) {
+      return this.responseModel.response(
+        error,
+        ResponseStatusCode.INTERNAL_SERVER_ERROR,
+        false,
+        response,
+      );
+    }
+  }
+
+  /**
+   * @description updateAuctionSignature will update the signature of the auction with given auctionId
+   * @param CreateSignatureDto
+   * @author Jeetanshu Srivastava
+   */
+  @Patch('/updatesignature')
+  @UseGuards(JwtAuthGuard)
+  @ApiTags('Auctions Module')
+  @ApiOperation({
+    summary: 'Update the Signature of Auction with given Auction Id',
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.OK,
+    description: ResponseMessage.AUCTION_SIGNATURE_UPDATED,
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
+    description: ResponseMessage.INTERNAL_SERVER_ERROR,
+  })
+  @ApiBearerAuth()
+  async updateAuctionSignature(
+    @Body() createSignatureDto: CreateSignatureDto,
+    @Response() response,
+  ): Promise<any> {
+    try {
+      await this.auctionsService.updateAuctionSignature(createSignatureDto);
+      return this.responseModel.response(
+        ResponseMessage.AUCTION_SIGNATURE_UPDATED,
+        ResponseStatusCode.OK,
         true,
         response,
       );

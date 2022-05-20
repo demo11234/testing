@@ -18,6 +18,7 @@ import { Repository } from 'typeorm';
 import { Auction } from './entities/auctions.entity';
 import { CreateAuctionInterface } from './interface/create-auction.interface';
 import { UpdateAuctionInterface } from './interface/update-auction.interface';
+import { CreateSignatureInterface } from './interface/create-signature.interface';
 
 @Injectable()
 export class AuctionsService {
@@ -257,5 +258,22 @@ export class AuctionsService {
       : auction.startingPrice;
 
     return this.auctionRepository.save(auctionUpdated);
+  }
+
+  /**
+   * @description updateAuctionSignature will update the signature of the auction with given auctionId
+   * @param CreateSignatureInterface
+   * @returns it will return boolean
+   * @author Jeetanshu Srivastava
+   */
+  async updateAuctionSignature(
+    createSignatureInterface: CreateSignatureInterface,
+  ): Promise<boolean> {
+    const signature = JSON.stringify(createSignatureInterface.signature);
+    await this.auctionRepository.update(
+      { id: createSignatureInterface.auctionId },
+      { signature },
+    );
+    return true;
   }
 }
