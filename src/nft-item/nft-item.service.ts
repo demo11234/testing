@@ -584,8 +584,10 @@ export class NftItemService {
 
       let item = await this.nftItemRepository.createQueryBuilder('item');
 
-      item = await item.innerJoinAndSelect('item.auction_item', 'auction_item');
-      item = await item.leftJoinAndSelect('item.collection', 'collection');
+      //  item = await item.innerJoinAndSelect('item.auction_item', 'auction_item');
+      item = await item.leftJoinAndSelect('item.auction_item', 'auction_item');
+      item = await item.innerJoinAndSelect('item.collection', 'collection');
+      item = await item.leftJoinAndSelect('item.blockChain', 'blockChain');
 
       if (collectionsId) {
         const collectionIdArray = collectionsId.split(',').map((s) => s.trim());
@@ -617,7 +619,6 @@ export class NftItemService {
 
         if (priceType == 'usd') {
           const coin = new coingecko();
-          console.log('***********');
 
           const price = await coin.simple.price({
             ids: 'ethereum',
@@ -639,7 +640,7 @@ export class NftItemService {
 
       if (categories) {
         item = await item
-          .leftJoinAndSelect('item.collection', 'collection')
+          //     .leftJoinAndSelect('item.collection', 'collection')
           .andWhere('collection.categoryId = :categoryId', {
             categoryId: categories,
           });
@@ -647,12 +648,9 @@ export class NftItemService {
 
       if (chainsId) {
         const chainId = chainsId.split(',').map((s) => s.trim());
-        item = await item.leftJoinAndSelect(
-          'item.blockChain',
-          'blockChain',
-          'blockChain.id IN (:...chainId)',
-          { chainId },
-        );
+        item = await item.andWhere('blockChain.id IN (:...chainId)', {
+          chainId,
+        });
       }
 
       if (status) {
