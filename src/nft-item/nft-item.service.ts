@@ -584,20 +584,16 @@ export class NftItemService {
       let item = await this.nftItemRepository.createQueryBuilder('item');
 
       item = await item.innerJoinAndSelect('item.auction_item', 'auction_item');
-      // item = await item.leftJoinAndSelect('item.auction_item', 'auction_item');
+      item = await item.leftJoinAndSelect('item.collection', 'collection');
 
       if (collectionsId) {
         const collectionIdArray = collectionsId.split(',').map((s) => s.trim());
         console.log(collectionIdArray);
 
-        item = await item.leftJoinAndSelect(
-          'item.collection',
-          'collection',
-          'collection.id IN (:...collectionIdArray)',
-          { collectionIdArray },
-        );
+        item = await item.andWhere('collection.id IN (:...collectionIdArray)', {
+          collectionIdArray,
+        });
       }
-
       if (paymentTokens) {
         const tokens = paymentTokens.split(',').map((s) => s.trim());
 
@@ -708,6 +704,7 @@ export class NftItemService {
       }
 
       return item
+
         .skip((skip - 1) * take)
         .take(take)
         .getMany();
