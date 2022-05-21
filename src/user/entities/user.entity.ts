@@ -81,6 +81,9 @@ export class User {
   @JoinColumn()
   collections: Collection[];
 
-  @Column({nullable: true, default: ''})
+  @Column({ nullable: true, default: '' })
   objectID: string;
+
+  @Column({ default: 0 })
+  reported: number;
 }

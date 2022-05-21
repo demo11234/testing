@@ -17,6 +17,7 @@ import {
 } from 'typeorm';
 import { PrimaryGeneratedColumn, JoinColumn } from 'typeorm';
 import { Auction } from 'src/auctions/entities/auctions.entity';
+import { Report } from 'src/report/entities/report.entities';
 
 export class BiddingEnabled {
   @ApiProperty({ default: false })
@@ -218,6 +219,14 @@ export class NftItem {
   @ApiProperty()
   @Column({ nullable: true, type: 'decimal', default: 0 })
   cashback: number;
+
+  // @OneToMany(() => Report, (report) => report.item)
+  // @JoinColumn()
+  // report: Report[];
+
+  @Column({ default: 0 })
+  @ApiProperty()
+  reported: number;
 
   @DeleteDateColumn()
   deletedAt: Date;
