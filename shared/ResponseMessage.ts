@@ -97,4 +97,11 @@ export const ResponseMessage = {
   CATEGORY_NOT_FOUND: 'Unable to find category. Please check details.',
   ITEM_TRANSFER_BLOCKCHAIN_ERROR: 'item failed to transfer from blockchain',
   ITEM_DELETE_BLOCKCHAIN_ERROR: 'item failed to delete from blockchain',
+
+  ITEM_HAS_BEEN_HIDDEN: 'Item has been Hidden',
+  ITEM_HAS_BEEN_REMOVED_FROM_HIDDEN: 'Item has been removed from Hidden',
+
+  ITEMS_FAVOURITE_COUNT: 'Items Favourite Count',
+
+  AUCTION_SIGNATURE_UPDATED: 'Auction Signature has been updated',
 };

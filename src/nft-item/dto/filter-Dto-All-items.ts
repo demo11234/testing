@@ -1,11 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import {
-  IsNotEmpty,
-  IsNumberString,
-  IsOptional,
-  IsString,
-} from 'class-validator';
-import { StatusEnum } from '../enum/filter.status.enum';
+import { IsOptional, IsString } from 'class-validator';
 
 export class FilterDtoAllItems {
   @ApiPropertyOptional({
@@ -13,12 +7,11 @@ export class FilterDtoAllItems {
       "give single or multiple input from 'new', 'buynow', 'onAuction', 'hasOffer', 'hasCashback' seprated by ' , '",
   })
   @IsOptional()
-  // @IsEnum(StatusEnum)
   status?: string;
 
   @ApiPropertyOptional({
-    description: 'give price type eg. usdPrice, ethPrice ',
-    enum: { usdPrice: 'usdPrice', ethPrice: 'ethPrice' },
+    description: 'give price type eg. usd, eth',
+    enum: { usd: 'usd', eth: 'eth' },
   })
   @IsOptional()
   @IsString()
@@ -32,7 +25,7 @@ export class FilterDtoAllItems {
   priceRange?: string;
 
   @ApiPropertyOptional({
-    description: "give patmentToken Id separated by ' , '  eg.(1, 10) ",
+    description: "give patmentToken  separated by ' , '  eg.(Eth, MATIC) ",
   })
   @IsOptional()
   @IsString()
@@ -51,7 +44,9 @@ export class FilterDtoAllItems {
   @IsOptional()
   chainsId?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({
+    description: 'only accepts single category Id',
+  })
   @IsOptional()
   categories?: string;
 
@@ -59,27 +54,28 @@ export class FilterDtoAllItems {
   @IsOptional()
   isBundle?: boolean;
 
-  @ApiPropertyOptional()
-  @IsOptional()
-  onSale?: string;
-
-  @ApiPropertyOptional({ enum: { date: 'date' } })
-  @IsOptional()
-  @IsString()
-  sortBy?: string;
-
-  @ApiPropertyOptional({ enum: { asc: 'asc', desc: 'desc' } })
+  @ApiPropertyOptional({
+    enum: {
+      recentlyCreated: 'recentlyCreated',
+      oldest: 'oldest',
+      endingSoon: 'endingSoon',
+      endDate: 'endDate',
+      recentlyListed: 'recentlyListed',
+      HighestLastSale: 'HighestLastSale',
+      priceH2L: 'priceH2L',
+      priceL2H: 'priceL2H',
+      recentlyReceived: 'recentlyReceived',
+    },
+  })
   @IsOptional()
   @IsString()
   order?: string;
 
-  @ApiPropertyOptional({ description: 'no. of records per page' })
+  @ApiPropertyOptional()
   @IsOptional()
-  @IsNumberString({ message: 'value must greater than 0' })
-  limit?: string;
+  take?: number;
 
-  @ApiPropertyOptional({ description: 'page no. to view' })
+  @ApiPropertyOptional()
   @IsOptional()
-  @IsNumberString({ message: 'value must greater than 0' })
-  page?: string;
+  skip?: number;
 }

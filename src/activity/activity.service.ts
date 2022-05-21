@@ -85,13 +85,15 @@ export class ActivityService {
       take = take ? take : 0;
       skip = skip ? skip : 0;
 
-      let activity = await this.activityRepository.createQueryBuilder(
-        'activity',
-      );
+      let activity = await this.activityRepository
+        .createQueryBuilder('activity')
+        .leftJoinAndSelect('activity.fromAccount', 'fromAccount')
+        .leftJoinAndSelect('activity.toAccount', 'toAccount')
+        .leftJoinAndSelect('activity.nftItem', 'nft_item')
+        .leftJoinAndSelect('nft_item.blockChain', 'chains');
 
       if (collectionId) {
-        let collectionIdArray: any = collectionId;
-        collectionIdArray = JSON.parse(collectionIdArray);
+        const collectionIdArray = collectionId.split(',').map((s) => s.trim());
         activity = await activity.where(
           'activity.collectionId IN (:...collectionIdArray)',
           { collectionIdArray },
@@ -99,21 +101,14 @@ export class ActivityService {
       }
 
       if (chain) {
-        let chainArray: any = chain;
-        chainArray = JSON.parse(chainArray);
-        activity = await activity
-          .leftJoinAndSelect('activity.nftItem', 'nft_item')
-          .leftJoinAndSelect(
-            'nft_item.blockChain',
-            'chains',
-            'chains.id IN (:...chainArray)',
-            { chainArray },
-          );
+        const chainArray = chain.split(',').map((s) => s.trim());
+        activity = await activity.andWhere('chains.id IN (:...chainArray)', {
+          chainArray,
+        });
       }
 
       if (eventType) {
-        let eventTypeArray: any = eventType;
-        eventTypeArray = JSON.parse(eventTypeArray);
+        const eventTypeArray = eventType.split(',').map((s) => s.trim());
         activity = await activity.andWhere(
           'activity.eventType IN (:...eventTypeArray)',
           { eventTypeArray },

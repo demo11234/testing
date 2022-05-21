@@ -285,7 +285,7 @@ export class UserService implements OnModuleInit {
           signature,
         );
         // Verifying the user with signature
-        if (wallet_address === signatureAddress.toLowerCase()) {
+        if (wallet_address === signatureAddress) {
           console.log('successful*********************');
 
           return true;
