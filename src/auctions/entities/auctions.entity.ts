@@ -119,6 +119,10 @@ export class Auction {
   @ApiProperty()
   quantity: number;
 
+  @Column({ default: false })
+  @ApiProperty()
+  isCompleted: boolean;
+
   @CreateDateColumn()
   @ApiProperty()
   createdAt: Date;
