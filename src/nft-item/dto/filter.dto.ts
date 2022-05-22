@@ -3,6 +3,7 @@ import {
   IsArray,
   IsEnum,
   IsNotEmpty,
+  IsNumber,
   IsNumberString,
   IsOptional,
   IsPositive,
@@ -26,8 +27,8 @@ export class FilterDto {
   status?: string;
 
   @ApiPropertyOptional({
-    description: 'give price type eg. usdPrice, ethPrice ',
-    enum: { usdPrice: 'usdPrice', ethPrice: 'ethPrice' },
+    description: 'give price type eg. usd, eth',
+    enum: { usd: 'usd', eth: 'eth' },
   })
   @IsOptional()
   @IsString()
@@ -65,23 +66,35 @@ export class FilterDto {
   @IsOptional()
   onSale?: string;
 
-  @ApiPropertyOptional({ enum: { date: 'date' } })
-  @IsOptional()
-  @IsString()
-  sortBy?: string;
+  // @ApiPropertyOptional({ enum: { date: 'date' } })
+  // @IsOptional()
+  // @IsString()
+  // sortBy?: string;
 
-  @ApiPropertyOptional({ enum: { asc: 'asc', desc: 'desc' } })
+  @ApiPropertyOptional({
+    enum: {
+      recentlyCreated: 'recentlyCreated',
+      oldest: 'oldest',
+      endingSoon: 'endingSoon',
+      endDate: 'endDate',
+      recentlyListed: 'recentlyListed',
+      HighestLastSale: 'HighestLastSale',
+      priceH2L: 'priceH2L',
+      priceL2H: 'priceL2H',
+      recentlyReceived: 'recentlyReceived',
+    },
+  })
   @IsOptional()
   @IsString()
   order?: string;
 
   @ApiPropertyOptional({ description: 'no. of records per page' })
   @IsOptional()
-  @IsNumberString({ message: 'value must greater than 0' })
-  limit?: string;
+  @IsNumber()
+  limit?: number;
 
   @ApiPropertyOptional({ description: 'page no. to view' })
   @IsOptional()
-  @IsNumberString({ message: 'value must greater than 0' })
-  page?: string;
+  @IsNumber()
+  page?: number;
 }

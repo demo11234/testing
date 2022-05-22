@@ -86,4 +86,9 @@ export class CreateNftItemDto {
   @ApiProperty()
   @IsString()
   blockChainId: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  contractAddress?: string;
 }
