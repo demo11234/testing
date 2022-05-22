@@ -104,4 +104,5 @@ export const ResponseMessage = {
   ITEMS_FAVOURITE_COUNT: 'Items Favourite Count',
 
   AUCTION_SIGNATURE_UPDATED: 'Auction Signature has been updated',
+  OFFER_SIGNATURE_UPDATED: 'Offer Signature has been updated',
 };
