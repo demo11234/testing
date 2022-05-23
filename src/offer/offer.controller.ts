@@ -22,7 +22,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { eventActions, eventType } from 'shared/Constants';
+import { eventActions, eventType, findOfferByUserType } from 'shared/Constants';
 import { ResponseMessage } from 'shared/ResponseMessage';
 import { ResponseStatusCode } from 'shared/ResponseStatusCode';
 import { ActivityService } from 'src/activity/activity.service';
