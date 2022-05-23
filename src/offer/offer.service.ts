@@ -126,7 +126,7 @@ export class OfferService {
     const offers = await this.offerRepository.findAndCount({
       take,
       skip,
-      where: { item: offerFilerDto.item },
+      where: { item: offerFilerDto.item, isDeleted: false },
     });
     return offers;
   }
@@ -141,6 +141,7 @@ export class OfferService {
     const offers = await this.offerRepository.find({
       where: {
         owner: userId,
+        isDeleted: false,
       },
     });
     return offers;
@@ -156,7 +157,7 @@ export class OfferService {
     const user = await this.userRepository.findOne({ where: { id: userId } });
     const offers = await this.offerRepository.find({
       relations: ['item'],
-      where: { item: { owner: user.walletAddress } },
+      where: { item: { owner: user.walletAddress }, isDeleted: false },
     });
     return offers;
   }
