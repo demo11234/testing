@@ -827,6 +827,7 @@ export class NftItemService {
       const item = await this.findOne(updateCashbackDto.itemID);
       if (item) {
         item.cashback = updateCashbackDto.cashback;
+        item.hasCashback='true'
         await this.nftItemRepository.update(
           { id: updateCashbackDto.itemID },
           item,
