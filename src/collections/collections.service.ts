@@ -137,7 +137,9 @@ export class CollectionsService {
         if (!filter[value]) delete filter[value];
       });
       let where: any = filter;
-      where = search ? { name: ILike(`%${search}%`) } : where;
+      if(search){
+        where['name'] = ILike(`%${search}%`)
+      }
 
       // console.log(where);
       const collections = await this.collectionRepository.findAndCount({
