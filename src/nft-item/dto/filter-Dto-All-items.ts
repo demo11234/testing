@@ -1,11 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import {
-  IsNotEmpty,
-  IsNumberString,
-  IsOptional,
-  IsString,
-} from 'class-validator';
-import { StatusEnum } from '../enum/filter.status.enum';
+import { IsOptional, IsString } from 'class-validator';
 
 export class FilterDtoAllItems {
   @ApiPropertyOptional({
@@ -13,12 +7,11 @@ export class FilterDtoAllItems {
       "give single or multiple input from 'new', 'buynow', 'onAuction', 'hasOffer', 'hasCashback' seprated by ' , '",
   })
   @IsOptional()
-  // @IsEnum(StatusEnum)
   status?: string;
 
   @ApiPropertyOptional({
-    description: 'give price type eg. usdPrice, ethPrice ',
-    enum: { usdPrice: 'usdPrice', ethPrice: 'ethPrice' },
+    description: 'give price type eg. usd, eth',
+    enum: { usd: 'usd', eth: 'eth' },
   })
   @IsOptional()
   @IsString()
@@ -32,8 +25,7 @@ export class FilterDtoAllItems {
   priceRange?: string;
 
   @ApiPropertyOptional({
-    description:
-      "give patmentToken Id separated by ' , '  eg.(1435435435, 103453455) ",
+    description: "give patmentToken  separated by ' , '  eg.(Eth, MATIC) ",
   })
   @IsOptional()
   @IsString()
@@ -47,8 +39,7 @@ export class FilterDtoAllItems {
   collectionsId?: string;
 
   @ApiPropertyOptional({
-    description:
-      "give single chain id or multiple separated by ' , ' like MATIC, Eth",
+    description: "give single chain id or multiple separated by ' , '",
   })
   @IsOptional()
   chainsId?: string;

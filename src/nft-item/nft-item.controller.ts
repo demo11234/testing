@@ -689,7 +689,7 @@ export class NftItemController {
   @ApiBearerAuth()
   @Patch('transfer/:id')
   async transferItem(
-    @Param('id') id: string,
+    @Param('itemId') id: string,
     @Request() req,
     @Body() transferDto: TransferItemDto,
     @Response() response,

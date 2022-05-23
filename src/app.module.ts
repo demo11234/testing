@@ -28,6 +28,7 @@ import { NftItemModule } from './nft-item/nft-item.module';
 import { ServicesModule } from './services/services.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { AuctionsModule } from './auctions/auctions.module';
+import { ReportModule } from './report/report.module';
 
 @Module({
   imports: [
@@ -67,6 +68,7 @@ import { AuctionsModule } from './auctions/auctions.module';
     NftItemModule,
     ServicesModule,
     AuctionsModule,
+    ReportModule,
   ],
   controllers: [AppController],
   providers: [

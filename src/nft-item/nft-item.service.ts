@@ -7,7 +7,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Chains } from 'src/chains/entities/chains.entity';
 import { Collection } from 'src/collections/entities/collection.entity';
-import { Any, In, Not, Repository } from 'typeorm';
+import { Not, Repository } from 'typeorm';
 import { FilterDto } from './dto/filter.dto';
 import { CreateNftItemDto } from './dto/nft-item.dto';
 import { UpdateNftItemDto } from './dto/update.nftItem.dto';
@@ -23,6 +23,7 @@ import { FilterDtoAllItems } from './dto/filter-Dto-All-items';
 import moment from 'moment';
 import { fetchTransactionReceipt } from 'shared/contract-instance';
 import { UpdateCashbackDto } from './dto/updatecashback.dto';
+import coingecko from 'coingecko-api';
 
 @Injectable()
 export class NftItemService {
@@ -71,6 +72,7 @@ export class NftItemService {
       nftItem.fileName = nftItemDto.fileName;
       nftItem.timeStamp = Date.now();
       nftItem.previewImage = nftItemDto.previewImage;
+      nftItem.contractAddress = nftItemDto.contractAddress;
 
       const [index, indexCount] = await this.nftItemRepository.findAndCount({
         walletAddress: user.walletAddress,
@@ -143,82 +145,148 @@ export class NftItemService {
         status,
         priceRange,
         onSale,
-        sortBy,
         limit,
         page,
-        order: orderBy,
+        order,
       } = filterDto;
 
-      const where: any = { walletAddress };
+      const take = limit ? limit : 0;
+      const skip = page ? page : 0;
+
+      let item = await this.nftItemRepository.createQueryBuilder('item');
+
+      item = await item.innerJoinAndSelect('item.auction_item', 'auction_item');
+
+      if (walletAddress) {
+        item = await item.andWhere('item.walletAddress = :walletAddress', {
+          walletAddress,
+        });
+      }
 
       if (collectionsId) {
-        const collectionId = collectionsId.split(',').map((s) => s.trim());
-        where.collection = { id: In(collectionId) };
+        const collectionIdArray = collectionsId.split(',').map((s) => s.trim());
+
+        item = await item.leftJoinAndSelect(
+          'item.collection',
+          'collection',
+          'collection.id IN (:...collectionIdArray)',
+          { collectionIdArray },
+        );
+      }
+
+      if (onSale) {
+        const tokens = onSale.split(',').map((s) => s.trim());
+        item = await item
+          .leftJoinAndSelect('auction_item.tokens', 'tokens')
+          .andWhere('tokens.id IN (:...tokens)', { tokens });
+      }
+
+      if (priceRange) {
+        const [min1, max1] = priceRange.split(',').map((s) => s.trim());
+        let min = parseInt(min1);
+        let max = parseInt(max1);
+
+        // const price = await this.utilsService.getLivePrice('eth', 'usd');
+        if (priceType == 'usd') {
+          const coin = new coingecko();
+          const price = await coin.simple.price({
+            ids: 'ethereum',
+            vs_currencies: 'usd',
+          });
+          min = min * (1 / price.data.ethereum.usd);
+          max = max * (1 / price.data.ethereum.usd);
+        }
+
+        item = await item.andWhere(
+          'auction_item.startingPrice BETWEEN :min AND :max',
+          {
+            min,
+            max,
+          },
+        );
+      }
+
+      if (categories) {
+        item = await item
+          .leftJoinAndSelect('item.collection', 'collection')
+          .andWhere('collection.categoryId = :categoryId', {
+            categoryId: categories,
+          });
       }
 
       if (chainsId) {
         const chainId = chainsId.split(',').map((s) => s.trim());
-        where.blockChain = { id: In(chainId) };
+        item = await item.leftJoinAndSelect(
+          'item.blockChain',
+          'blockChain',
+          'blockChain.id IN (:...chainId)',
+          { chainId },
+        );
       }
 
       if (status) {
         const statusArr = status.split(',').map((s) => s.trim());
 
         if (statusArr.includes('new')) {
-          const BetweenDates = () =>
-            Between(Date.now() - 1000 * 60 * 60 * 24 * 1, Date.now());
-          where.timeStamp = BetweenDates();
+          const time = Date.now() - 1000 * 60 * 60 * 24 * 1;
+          item = item.andWhere('item.timeStamp > :time', {
+            time,
+          });
         }
+
         if (statusArr.includes('buynow')) {
-          where.buyNow = true;
+          item = await item.andWhere('item.buyNow = :buyNow', { buyNow: true });
         }
+
         if (statusArr.includes('onAuction')) {
-          where.onAuction = true;
+          item = await item.andWhere('item.onAuction = :onAuction', {
+            onAuction: true,
+          });
         }
-        if (statusArr.includes('hasOffer')) {
-          where.hasOffer = true;
-        }
+
         if (statusArr.includes('hasCashback')) {
-          where.hasCashback = true;
+          item = await item.andWhere('item.onAuction = :hasCashback', {
+            hasCashback: true,
+          });
+        }
+
+        if (statusArr.includes('hasOffer')) {
+          item = await item.andWhere('item.hasOffer = :hasOffer', {
+            hasOffer: true,
+          });
         }
       }
 
-      if (categories) {
-        where.collection = { categoryID: categories };
+      switch (order) {
+        case 'recentlyCreated':
+          item.orderBy('item.createdAt', 'DESC');
+          break;
+        case 'oldest':
+          item.orderBy('item.createdAt', 'ASC');
+          break;
+        case 'endDate':
+          item.orderBy('auction_item.endDate', 'ASC');
+          break;
+        case 'endingSoon':
+          item.orderBy('auction_item.endDate', 'ASC');
+          break;
+        case 'priceL2H':
+          item.orderBy('auction_item.startingPrice', 'ASC');
+          break;
+        case 'priceH2L':
+          item.orderBy('auction_item.startingPrice', 'DESC');
+          break;
+        case 'recentlyListed':
+          item.orderBy('auction_item.createdAt', 'DESC');
+          break;
+
+        default:
+          item.orderBy('item.id', 'ASC');
       }
-
-      if (onSale) {
-        const tokenArr = onSale.split(',').map((s) => s.trim());
-        where.allowedTokens = In(tokenArr);
-      }
-
-      // if(priceRange){
-      //     const priceValue = priceRange.split(',').map(s=>s.trim())
-      //     where.blockChain = priceRange  ? { usdPrice: Between(priceValue[0], priceValue[1]) } : where;
-      // }
-
-      const order = {};
-      if (sortBy === 'date') {
-        switch (orderBy) {
-          case 'asc':
-            order['createdAt'] = 'ASC';
-            break;
-          case 'desc':
-            order['createdAt'] = 'DESC';
-            break;
-          default:
-            order['id'] = 'ASC';
-        }
-      }
-
-      const data = await this.nftItemRepository.find({
-        where,
-        order,
-        relations: ['collection', 'blockChain', 'favourites'],
-        skip: (+page - 1) * +limit,
-        take: +limit,
-      });
-      return data;
+      return item
+        .skip((skip - 1) * take)
+        .take(take)
+        .getMany();
     } catch (error) {
       throw new Error(error);
     }
@@ -583,8 +651,11 @@ export class NftItemService {
 
       let item = await this.nftItemRepository.createQueryBuilder('item');
 
-      item = await item.innerJoinAndSelect('item.auction_item', 'auction_item');
-      item = await item.leftJoinAndSelect('item.collection', 'collection');
+      //  item = await item.innerJoinAndSelect('item.auction_item', 'auction_item');
+      item = await item.leftJoinAndSelect('item.auction_item', 'auction_item');
+      item = await item.innerJoinAndSelect('item.collection', 'collection');
+      item = await item.leftJoinAndSelect('item.blockChain', 'blockChain');
+      item = await item.leftJoinAndSelect('item.favourites', 'favourites');
 
       if (collectionsId) {
         const collectionIdArray = collectionsId.split(',').map((s) => s.trim());
@@ -610,8 +681,22 @@ export class NftItemService {
 
       if (priceRange) {
         const [min1, max1] = priceRange.split(',').map((s) => s.trim());
-        const min = parseInt(min1);
-        const max = parseInt(max1);
+        let min = parseInt(min1);
+        let max = parseInt(max1);
+        console.log(priceType);
+
+        if (priceType == 'usd') {
+          const coin = new coingecko();
+
+          const price = await coin.simple.price({
+            ids: 'ethereum',
+            vs_currencies: 'usd',
+          });
+          console.log(price);
+
+          min = min * (1 / price.data.ethereum.usd);
+          max = max * (1 / price.data.ethereum.usd);
+        }
         item = await item.andWhere(
           'auction_item.startingPrice BETWEEN :min AND :max',
           {
@@ -623,7 +708,7 @@ export class NftItemService {
 
       if (categories) {
         item = await item
-          .leftJoinAndSelect('item.collection', 'collection')
+          //     .leftJoinAndSelect('item.collection', 'collection')
           .andWhere('collection.categoryId = :categoryId', {
             categoryId: categories,
           });
@@ -631,12 +716,9 @@ export class NftItemService {
 
       if (chainsId) {
         const chainId = chainsId.split(',').map((s) => s.trim());
-        item = await item.leftJoinAndSelect(
-          'item.blockChain',
-          'blockChain',
-          'blockChain.id IN (:...chainId)',
-          { chainId },
-        );
+        item = await item.andWhere('blockChain.id IN (:...chainId)', {
+          chainId,
+        });
       }
 
       if (status) {
@@ -668,6 +750,11 @@ export class NftItemService {
             hasOffer: true,
           });
         }
+        if (statusArr.includes('hasCashback')) {
+          item = await item.andWhere('item.hasCashback = :hasCashback', {
+            hasCashback: true,
+          });
+        }
       }
 
       switch (order) {
@@ -677,9 +764,7 @@ export class NftItemService {
         case 'oldest':
           item.orderBy('item.createdAt', 'ASC');
           break;
-        case 'endDate':
-          item.orderBy('auction_item.endDate', 'ASC');
-          break;
+
         case 'endingSoon':
           item.orderBy('auction_item.endDate', 'ASC');
           break;
@@ -691,6 +776,9 @@ export class NftItemService {
           break;
         // case 'HighestLastSale':
         //   item.orderBy('auction_item.endingPrice', 'DESC');
+        //   break;
+        // case 'recentlySold':
+        //   item.orderBy('auction_item.', 'DESC');
         //   break;
         // case 'recentlyReceived':
         //   item.orderBy();

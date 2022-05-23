@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber, IsString } from 'class-validator';
+import { IsBoolean, IsNumber, IsString } from 'class-validator';
 import { Chains } from 'src/chains/entities/chains.entity';
 import { Collection } from 'src/collections/entities/collection.entity';
 import { User } from 'src/user/entities/user.entity';
@@ -17,6 +17,54 @@ import {
 } from 'typeorm';
 import { PrimaryGeneratedColumn, JoinColumn } from 'typeorm';
 import { Auction } from 'src/auctions/entities/auctions.entity';
+import { Report } from 'src/report/entities/report.entities';
+
+export class BiddingEnabled {
+  @ApiProperty({ default: false })
+  @IsBoolean()
+  isEnabled: boolean;
+
+  @ApiProperty()
+  reason: string;
+}
+
+export class Properties {
+  @ApiProperty()
+  @IsString()
+  type: string;
+
+  @ApiProperty()
+  @IsString()
+  name: string;
+}
+
+export class Levels {
+  @ApiProperty()
+  @IsString()
+  name: string;
+
+  @ApiProperty()
+  @IsNumber()
+  value: number;
+
+  @ApiProperty()
+  @IsNumber()
+  maxValue: number;
+}
+
+export class Stats {
+  @ApiProperty()
+  @IsString()
+  name: string;
+
+  @ApiProperty()
+  @IsNumber()
+  value: number;
+
+  @ApiProperty()
+  @IsNumber()
+  maxValue: number;
+}
 
 @Entity()
 export class NftItem {
@@ -145,6 +193,14 @@ export class NftItem {
   hash?: string;
 
   @ApiProperty()
+  @Column({ nullable: true })
+  contractAddress: string;
+
+  @ApiProperty()
+  @Column({ type: 'jsonb', nullable: true })
+  isBiddingEnabled: BiddingEnabled;
+
+  @ApiProperty()
   @CreateDateColumn()
   createdAt: Date;
 
@@ -164,45 +220,15 @@ export class NftItem {
   @Column({ nullable: true, type: 'decimal', default: 0 })
   cashback: number;
 
+  // @OneToMany(() => Report, (report) => report.item)
+  // @JoinColumn()
+  // report: Report[];
+
+  @Column({ default: 0 })
+  @ApiProperty()
+  reported: number;
+
   @DeleteDateColumn()
   deletedAt: Date;
-}
-
-export class Properties {
-  @ApiProperty()
-  @IsString()
-  type: string;
-
-  @ApiProperty()
-  @IsString()
-  name: string;
-}
-
-export class Levels {
-  @ApiProperty()
-  @IsString()
-  name: string;
-
-  @ApiProperty()
-  @IsNumber()
-  value: number;
-
-  @ApiProperty()
-  @IsNumber()
-  maxValue: number;
-}
-
-export class Stats {
-  @ApiProperty()
-  @IsString()
-  name: string;
-
-  @ApiProperty()
-  @IsNumber()
-  value: number;
-
-  @ApiProperty()
-  @IsNumber()
-  maxValue: number;
 }
 
