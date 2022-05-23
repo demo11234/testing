@@ -103,6 +103,8 @@ export const ResponseMessage = {
 
   ITEMS_FAVOURITE_COUNT: 'Items Favourite Count',
   AUCTION_SIGNATURE_UPDATED: 'Auction Signature has been updated',
+  OFFER_SIGNATURE_UPDATED: 'Offer Signature has been updated',
+
   REQUEST_REPORTED: 'request successfully reported',
   ALREADY_REPORTED: 'user have already reported this',
 };

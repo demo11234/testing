@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Put,
   Query,
   Req,
   Response,
@@ -22,10 +23,10 @@ import { ResponseMessage } from 'shared/ResponseMessage';
 import { ResponseStatusCode } from 'shared/ResponseStatusCode';
 import { ActivityService } from 'src/activity/activity.service';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { NftItemService } from 'src/nft-item/nft-item.service';
 import { ResponseModel } from 'src/responseModel';
 import { UserService } from 'src/user/user.service';
 import { CreateOfferDto } from './dto/create-offer.dto';
+import { CreateOfferSignatureDto } from './dto/create-offer-signature.dto';
 import { FindOfferByUserDto } from './dto/find-offer-by-user.dto';
 import { OfferFilterDto } from './dto/offer-filter.dto';
 import { UpdateOfferDto } from './dto/update-offer.dto';
@@ -343,6 +344,49 @@ export class OfferController {
           response,
         );
       }
+    } catch (error) {
+      console.log(error);
+      return this.responseModel.response(
+        error,
+        ResponseStatusCode.INTERNAL_SERVER_ERROR,
+        false,
+        response,
+      );
+    }
+  }
+
+  /**
+   * @description updateOfferSignature will update the signature of the offer with given offerId
+   * @param CreateOfferSignatureDto
+   * @author Jeetanshu Srivastava
+   */
+  @Put('/updatesignature')
+  @UseGuards(JwtAuthGuard)
+  @ApiTags('Offer Module')
+  @ApiOperation({
+    summary: 'Update the Signature of Offer with given Offer Id',
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.OK,
+    description: ResponseMessage.OFFER_SIGNATURE_UPDATED,
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
+    description: ResponseMessage.INTERNAL_SERVER_ERROR,
+  })
+  @ApiBearerAuth()
+  async updateAuctionSignature(
+    @Body() createOfferSignatureDto: CreateOfferSignatureDto,
+    @Response() response,
+  ): Promise<any> {
+    try {
+      await this.offerService.updateOfferSignature(createOfferSignatureDto);
+      return this.responseModel.response(
+        ResponseMessage.OFFER_SIGNATURE_UPDATED,
+        ResponseStatusCode.OK,
+        true,
+        response,
+      );
     } catch (error) {
       console.log(error);
       return this.responseModel.response(

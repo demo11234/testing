@@ -66,6 +66,11 @@ export class AuctionsService {
     auction.auction_item = item;
     auction.auctionName = item.fileName;
 
+    await this.nftItemRepository.update(
+      { id: createAuctionInterface.auction_items },
+      { onAuction: true },
+    );
+
     const collection = await this.collectionRepository.findOne({
       id: createAuctionInterface.auction_collection,
     });
@@ -179,6 +184,14 @@ export class AuctionsService {
         .set({ isDeleted: true })
         .execute();
 
+      const activeListingExists = await this.getActiveListingByItemId(itemId);
+      if (!activeListingExists.length) {
+        await this.nftItemRepository.update(
+          { id: itemId },
+          { onAuction: false },
+        );
+      }
+
       await this.activityService.createActivity({
         eventActions: eventActions.CANCELLED,
         nftItem: auction.auction_item.id,
@@ -223,6 +236,31 @@ export class AuctionsService {
       .innerJoinAndSelect('auctions.creator', 'creator')
       .orderBy('auctions.startingPrice', 'ASC')
       .select(['auctions', 'tokens', 'creator'])
+      .getMany();
+
+    return auctions;
+  }
+
+  /**
+   * @description getListinActivegByItemId will return the details of the active listing of the given item id
+   * @param itemId
+   * @returns it will return Array of Listings
+   * @author Jeetanshu Srivastava
+   */
+  async getActiveListingByItemId(itemId: string): Promise<Auction[]> {
+    const auctions = await this.auctionRepository
+      .createQueryBuilder('auctions')
+      .innerJoinAndSelect(
+        'auctions.auction_item',
+        'nft_item',
+        'nft_item.id = :itemId',
+        { itemId },
+      )
+      .innerJoinAndSelect('auctions.tokens', 'tokens')
+      .innerJoinAndSelect('auctions.creator', 'creator')
+      .where('auctions.isActive = :isActive', { isActive: true })
+      .orderBy('auctions.startingPrice', 'ASC')
+      .select(['auctions', 'tokens', 'creator', 'nft_item'])
       .getMany();
 
     return auctions;

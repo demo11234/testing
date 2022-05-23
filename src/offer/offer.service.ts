@@ -10,6 +10,7 @@ import { UpdateOfferDto } from './dto/update-offer.dto';
 import { Offer } from './entities/offer.entity';
 import { ResponseMessage } from 'shared/ResponseMessage';
 import { off } from 'process';
+import { CreateSignatureInterface } from './interface/create-signature.interface';
 
 @Injectable()
 export class OfferService {
@@ -125,7 +126,7 @@ export class OfferService {
     const offers = await this.offerRepository.findAndCount({
       take,
       skip,
-      where: { item: offerFilerDto.item },
+      where: { item: offerFilerDto.item, isDeleted: false },
     });
     return offers;
   }
@@ -140,6 +141,7 @@ export class OfferService {
     const offers = await this.offerRepository.find({
       where: {
         owner: userId,
+        isDeleted: false,
       },
     });
     return offers;
@@ -155,8 +157,25 @@ export class OfferService {
     const user = await this.userRepository.findOne({ where: { id: userId } });
     const offers = await this.offerRepository.find({
       relations: ['item'],
-      where: { item: { owner: user.walletAddress } },
+      where: { item: { owner: user.walletAddress }, isDeleted: false },
     });
     return offers;
+  }
+
+  /**
+   * @description updateOfferSignature will update the signature of the auction with given offerId
+   * @param CreateSignatureInterface
+   * @returns it will return boolean
+   * @author Jeetanshu Srivastava
+   */
+  async updateOfferSignature(
+    createSignatureInterface: CreateSignatureInterface,
+  ): Promise<boolean> {
+    const signature = JSON.stringify(createSignatureInterface.signature);
+    await this.offerRepository.update(
+      { id: createSignatureInterface.offerId },
+      { signature },
+    );
+    return true;
   }
 }
