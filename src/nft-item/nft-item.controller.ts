@@ -793,6 +793,6 @@ export class NftItemController {
       return await this.nftItemService.updateCashback(updateCashbackDto);
     } catch (e) {
       throw new BadRequestException(e.message);
-     }
-  }  
+    }
+  }
 }

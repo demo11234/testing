@@ -231,4 +231,3 @@ export class NftItem {
   @DeleteDateColumn()
   deletedAt: Date;
 }
-
