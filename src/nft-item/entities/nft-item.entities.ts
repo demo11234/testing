@@ -115,12 +115,16 @@ export class NftItem {
   stats: Stats[];
 
   @ApiProperty()
-  @Column({ default: false })
+  @Column({ nullable: true, default: false })
   isLockable: boolean;
 
   @ApiProperty()
-  @Column({ default: false })
+  @Column({ nullable: true, default: false })
   isExplicit: boolean;
+
+  @ApiProperty()
+  @Column({ nullable: true, default: false })
+  isHidden: boolean;
 
   @ApiProperty()
   @Column({ default: 1 })
@@ -185,7 +189,7 @@ export class NftItem {
   hasCashback: boolean;
 
   @ApiProperty()
-  @Column({ default: false })
+  @Column({ nullable: true, default: false })
   isFreezed?: boolean;
 
   @ApiProperty()

@@ -134,7 +134,7 @@ export class OfferService {
     const offers = await this.offerRepository.findAndCount({
       take,
       skip,
-      where: { item: offerFilerDto.item },
+      where: { item: offerFilerDto.item, isDeleted: false },
     });
     return offers;
   }

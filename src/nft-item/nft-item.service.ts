@@ -24,6 +24,7 @@ import moment from 'moment';
 import { fetchTransactionReceipt } from 'shared/contract-instance';
 import { UpdateCashbackDto } from './dto/updatecashback.dto';
 import coingecko from 'coingecko-api';
+import { Auction } from 'src/auctions/entities/auctions.entity';
 
 @Injectable()
 export class NftItemService {
@@ -36,6 +37,7 @@ export class NftItemService {
     private chainsRepository: Repository<Chains>,
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    @InjectRepository(Auction) private auctionRepository: Repository<Auction>,
     private readonly activityService: ActivityService,
   ) {}
 
@@ -155,13 +157,17 @@ export class NftItemService {
 
       let item = await this.nftItemRepository.createQueryBuilder('item');
 
-      item = await item.innerJoinAndSelect('item.auction_item', 'auction_item');
+      item = await item.where('item.walletAddress = :walletAddress', {
+        walletAddress,
+      });
 
-      if (walletAddress) {
-        item = await item.andWhere('item.walletAddress = :walletAddress', {
-          walletAddress,
-        });
-      }
+      item = await item.leftJoinAndSelect('item.auction_item', 'auction_item');
+
+      // if (walletAddress) {
+      // item = await item.where('item.walletAddress = :walletAddress', {
+      //   walletAddress,
+      // });
+      // }
 
       if (collectionsId) {
         const collectionIdArray = collectionsId.split(',').map((s) => s.trim());
@@ -315,7 +321,7 @@ export class NftItemService {
       updateNftItem.lockableContent = updateNftItemDto.lockableContent;
       updateNftItem.properties = updateNftItemDto.properties;
       updateNftItem.stats = updateNftItemDto.stats;
-      updateNftItem.isFreezed = updateNftItem.isFreezed;
+      updateNftItem.isFreezed = updateNftItemDto.isFreezed;
       const collection = await this.collectionRepository.findOne({
         where: { id: updateNftItemDto.collectionId },
       });
@@ -524,7 +530,8 @@ export class NftItemService {
     }
   }
 
-  /* @description: This api fetch all the item of a collection except one
+  /**
+   * @description: This api fetch all the item of a collection except one
    * @param id
    * @returns: all Item from a collection
    * @author: vipin
@@ -593,12 +600,16 @@ export class NftItemService {
       //--  code to transfer item blockchain from one user to another user
       const receipt = await fetchTransactionReceipt(transferDto.hash);
 
-      if (receipt.status === true) {
+      if (receipt.status == true) {
         const transferNftItem = new NftItem();
         transferNftItem.owner = transferDto.userWalletAddress;
         transferNftItem.supply = item.supply - transferDto.supply;
         transferNftItem.hash = transferDto.hash;
-        await this.nftItemRepository.update({ id }, transferNftItem);
+        transferNftItem.onAuction = false;
+        const itemDetails = await this.nftItemRepository.update(
+          { id },
+          transferNftItem,
+        );
 
         await this.activityService.createActivity({
           eventActions: eventActions.TRANSFER,
@@ -827,6 +838,7 @@ export class NftItemService {
       const item = await this.findOne(updateCashbackDto.itemID);
       if (item) {
         item.cashback = updateCashbackDto.cashback;
+        item.hasCashback = true;
         await this.nftItemRepository.update(
           { id: updateCashbackDto.itemID },
           item,
@@ -841,19 +853,19 @@ export class NftItemService {
   /**
    * @description: hidden adds or removes item from user hidden items
    * @param itemId
-   * @param isExplicit
+   * @param isHidden
    * @returns: Updates Status
    * @author Jeetanshu Srivastava
    */
   async hideItem(
     itemId: string,
-    isExplicit: boolean,
+    isHidden: boolean,
     walletAddress: string,
   ): Promise<boolean> {
     const item = await this.nftItemRepository.findOne({ id: itemId });
     if (!item) return null;
     if (item.owner == walletAddress) {
-      await this.nftItemRepository.update({ id: itemId }, { isExplicit });
+      await this.nftItemRepository.update({ id: itemId }, { isHidden });
       return true;
     }
     return null;
@@ -869,7 +881,7 @@ export class NftItemService {
     const items = await this.nftItemRepository.find({
       where: {
         walletAddress,
-        isExplicit: true,
+        isHidden: true,
       },
     });
     return items;
