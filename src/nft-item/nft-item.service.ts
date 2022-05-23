@@ -655,6 +655,7 @@ export class NftItemService {
       item = await item.leftJoinAndSelect('item.auction_item', 'auction_item');
       item = await item.innerJoinAndSelect('item.collection', 'collection');
       item = await item.leftJoinAndSelect('item.blockChain', 'blockChain');
+      item = await item.leftJoinAndSelect('item.favourites', 'favourites');
 
       if (collectionsId) {
         const collectionIdArray = collectionsId.split(',').map((s) => s.trim());
