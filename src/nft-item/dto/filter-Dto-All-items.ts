@@ -54,6 +54,11 @@ export class FilterDtoAllItems {
   @IsOptional()
   isBundle?: boolean;
 
+  @ApiPropertyOptional({ description: 'search by name of item' })
+  @IsOptional()
+  @IsString()
+  search?: string;
+
   @ApiPropertyOptional({
     enum: {
       recentlyCreated: 'recentlyCreated',

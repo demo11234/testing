@@ -5,7 +5,7 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { CreateCollectionsDto } from './dto/create-collections.dto';
 import { UpdateCollectionsDto } from './dto/update-collection.dto';
 import { Collection } from './entities/collection.entity';
@@ -130,19 +130,25 @@ export class CollectionsService {
    */
   async findAll(filterDto: FilterDto): Promise<any> {
     try {
-      const { take, skip } = filterDto;
+      const { take, skip, search } = filterDto;
       const filter = Object.assign({}, filterDto);
 
       Object.keys(filter).forEach((value) => {
         if (!filter[value]) delete filter[value];
       });
+      let where: any = filter;
+      if(search){
+        where['name'] = ILike(`%${search}%`)
+      }
 
+      // console.log(where);
       const collections = await this.collectionRepository.findAndCount({
         take,
         skip,
-        where: filter,
+        where,
         relations: ['watchlist'],
       });
+
       return collections;
     } catch (error) {
       return { msg: ResponseMessage.INTERNAL_SERVER_ERROR };

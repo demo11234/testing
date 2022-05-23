@@ -150,6 +150,7 @@ export class NftItemService {
         limit,
         page,
         order,
+        search,
       } = filterDto;
 
       const take = limit ? limit : 0;
@@ -162,29 +163,28 @@ export class NftItemService {
       });
 
       item = await item.leftJoinAndSelect('item.auction_item', 'auction_item');
+      item = await item.leftJoinAndSelect('item.collection', 'collection');
+      item = await item.leftJoinAndSelect('item.blockChain', 'blockChain');
+      item = await item.leftJoinAndSelect('auction_item.tokens', 'tokens');
+      item = await item.leftJoinAndSelect('item.favourites', 'favourites');
 
-      // if (walletAddress) {
-      // item = await item.where('item.walletAddress = :walletAddress', {
-      //   walletAddress,
-      // });
-      // }
+      if (search) {
+        item = await item.andWhere('item.fileName ilike :name', {
+          name: `%${search}%`,
+        });
+      }
 
       if (collectionsId) {
         const collectionIdArray = collectionsId.split(',').map((s) => s.trim());
 
-        item = await item.leftJoinAndSelect(
-          'item.collection',
-          'collection',
-          'collection.id IN (:...collectionIdArray)',
-          { collectionIdArray },
-        );
+        item = await item.andWhere('collection.id IN (:...collectionIdArray)', {
+          collectionIdArray,
+        });
       }
 
       if (onSale) {
         const tokens = onSale.split(',').map((s) => s.trim());
-        item = await item
-          .leftJoinAndSelect('auction_item.tokens', 'tokens')
-          .andWhere('tokens.id IN (:...tokens)', { tokens });
+        item = await item.andWhere('tokens.id IN (:...tokens)', { tokens });
       }
 
       if (priceRange) {
@@ -213,21 +213,16 @@ export class NftItemService {
       }
 
       if (categories) {
-        item = await item
-          .leftJoinAndSelect('item.collection', 'collection')
-          .andWhere('collection.categoryId = :categoryId', {
-            categoryId: categories,
-          });
+        item = await item.andWhere('collection.categoryId = :categoryId', {
+          categoryId: categories,
+        });
       }
 
       if (chainsId) {
         const chainId = chainsId.split(',').map((s) => s.trim());
-        item = await item.leftJoinAndSelect(
-          'item.blockChain',
-          'blockChain',
-          'blockChain.id IN (:...chainId)',
-          { chainId },
-        );
+        item = await item.andWhere('blockChain.id IN (:...chainId)', {
+          chainId,
+        });
       }
 
       if (status) {
@@ -653,6 +648,7 @@ export class NftItemService {
         isBundle,
         priceRange,
         order,
+        search,
       } = filterDtoAllItems;
 
       let { take, skip } = filterDtoAllItems;
@@ -667,6 +663,12 @@ export class NftItemService {
       item = await item.innerJoinAndSelect('item.collection', 'collection');
       item = await item.leftJoinAndSelect('item.blockChain', 'blockChain');
       item = await item.leftJoinAndSelect('item.favourites', 'favourites');
+
+      if (search) {
+        item = await item.andWhere('item.fileName ilike :name', {
+          name: `%${search}%`,
+        });
+      }
 
       if (collectionsId) {
         const collectionIdArray = collectionsId.split(',').map((s) => s.trim());
