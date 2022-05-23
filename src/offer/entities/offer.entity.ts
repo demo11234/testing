@@ -15,7 +15,14 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-import { FeeMethod, HowToCall, SaleKind, Side } from 'shared/Constants';
+import {
+  FeeMethod,
+  HowToCall,
+  SaleKind,
+  Side,
+  StatusType,
+} from 'shared/Constants';
+import { IsEnum } from 'class-validator';
 
 export class Signature {
   @ApiProperty()
@@ -127,15 +134,20 @@ export class Offer {
   @Column({ default: false })
   @Exclude()
   isDeleted: boolean;
-  
-  @Column({nullable:true})
+
+  @Column({ nullable: true })
   @ApiProperty()
   transactionHash: string;
 
-  @Column({default:null})
+  @Column({ default: StatusType.CREATED, nullable: false })
   @ApiProperty()
-  status:string;
-  
+  @IsEnum(StatusType)
+  status:
+    | StatusType.CREATED
+    | StatusType.COMPLETED
+    | StatusType.EXPIRED
+    | StatusType.DELETED;
+
   @ApiProperty()
   @Column({ nullable: true })
   signature: string;

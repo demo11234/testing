@@ -64,7 +64,7 @@ export class Activity {
   @ApiProperty()
   previousPrice: number;
 
-  @Column({ nullable: true, default: 1 })
+  @Column({ nullable: true, type:'decimal', default: 0 })
   @ApiProperty()
   quantity: number;
 
@@ -87,8 +87,4 @@ export class Activity {
   @Column({nullable:true})
   @ApiProperty()
   url: string;
-
-  @Column({ nullable: true, type: 'decimal', default: 0 })
-  @ApiProperty()
-  amount: number;
 }

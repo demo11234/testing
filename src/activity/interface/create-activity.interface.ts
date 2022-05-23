@@ -14,5 +14,4 @@ export interface CreateActivityInterface {
   winnerAccount?: string;
   transactionHash?:string;
   url?:string;
-  amount?:number;
 }

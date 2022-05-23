@@ -14,7 +14,7 @@ import { UpdateOfferDto } from './dto/update-offer.dto';
 import { Offer } from './entities/offer.entity';
 import { ResponseMessage } from 'shared/ResponseMessage';
 import { AcceptOfferDto } from './dto/acceptOffer.dto';
-import { eventActions, eventType } from 'shared/Constants';
+import { eventActions, eventType, StatusType } from 'shared/Constants';
 import { ActivityService } from 'src/activity/activity.service';
 import { off } from 'process';
 import { CreateSignatureInterface } from './interface/create-signature.interface';
@@ -140,6 +140,37 @@ export class OfferService {
   }
 
   /**
+   * @description fetches offers sent by user
+   * @param userId
+   * @returns Details of the offers
+   * @author Ansh Arora
+   */
+  async findOwnedByUser(userId: string): Promise<any> {
+    const offers = await this.offerRepository.find({
+      where: {
+        owner: userId,
+        isDeleted: false,
+      },
+    });
+    return offers;
+  }
+
+  /**
+   * @description fetches offers recieved by user
+   * @param userId
+   * @returns Details of the offers
+   * @author Ansh Arora
+   */
+  async findRecievedByUser(userId: string): Promise<any> {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    const offers = await this.offerRepository.find({
+      relations: ['item'],
+      where: { item: { owner: user.walletAddress }, isDeleted: false },
+    });
+    return offers;
+  }
+
+  /**
    * @description Accept the Offer by item Onwer
    * @body AcceptOfferDto
    * @returns item details
@@ -157,11 +188,12 @@ export class OfferService {
       });
       if (!item) return null;
       if (item.owner === ownerWalletAddress) {
+        
         offer.transactionHash = acceptOfferDto.transactionHash;
-        offer.status ='Accepted';
+        offer.status = StatusType.COMPLETED;
         await this.offerRepository.update({ id: offer.id }, offer);
-        item.owner = offer.owner.walletAddress;
 
+        item.owner = offer.owner.walletAddress;
         await this.nftItemRepository.update({ id: item.id }, item);
 
         await this.activityService.createActivity({
@@ -176,7 +208,7 @@ export class OfferService {
           winnerAccount: null,
           transactionHash: acceptOfferDto.transactionHash,
           url: acceptOfferDto.url,
-          amount:offer.price,
+          quantity: offer.price,
         });
         await this.activityService.createActivity({
           eventActions: eventActions.TRANSFER,
@@ -190,7 +222,7 @@ export class OfferService {
           winnerAccount: null,
           transactionHash: acceptOfferDto.transactionHash,
           url: acceptOfferDto.url,
-          amount:offer.price,
+          quantity: offer.price,
         });
         return item;
       } else {
