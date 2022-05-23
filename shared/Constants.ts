@@ -68,3 +68,10 @@ export enum HowToCall {
   Call = 0,
   DelegateCall = 1,
 }
+
+export enum StatusType {
+  CREATED = 'Created',
+  DELETED = 'Deleted',
+  EXPIRED = 'Expired',
+  COMPLETED = 'Completed',
+}

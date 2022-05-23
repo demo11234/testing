@@ -1,8 +1,11 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   Patch,
   Post,
@@ -14,17 +17,19 @@ import {
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
+  ApiOkResponse,
   ApiOperation,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { eventActions, eventType, findOfferByUserType } from 'shared/Constants';
+import { eventActions, eventType } from 'shared/Constants';
 import { ResponseMessage } from 'shared/ResponseMessage';
 import { ResponseStatusCode } from 'shared/ResponseStatusCode';
 import { ActivityService } from 'src/activity/activity.service';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { ResponseModel } from 'src/responseModel';
 import { UserService } from 'src/user/user.service';
+import { AcceptOfferDto } from './dto/acceptOffer.dto';
 import { CreateOfferDto } from './dto/create-offer.dto';
 import { CreateOfferSignatureDto } from './dto/create-offer-signature.dto';
 import { FindOfferByUserDto } from './dto/find-offer-by-user.dto';
@@ -187,7 +192,8 @@ export class OfferController {
   @Get('/getOffers')
   @ApiTags('Offer Module')
   @ApiOperation({
-    summary: 'Api to fetch offers based on current filter.',
+    summary:
+      'Api to fetch offers based on current filter.',
   })
   @ApiResponse({
     status: ResponseStatusCode.CONFLICT,
@@ -246,7 +252,8 @@ export class OfferController {
   @UseGuards(JwtAuthGuard)
   @ApiTags('Offer Module')
   @ApiOperation({
-    summary: 'Api to delete an offer using id.',
+    summary:
+      'Api to delete an offer using id.',
   })
   @ApiResponse({
     status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
@@ -353,6 +360,35 @@ export class OfferController {
         response,
       );
     }
+  }
+
+ /**
+   * @description: This api accept the offer
+   * @returns: Null
+   * @author: Susmita
+   */
+
+  @ApiTags('Offer Module')
+   @UseGuards(JwtAuthGuard)
+   @ApiBearerAuth()
+   @ApiResponse({
+    status: ResponseStatusCode.OK,
+    description: ResponseMessage.TOKEN_DETAILS,
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
+    description: ResponseMessage.INTERNAL_SERVER_ERROR,
+  })
+  @Put('/acceptOffer')
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({ description: 'ACCEPT OFFER ON AN ITEM' })
+  async AcceptOffer(@Body() acceptOfferDto: AcceptOfferDto , @Req() req) {
+    try {
+      const ownerWalletAddress = req.user.walletAddress;
+      return await this.offerService.AcceptOffer(acceptOfferDto,ownerWalletAddress);
+    } catch (e) {
+      throw new BadRequestException(e.message);
+     }
   }
 
   /**

@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { NftItem } from 'src/nft-item/entities/nft-item.entities';
 import { Tokens } from 'src/token/entities/tokens.entity';
@@ -9,6 +13,9 @@ import { OfferFilterDto } from './dto/offer-filter.dto';
 import { UpdateOfferDto } from './dto/update-offer.dto';
 import { Offer } from './entities/offer.entity';
 import { ResponseMessage } from 'shared/ResponseMessage';
+import { AcceptOfferDto } from './dto/acceptOffer.dto';
+import { eventActions, eventType, StatusType } from 'shared/Constants';
+import { ActivityService } from 'src/activity/activity.service';
 import { off } from 'process';
 import { CreateSignatureInterface } from './interface/create-signature.interface';
 
@@ -23,6 +30,7 @@ export class OfferService {
     private readonly nftItemRepository: Repository<NftItem>,
     @InjectRepository(Tokens)
     private readonly tokensRepository: Repository<Tokens>,
+    private readonly activityService: ActivityService,
   ) {}
 
   /**
@@ -160,6 +168,71 @@ export class OfferService {
       where: { item: { owner: user.walletAddress }, isDeleted: false },
     });
     return offers;
+  }
+
+  /**
+   * @description Accept the Offer by item Onwer
+   * @body AcceptOfferDto
+   * @returns item details
+   * @author Susmita
+   */
+  async AcceptOffer(
+    acceptOfferDto: AcceptOfferDto,
+    ownerWalletAddress: string,
+  ): Promise<any> {
+    try {
+      const offer = await this.offerRepository.findOne(acceptOfferDto.offerID);
+      if (!offer) return null;
+      const item = await this.nftItemRepository.findOne({
+        id: offer.item.id,
+      });
+      if (!item) return null;
+      if (item.owner === ownerWalletAddress) {
+        
+        offer.transactionHash = acceptOfferDto.transactionHash;
+        offer.status = StatusType.COMPLETED;
+        await this.offerRepository.update({ id: offer.id }, offer);
+
+        item.owner = offer.owner.walletAddress;
+        await this.nftItemRepository.update({ id: item.id }, item);
+
+        await this.activityService.createActivity({
+          eventActions: eventActions.TRANSFER,
+          nftItem: item.id,
+          eventType: eventType.TRANSFERS,
+          fromAccount: item.owner,
+          toAccount: offer.owner.walletAddress,
+          totalPrice: null,
+          isPrivate: false,
+          collectionId: item.collection.id,
+          winnerAccount: null,
+          transactionHash: acceptOfferDto.transactionHash,
+          url: acceptOfferDto.url,
+          quantity: offer.price,
+        });
+        await this.activityService.createActivity({
+          eventActions: eventActions.TRANSFER,
+          nftItem: item.id,
+          eventType: eventType.SALES,
+          fromAccount: item.owner,
+          toAccount: offer.owner.walletAddress,
+          totalPrice: null,
+          isPrivate: false,
+          collectionId: item.collection.id,
+          winnerAccount: null,
+          transactionHash: acceptOfferDto.transactionHash,
+          url: acceptOfferDto.url,
+          quantity: offer.price,
+        });
+        return item;
+      } else {
+        throw new BadRequestException(
+          ResponseMessage.ITEM_DOES_NOT_BELONG_TO_OWNER,
+        );
+      }
+    } catch (error) {
+      throw new Error(error);
+    }
   }
 
   /**
