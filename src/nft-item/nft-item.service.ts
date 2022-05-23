@@ -24,6 +24,7 @@ import moment from 'moment';
 import { fetchTransactionReceipt } from 'shared/contract-instance';
 import { UpdateCashbackDto } from './dto/updatecashback.dto';
 import coingecko from 'coingecko-api';
+import { Auction } from 'src/auctions/entities/auctions.entity';
 
 @Injectable()
 export class NftItemService {
@@ -36,6 +37,7 @@ export class NftItemService {
     private chainsRepository: Repository<Chains>,
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    @InjectRepository(Auction) private auctionRepository: Repository<Auction>,
     private readonly activityService: ActivityService,
   ) {}
 
@@ -603,7 +605,11 @@ export class NftItemService {
         transferNftItem.owner = transferDto.userWalletAddress;
         transferNftItem.supply = item.supply - transferDto.supply;
         transferNftItem.hash = transferDto.hash;
-        await this.nftItemRepository.update({ id }, transferNftItem);
+        transferNftItem.onAuction = false;
+        const itemDetails = await this.nftItemRepository.update(
+          { id },
+          transferNftItem,
+        );
 
         await this.activityService.createActivity({
           eventActions: eventActions.TRANSFER,
@@ -832,7 +838,7 @@ export class NftItemService {
       const item = await this.findOne(updateCashbackDto.itemID);
       if (item) {
         item.cashback = updateCashbackDto.cashback;
-        item.hasCashback= true;
+        item.hasCashback = true;
         await this.nftItemRepository.update(
           { id: updateCashbackDto.itemID },
           item,
