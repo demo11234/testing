@@ -9,5 +9,5 @@ export class HideItemDto {
 
   @ApiProperty()
   @IsNotEmpty()
-  isExplicit: boolean;
+  isHidden: boolean;
 }
