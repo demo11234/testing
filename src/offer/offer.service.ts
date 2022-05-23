@@ -10,6 +10,7 @@ import { UpdateOfferDto } from './dto/update-offer.dto';
 import { Offer } from './entities/offer.entity';
 import { ResponseMessage } from 'shared/ResponseMessage';
 import { off } from 'process';
+import { CreateSignatureInterface } from './interface/create-signature.interface';
 
 @Injectable()
 export class OfferService {
@@ -158,5 +159,22 @@ export class OfferService {
       where: { item: { owner: user.walletAddress } },
     });
     return offers;
+  }
+
+  /**
+   * @description updateOfferSignature will update the signature of the auction with given offerId
+   * @param CreateSignatureInterface
+   * @returns it will return boolean
+   * @author Jeetanshu Srivastava
+   */
+  async updateOfferSignature(
+    createSignatureInterface: CreateSignatureInterface,
+  ): Promise<boolean> {
+    const signature = JSON.stringify(createSignatureInterface.signature);
+    await this.offerRepository.update(
+      { id: createSignatureInterface.offerId },
+      { signature },
+    );
+    return true;
   }
 }

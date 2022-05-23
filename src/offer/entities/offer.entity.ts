@@ -14,6 +14,85 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
+import { FeeMethod, HowToCall, SaleKind, Side } from 'shared/Constants';
+
+export class Signature {
+  @ApiProperty()
+  Maker: string;
+
+  @ApiProperty()
+  Exchange: string;
+
+  @ApiProperty()
+  Taker: string;
+
+  @ApiProperty()
+  makerRelayerFee: number;
+
+  @ApiProperty()
+  takerRelayerFee: number;
+
+  @ApiProperty()
+  makerProtocolFee: number;
+
+  @ApiProperty()
+  takerProtocolFee: number;
+
+  @ApiProperty()
+  takerCashbackFee: number;
+
+  @ApiProperty()
+  feeRecipient: string;
+
+  @ApiProperty()
+  feeMethod: FeeMethod.PROTOCOL_FEE | FeeMethod.SPLIT_FEE;
+
+  @ApiProperty()
+  Side: Side.BUY | Side.SELL;
+
+  @ApiProperty()
+  saleKind: SaleKind.DUTCH_AUCTION | SaleKind.FIXED_PRICE;
+
+  @ApiProperty()
+  Target: string;
+
+  @ApiProperty()
+  howToCall: HowToCall.Call | HowToCall.DelegateCall;
+
+  @ApiProperty()
+  Calldata: string;
+
+  @ApiProperty()
+  replacementPattern: string;
+
+  @ApiProperty()
+  staticTarget: string;
+
+  @ApiProperty()
+  staticExtradata: string;
+
+  @ApiProperty()
+  paymentToken: string;
+
+  @ApiProperty()
+  basePrice: number;
+
+  @ApiProperty()
+  Extra: number;
+
+  @ApiProperty()
+  listingTime: number;
+
+  @ApiProperty()
+  expirationTime: number;
+
+  @ApiProperty()
+  Salt: number;
+
+  @ApiProperty()
+  Nonce: number;
+}
+
 @Entity()
 export class Offer {
   @PrimaryGeneratedColumn('uuid')
@@ -40,12 +119,17 @@ export class Offer {
   @JoinColumn()
   item: NftItem;
 
+  @ApiProperty()
   @Column()
   Expires: string;
 
   @Column({ default: false })
   @Exclude()
   isDeleted: boolean;
+
+  @ApiProperty()
+  @Column({ nullable: true })
+  signature: string;
 
   @CreateDateColumn()
   @ApiProperty()
