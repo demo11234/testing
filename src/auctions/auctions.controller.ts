@@ -222,7 +222,7 @@ export class AuctionsController {
    * @returns it will return Array of Listings
    * @author Jeetanshu Srivastava
    */
-  @Get('/activeitem/:itemId')
+  @Get('/activelisting/:itemId')
   @ApiTags('Auctions Module')
   @ApiOperation({
     summary: 'Get Active Auctions Details By Item Id',
