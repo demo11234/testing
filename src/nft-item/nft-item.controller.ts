@@ -98,7 +98,7 @@ export class NftItemController {
         fromAccount: process.env.MINTING_ACCOUNT_ADDRESS,
         toAccount: req.user.walletAddress,
         totalPrice: null,
-        isPrivate: create?.isExplicit ?? false,
+        isPrivate: false,
         collectionId: nftItemDto.collectionId,
         winnerAccount: null,
       });
@@ -226,13 +226,13 @@ export class NftItemController {
           false,
           response,
         );
-      if (req.user.walletAddress === item.owner) {
-        const updateItem = await this.nftItemService.updateNftItems(
-          id,
-          updateNftItemDto,
-        );
+      if (
+        req.user.walletAddress == item.owner &&
+        req.user.walletAddress == item.originalOwner
+      ) {
+        await this.nftItemService.updateNftItems(id, updateNftItemDto);
         return this.responseModel.response(
-          updateItem,
+          ResponseMessage.ITEM_UPDATED,
           ResponseStatusCode.OK,
           true,
           response,
@@ -440,7 +440,7 @@ export class NftItemController {
     try {
       const result = await this.nftItemService.hideItem(
         hideItemDto.itemId,
-        hideItemDto.isExplicit,
+        hideItemDto.isHidden,
         request.user.walletAddress,
       );
       if (!result) {
@@ -689,7 +689,7 @@ export class NftItemController {
   @ApiBearerAuth()
   @Patch('transfer/:id')
   async transferItem(
-    @Param('itemId') id: string,
+    @Param('id') id: string,
     @Request() req,
     @Body() transferDto: TransferItemDto,
     @Response() response,
