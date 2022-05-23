@@ -5,7 +5,7 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ILike, Repository } from 'typeorm';
+import { ILike, Like, Repository } from 'typeorm';
 import { CreateCollectionsDto } from './dto/create-collections.dto';
 import { UpdateCollectionsDto } from './dto/update-collection.dto';
 import { Collection } from './entities/collection.entity';
@@ -136,19 +136,32 @@ export class CollectionsService {
       Object.keys(filter).forEach((value) => {
         if (!filter[value]) delete filter[value];
       });
-      let where: any = filter;
-      if(search){
-        where['name'] = ILike(`%${search}%`)
+      delete filter.take;
+      delete filter.skip;
+      delete filter.search;
+
+      let collections;
+      if (Object.keys(filter).length === 0 && !search) {
+        collections = await this.collectionRepository.findAndCount({
+          take,
+          skip,
+          relations: ['watchlist'],
+        });
+      } else if (Object.keys(filter).length !== 0 && search) {
+        collections = await this.collectionRepository.findAndCount({
+          take,
+          skip,
+          where: [{ name: Like(`%${search}%`) }, filter],
+          relations: ['watchlist'],
+        });
+      } else {
+        collections = await this.collectionRepository.findAndCount({
+          take,
+          skip,
+          where: [{ name: Like(`%${search}%`) }],
+          relations: ['watchlist'],
+        });
       }
-
-      // console.log(where);
-      const collections = await this.collectionRepository.findAndCount({
-        take,
-        skip,
-        where,
-        relations: ['watchlist'],
-      });
-
       return collections;
     } catch (error) {
       return { msg: ResponseMessage.INTERNAL_SERVER_ERROR };

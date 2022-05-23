@@ -16,11 +16,6 @@ export class FilterDto {
   @IsOptional()
   earningWalletAddress: string;
 
-  @ApiPropertyOptional({ description: 'name of the collection' })
-  @IsString()
-  @IsOptional()
-  name: string;
-
   @ApiPropertyOptional({ description: 'status' })
   @IsString()
   @IsOptional()
