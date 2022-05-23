@@ -134,7 +134,7 @@ export class OfferService {
     const offers = await this.offerRepository.findAndCount({
       take,
       skip,
-      where: { item: offerFilerDto.item },
+      where: { item: offerFilerDto.item, isDeleted: false },
     });
     return offers;
   }
@@ -145,6 +145,7 @@ export class OfferService {
    * @returns item details
    * @author Susmita
    */
+  
   async AcceptOffer(
     acceptOfferDto: AcceptOfferDto,
     ownerWalletAddress: string,
@@ -201,6 +202,30 @@ export class OfferService {
     } catch (error) {
       throw new Error(error);
     }
+
+  async findOwnedByUser(userId: string): Promise<any> {
+    const offers = await this.offerRepository.find({
+      where: {
+        owner: userId,
+        isDeleted: false,
+      },
+    });
+    return offers;
+  }
+
+  /**
+   * @description fetches offers recieved by user
+   * @param userId
+   * @returns Details of the offers
+   * @author Ansh Arora
+   */
+  async findRecievedByUser(userId: string): Promise<any> {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    const offers = await this.offerRepository.find({
+      relations: ['item'],
+      where: { item: { owner: user.walletAddress }, isDeleted: false },
+    });
+    return offers;
   }
 
   /**
