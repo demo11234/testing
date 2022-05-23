@@ -307,6 +307,61 @@ export class OfferController {
     }
   }
 
+  /**
+   * @description: This api gets all the offers based on user has recieved or sent offers
+   * @returns: Matching offers
+   * @author: Ansh Arora
+   */
+  @Get('/getOffersByUser')
+  @ApiTags('Offer Module')
+  @ApiOperation({
+    summary: 'Api to fetch offers based on user sent and recieved.',
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.OK,
+    description: 'Offer Details',
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
+    description: ResponseMessage.INTERNAL_SERVER_ERROR,
+  })
+  async getOffersByUser(
+    @Query() findOfferByUserDto: FindOfferByUserDto,
+    @Response() response,
+  ) {
+    try {
+      if (findOfferByUserDto.recievedOrSent === findOfferByUserType.SENT) {
+        const offers = await this.offerService.findOwnedByUser(
+          findOfferByUserDto.id,
+        );
+        return this.responseModel.response(
+          offers,
+          ResponseStatusCode.OK,
+          true,
+          response,
+        );
+      } else {
+        const offers = await this.offerService.findRecievedByUser(
+          findOfferByUserDto.id,
+        );
+        return this.responseModel.response(
+          offers,
+          ResponseStatusCode.OK,
+          false,
+          response,
+        );
+      }
+    } catch (error) {
+      console.log(error);
+      return this.responseModel.response(
+        error,
+        ResponseStatusCode.INTERNAL_SERVER_ERROR,
+        false,
+        response,
+      );
+    }
+  }
+
  /**
    * @description: This api accept the offer
    * @returns: Null

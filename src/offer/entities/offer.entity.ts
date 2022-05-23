@@ -139,7 +139,7 @@ export class Offer {
   @ApiProperty()
   transactionHash: string;
 
-  @Column({ default: StatusType.CREATED, nullable: false })
+  @Column({ default: StatusType.CREATED, nullable: true })
   @ApiProperty()
   @IsEnum(StatusType)
   status:
