@@ -217,6 +217,49 @@ export class AuctionsController {
   }
 
   /**
+   * @description getActiveListingByItemId will return the details of the active listing of the given item id
+   * @param itemId
+   * @returns it will return Array of Listings
+   * @author Jeetanshu Srivastava
+   */
+  @Get('/activeitem/:itemId')
+  @ApiTags('Auctions Module')
+  @ApiOperation({
+    summary: 'Get Active Auctions Details By Item Id',
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.OK,
+    description: ResponseMessage.AUCTION_DETAILS,
+  })
+  @ApiResponse({
+    status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
+    description: ResponseMessage.INTERNAL_SERVER_ERROR,
+  })
+  async getActiveListingByItemId(
+    @Param('itemId') itemId: string,
+    @Response() response,
+  ): Promise<any> {
+    try {
+      const auctions = await this.auctionsService.getActiveListingByItemId(
+        itemId,
+      );
+      return this.responseModel.response(
+        auctions,
+        ResponseStatusCode.OK,
+        true,
+        response,
+      );
+    } catch (error) {
+      return this.responseModel.response(
+        error,
+        ResponseStatusCode.INTERNAL_SERVER_ERROR,
+        false,
+        response,
+      );
+    }
+  }
+
+  /**
    * @description getAuctionByAuctionId will return auction details for given auction id
    * @param auctionId
    * @returns it will return auction details with given auction id
