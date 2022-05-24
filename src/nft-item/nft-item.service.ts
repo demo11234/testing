@@ -7,7 +7,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Chains } from 'src/chains/entities/chains.entity';
 import { Collection } from 'src/collections/entities/collection.entity';
-import { Not, Repository } from 'typeorm';
+import { IsNull, Not, Repository } from 'typeorm';
 import { FilterDto } from './dto/filter.dto';
 import { CreateNftItemDto } from './dto/nft-item.dto';
 import { UpdateNftItemDto } from './dto/update.nftItem.dto';
@@ -577,35 +577,33 @@ export class NftItemService {
       // }
       await this.nftItemRepository.softDelete({ id });
 
-      try{
+      try {
         await this.auctionRepository
-        .createQueryBuilder('auctions')
-        .leftJoinAndSelect('auctions.auction_item', 'auction_item')
-        .update(Auction)
-        .set({ isDeleted: true })
-        .where('auction_item.id = :id', { id })
-        .execute();
+          .createQueryBuilder('auctions')
+          .leftJoinAndSelect('auctions.auction_item', 'auction_item')
+          .update(Auction)
+          .set({ isDeleted: true })
+          .where('auction_item.id = :id', { id })
+          .execute();
 
-      await this.activityRepository
-        .createQueryBuilder('activity')
-        .leftJoinAndSelect('activity.nftItem', 'nftItem')
-        .update(Activity)
-        .set({ isDeleted: true })
-        .where('nftItem.id = :id', { id })
-        .execute();
+        await this.activityRepository
+          .createQueryBuilder('activity')
+          .leftJoinAndSelect('activity.nftItem', 'nftItem')
+          .update(Activity)
+          .set({ isDeleted: true })
+          .where('nftItem.id = :id', { id })
+          .execute();
 
-      await this.offerRepository
-        .createQueryBuilder('offer')
-        .leftJoinAndSelect('offer.item', 'item')
-        .update(Offer)
-        .set({ isDeleted: true })
-        .where('item.id = :id', { id })
-        .execute();
-      }catch(err){
-        console.log('Error while updating backend services', err)
+        await this.offerRepository
+          .createQueryBuilder('offer')
+          .leftJoinAndSelect('offer.item', 'item')
+          .update(Offer)
+          .set({ isDeleted: true })
+          .where('item.id = :id', { id })
+          .execute();
+      } catch (err) {
+        console.log('Error while updating backend services', err);
       }
-
-      
 
       return ResponseMessage.ITEM_DELETED;
     } catch (error) {
@@ -733,8 +731,8 @@ export class NftItemService {
       }
 
       // if (isBundle) {
-      //   item = await item.andWhere('auction_item.bundle = :isBundle', {
-      //     isBundle: true,
+      //   item = await item.andWhere('auction_item.bundle = :bundle', {
+      //     bundle: IsNull(),
       //   });
       // }
 
@@ -842,6 +840,7 @@ export class NftItemService {
         // case 'recentlyReceived':
         //   item.orderBy();
         //   break;
+
         case 'recentlyListed':
           item.orderBy('auction_item.createdAt', 'DESC');
           break;
@@ -850,11 +849,18 @@ export class NftItemService {
           item.orderBy('item.id', 'ASC');
       }
 
-      return item
+      const items = item
 
         .skip((skip - 1) * take)
         .take(take)
         .getMany();
+
+      if (order == 'mostFavourited') {
+        (await items).sort((a, b) =>
+          a.favourites.length < b.favourites.length ? 1 : -1,
+        );
+      }
+      return items;
 
       // if (isBundle) {
       //   for (let i = 0; i < data.length; i++) {
