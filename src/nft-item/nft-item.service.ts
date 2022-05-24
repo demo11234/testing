@@ -163,6 +163,7 @@ export class NftItemService {
       });
 
       item = await item.leftJoinAndSelect('item.auction_item', 'auction_item');
+
       item = await item.leftJoinAndSelect('item.collection', 'collection');
       item = await item.leftJoinAndSelect('item.blockChain', 'blockChain');
       item = await item.leftJoinAndSelect('auction_item.tokens', 'tokens');
@@ -601,10 +602,16 @@ export class NftItemService {
         transferNftItem.supply = item.supply - transferDto.supply;
         transferNftItem.hash = transferDto.hash;
         transferNftItem.onAuction = false;
-        const itemDetails = await this.nftItemRepository.update(
-          { id },
-          transferNftItem,
-        );
+        transferNftItem.isFreezed = true;
+        await this.nftItemRepository.update({ id }, transferNftItem);
+
+        await this.auctionRepository
+          .createQueryBuilder('auctions')
+          .leftJoinAndSelect('auctions.auction_item', 'auction_item')
+          .update(Auction)
+          .set({ isActive: false })
+          .where('auction_item.id = :id', { id })
+          .execute();
 
         await this.activityService.createActivity({
           eventActions: eventActions.TRANSFER,
