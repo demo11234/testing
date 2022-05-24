@@ -107,15 +107,20 @@ export class AuctionsService {
   /**
    * @description getAuctionByUserId will return auction details for given user id
    * @param userId
+   * @param isActive
    * @returns it will return auction with given user id
    * @author Jeetanshu Srivastava
    */
-  async getAuctionsByUserId(userId: string): Promise<Auction[]> {
+  async getAuctionsByUserId(
+    userId: string,
+    isActive: boolean,
+  ): Promise<Auction[]> {
     const auctions = await this.auctionRepository
       .createQueryBuilder('auctions')
       .innerJoinAndSelect('auctions.creator', 'creator')
-      .where('creator.id = :userId', {
+      .where('creator.id = :userId AND auctions.isActive = :isActive', {
         userId,
+        isActive,
       })
       .select(['auctions'])
       .getMany();
@@ -171,7 +176,7 @@ export class AuctionsService {
     if (auction.isActive && !auction.isCancelled) {
       await this.auctionRepository.update(
         { id: auctionId },
-        { isCancelled: true },
+        { isCancelled: true, isActive: null },
       );
 
       const itemId = auction.auction_item.id;
