@@ -577,7 +577,8 @@ export class NftItemService {
       // }
       await this.nftItemRepository.softDelete({ id });
 
-      await this.auctionRepository
+      try{
+        await this.auctionRepository
         .createQueryBuilder('auctions')
         .leftJoinAndSelect('auctions.auction_item', 'auction_item')
         .update(Auction)
@@ -600,6 +601,11 @@ export class NftItemService {
         .set({ isDeleted: true })
         .where('item.id = :id', { id })
         .execute();
+      }catch(err){
+        console.log('Error while updating backend services', err)
+      }
+
+      
 
       return ResponseMessage.ITEM_DELETED;
     } catch (error) {
