@@ -132,7 +132,7 @@ export class CollectionsController {
         filterDto.skip === 0;
       }
       const collections = await this.collectionService.findAll(filterDto);
-      if (collections[1] > 0) {
+      if (collections.length) {
         return this.responseModel.response(
           collections,
           ResponseStatusCode.OK,
