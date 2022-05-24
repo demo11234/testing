@@ -117,12 +117,14 @@ export class AuctionsService {
   ): Promise<Auction[]> {
     const auctions = await this.auctionRepository
       .createQueryBuilder('auctions')
+      .innerJoinAndSelect('auctions.auction_item', 'nft_item')
+      .innerJoinAndSelect('auctions.tokens', 'tokens')
       .innerJoinAndSelect('auctions.creator', 'creator')
       .where('creator.id = :userId AND auctions.isActive = :isActive', {
         userId,
         isActive,
       })
-      .select(['auctions'])
+      .select(['auctions', 'nft_item', 'tokens', 'creator'])
       .getMany();
     return auctions;
   }
@@ -240,7 +242,7 @@ export class AuctionsService {
       .innerJoinAndSelect('auctions.tokens', 'tokens')
       .innerJoinAndSelect('auctions.creator', 'creator')
       .orderBy('auctions.startingPrice', 'ASC')
-      .select(['auctions', 'tokens', 'creator'])
+      .select(['auctions', 'tokens', 'creator', 'nft_item'])
       .getMany();
 
     return auctions;
