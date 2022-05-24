@@ -127,10 +127,10 @@ export class CollectionsController {
     @Response() response,
   ): Promise<any> {
     try {
-      filterDto.take = filterDto.take <= 20 ? 20 : filterDto.take;
-      if (!filterDto.skip) {
-        filterDto.skip === 0;
-      }
+      // filterDto.take = filterDto.take <= 20 ? 20 : filterDto.take;
+      // if (!filterDto.skip) {
+      //   filterDto.skip = 0;
+      // }
       const collections = await this.collectionService.findAll(filterDto);
       if (collections.length) {
         return this.responseModel.response(

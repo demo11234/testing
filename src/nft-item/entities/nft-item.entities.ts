@@ -148,9 +148,9 @@ export class NftItem {
   @Column({ nullable: true })
   lockableContent: string;
 
-  @ApiProperty()
-  @Column('simple-array', { default: [] })
-  allowedTokens: string[];
+  // @ApiProperty()
+  // @Column('simple-array', { default: [] })
+  // allowedTokens: string[];
 
   @ApiProperty()
   @Column()

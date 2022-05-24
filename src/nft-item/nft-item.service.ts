@@ -127,6 +127,7 @@ export class NftItemService {
           const tokens = await this.tokensRepository.find({
             where: {
               chainId: nftItemDto.blockChainId,
+              defaultToken: true,
             },
             select: ['id'],
           });

@@ -16,17 +16,17 @@ export class FilterDto {
   @IsOptional()
   earningWalletAddress: string;
 
-  @ApiPropertyOptional({ description: 'status' })
+  @ApiPropertyOptional({ description: 'search by collection slug' })
   @IsString()
   @IsOptional()
-  status: string;
+  slug: string;
 
   @ApiPropertyOptional({ description: 'isVerified value for collection' })
   @IsOptional()
   isVerified: boolean;
 
   @ApiPropertyOptional({
-    description: 'Search term to search in collection fields',
+    description: 'search by collection name',
   })
   @IsString()
   @IsOptional()
