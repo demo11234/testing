@@ -27,6 +27,7 @@ import coingecko from 'coingecko-api';
 import { Auction } from 'src/auctions/entities/auctions.entity';
 import { Activity } from 'src/activity/entities/activity.entity';
 import { Offer } from 'src/offer/entities/offer.entity';
+import { Tokens } from 'src/token/entities/tokens.entity';
 
 @Injectable()
 export class NftItemService {
@@ -37,6 +38,8 @@ export class NftItemService {
     private readonly nftItemRepository: Repository<NftItem>,
     @InjectRepository(Chains)
     private chainsRepository: Repository<Chains>,
+    @InjectRepository(Tokens)
+    private tokensRepository: Repository<Tokens>,
     @InjectRepository(User)
     private userRepository: Repository<User>,
     @InjectRepository(Auction) private auctionRepository: Repository<Auction>,
@@ -115,6 +118,23 @@ export class NftItemService {
           collection.name = `${Constants.COLLECTION_NAME}#${collections}`;
           collection.owner = userCreated;
           collection.ownerWalletAddress = user.walletAddress;
+
+          const chains = await this.chainsRepository.findOne({
+            where: { id: nftItemDto.blockChainId },
+          });
+          collection.blockchain = chains;
+
+          const tokens = await this.tokensRepository.find({
+            where: {
+              chainId: nftItemDto.blockChainId,
+            },
+            select: ['id'],
+          });
+          const tokensId = [];
+          for (let i = 0; i < tokens.length; i++) {
+            tokensId.push(tokens[i].id);
+          }
+          collection.paymentToken = tokensId;
 
           collection = await this.collectionRepository.save(collection);
 
@@ -589,7 +609,8 @@ export class NftItemService {
           .createQueryBuilder('auctions')
           .leftJoinAndSelect('auctions.auction_item', 'auction_item')
           .update(Auction)
-          .set({ isDeleted: true })
+
+          .set({ isDeleted: true, isActive: null })
           .where('auction_item.id = :id', { id })
           .execute();
 
@@ -611,6 +632,7 @@ export class NftItemService {
       } catch (err) {
         console.log('Error while updating backend services', err);
       }
+
 
       return ResponseMessage.ITEM_DELETED;
     } catch (error) {

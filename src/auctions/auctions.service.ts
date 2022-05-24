@@ -107,17 +107,24 @@ export class AuctionsService {
   /**
    * @description getAuctionByUserId will return auction details for given user id
    * @param userId
+   * @param isActive
    * @returns it will return auction with given user id
    * @author Jeetanshu Srivastava
    */
-  async getAuctionsByUserId(userId: string): Promise<Auction[]> {
+  async getAuctionsByUserId(
+    userId: string,
+    isActive: boolean,
+  ): Promise<Auction[]> {
     const auctions = await this.auctionRepository
       .createQueryBuilder('auctions')
+      .innerJoinAndSelect('auctions.auction_item', 'nft_item')
+      .innerJoinAndSelect('auctions.tokens', 'tokens')
       .innerJoinAndSelect('auctions.creator', 'creator')
-      .where('creator.id = :userId', {
+      .where('creator.id = :userId AND auctions.isActive = :isActive', {
         userId,
+        isActive,
       })
-      .select(['auctions'])
+      .select(['auctions', 'nft_item', 'tokens', 'creator'])
       .getMany();
     return auctions;
   }
@@ -171,7 +178,7 @@ export class AuctionsService {
     if (auction.isActive && !auction.isCancelled) {
       await this.auctionRepository.update(
         { id: auctionId },
-        { isCancelled: true },
+        { isCancelled: true, isActive: null },
       );
 
       const itemId = auction.auction_item.id;
@@ -235,7 +242,7 @@ export class AuctionsService {
       .innerJoinAndSelect('auctions.tokens', 'tokens')
       .innerJoinAndSelect('auctions.creator', 'creator')
       .orderBy('auctions.startingPrice', 'ASC')
-      .select(['auctions', 'tokens', 'creator'])
+      .select(['auctions', 'tokens', 'creator', 'nft_item'])
       .getMany();
 
     return auctions;
