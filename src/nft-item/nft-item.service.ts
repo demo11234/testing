@@ -413,6 +413,7 @@ export class NftItemService {
       } else {
         item.favourites = [user];
       }
+      item.favouriteCount = item.favourites.length;
 
       await this.nftItemRepository.save(item);
 
@@ -447,6 +448,12 @@ export class NftItemService {
         .of(itemId)
         .remove(user.id);
 
+      await this.nftItemRepository
+        .createQueryBuilder('nft_item')
+        .update(NftItem)
+        .set({ favouriteCount: () => '"favouriteCount" - 1' })
+        .where('nft_item.id = :itemId', { itemId })
+        .execute();
       return true;
     } catch (error) {
       console.log(error);
@@ -841,6 +848,9 @@ export class NftItemService {
         //   item.orderBy();
         //   break;
 
+        case 'mostFavourited':
+          item.orderBy('item.favouriteCount', 'DESC');
+          break;
         case 'recentlyListed':
           item.orderBy('auction_item.createdAt', 'DESC');
           break;
@@ -849,18 +859,18 @@ export class NftItemService {
           item.orderBy('item.id', 'ASC');
       }
 
-      const items = item
+      return item
 
         .skip((skip - 1) * take)
         .take(take)
         .getMany();
 
-      if (order == 'mostFavourited') {
-        (await items).sort((a, b) =>
-          a.favourites.length < b.favourites.length ? 1 : -1,
-        );
-      }
-      return items;
+      // if (order == 'mostFavourited') {
+      //   (await items).sort((a, b) =>
+      //     a.favourites.length < b.favourites.length ? 1 : -1,
+      //   );
+      // }
+      // return items;
 
       // if (isBundle) {
       //   for (let i = 0; i < data.length; i++) {

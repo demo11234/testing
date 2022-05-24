@@ -173,6 +173,10 @@ export class NftItem {
   favourites: User[];
 
   @ApiProperty()
+  @Column({ default: 0 })
+  favouriteCount: number;
+
+  @ApiProperty()
   @Column({ default: false })
   buyNow: boolean;
 
