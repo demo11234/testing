@@ -171,7 +171,7 @@ export class AuctionsService {
     if (auction.isActive && !auction.isCancelled) {
       await this.auctionRepository.update(
         { id: auctionId },
-        { isActive: false, isCancelled: true },
+        { isCancelled: true },
       );
 
       const itemId = auction.auction_item.id;

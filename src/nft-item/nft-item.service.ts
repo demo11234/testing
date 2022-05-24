@@ -25,6 +25,8 @@ import { fetchTransactionReceipt } from 'shared/contract-instance';
 import { UpdateCashbackDto } from './dto/updatecashback.dto';
 import coingecko from 'coingecko-api';
 import { Auction } from 'src/auctions/entities/auctions.entity';
+import { Activity } from 'src/activity/entities/activity.entity';
+import { Offer } from 'src/offer/entities/offer.entity';
 
 @Injectable()
 export class NftItemService {
@@ -38,6 +40,10 @@ export class NftItemService {
     @InjectRepository(User)
     private userRepository: Repository<User>,
     @InjectRepository(Auction) private auctionRepository: Repository<Auction>,
+    @InjectRepository(Activity)
+    private activityRepository: Repository<Activity>,
+    @InjectRepository(Offer)
+    private offerRepository: Repository<Offer>,
     private readonly activityService: ActivityService,
   ) {}
 
@@ -558,17 +564,44 @@ export class NftItemService {
    * @returns: status and message
    * @author: vipin
    */
-  async deleteItem(id: string, hash: string): Promise<any> {
+  async deleteItem(id: string): Promise<any> {
     try {
-      const receipt = await fetchTransactionReceipt(hash);
-      if (receipt.status === true) {
-        await this.nftItemRepository.softDelete({ id });
-        return ResponseMessage.ITEM_DELETED;
-      } else {
-        throw new BadRequestException(
-          ResponseMessage.ITEM_DELETE_BLOCKCHAIN_ERROR,
-        );
-      }
+      // const receipt = await fetchTransactionReceipt(hash);
+      // if (receipt.status === true) {
+      //   await this.nftItemRepository.softDelete({ id });
+      //   return ResponseMessage.ITEM_DELETED;
+      // } else {
+      //   throw new BadRequestException(
+      //     ResponseMessage.ITEM_DELETE_BLOCKCHAIN_ERROR,
+      //   );
+      // }
+      await this.nftItemRepository.softDelete({ id });
+
+      await this.auctionRepository
+        .createQueryBuilder('auctions')
+        .leftJoinAndSelect('auctions.auction_item', 'auction_item')
+        .update(Auction)
+        .set({ isDeleted: true })
+        .where('auction_item.id = :id', { id })
+        .execute();
+
+      await this.activityRepository
+        .createQueryBuilder('activity')
+        .leftJoinAndSelect('activity.nftItem', 'nftItem')
+        .update(Activity)
+        .set({ isDeleted: true })
+        .where('nftItem.id = :id', { id })
+        .execute();
+
+      await this.offerRepository
+        .createQueryBuilder('offer')
+        .leftJoinAndSelect('offer.item', 'item')
+        .update(Offer)
+        .set({ isDeleted: true })
+        .where('item.id = :id', { id })
+        .execute();
+
+      return ResponseMessage.ITEM_DELETED;
     } catch (error) {
       return error;
     }
