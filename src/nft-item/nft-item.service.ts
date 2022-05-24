@@ -602,6 +602,7 @@ export class NftItemService {
         transferNftItem.supply = item.supply - transferDto.supply;
         transferNftItem.hash = transferDto.hash;
         transferNftItem.onAuction = false;
+        transferNftItem.isFreezed = true;
         await this.nftItemRepository.update({ id }, transferNftItem);
 
         await this.auctionRepository
