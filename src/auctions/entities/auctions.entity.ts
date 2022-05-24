@@ -211,6 +211,10 @@ export class Auction {
   @ApiProperty()
   isCompleted: boolean;
 
+  @Column({ default: false })
+  @ApiProperty()
+  isDeleted: boolean;
+
   @CreateDateColumn()
   @ApiProperty()
   createdAt: Date;
