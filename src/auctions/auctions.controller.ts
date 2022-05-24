@@ -98,7 +98,7 @@ export class AuctionsController {
    * @returns it will return auction with given user id
    * @author Jeetanshu Srivastava
    */
-  @Get('/user/:userId')
+  @Get('/user/:userId/:isActive')
   @ApiTags('Auctions Module')
   @ApiOperation({
     summary: 'Get Auctions By User Id',
@@ -113,10 +113,14 @@ export class AuctionsController {
   })
   async getAuctionsByUserId(
     @Param('userId') userId: string,
+    @Param('isActive') isActive: boolean,
     @Response() response,
   ): Promise<any> {
     try {
-      const auctions = await this.auctionsService.getAuctionsByUserId(userId);
+      const auctions = await this.auctionsService.getAuctionsByUserId(
+        userId,
+        isActive,
+      );
       return this.responseModel.response(
         auctions,
         ResponseStatusCode.OK,

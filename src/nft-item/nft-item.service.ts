@@ -577,35 +577,33 @@ export class NftItemService {
       // }
       await this.nftItemRepository.softDelete({ id });
 
-      try{
+      try {
         await this.auctionRepository
-        .createQueryBuilder('auctions')
-        .leftJoinAndSelect('auctions.auction_item', 'auction_item')
-        .update(Auction)
-        .set({ isDeleted: true })
-        .where('auction_item.id = :id', { id })
-        .execute();
+          .createQueryBuilder('auctions')
+          .leftJoinAndSelect('auctions.auction_item', 'auction_item')
+          .update(Auction)
+          .set({ isDeleted: true, isActive: null })
+          .where('auction_item.id = :id', { id })
+          .execute();
 
-      await this.activityRepository
-        .createQueryBuilder('activity')
-        .leftJoinAndSelect('activity.nftItem', 'nftItem')
-        .update(Activity)
-        .set({ isDeleted: true })
-        .where('nftItem.id = :id', { id })
-        .execute();
+        await this.activityRepository
+          .createQueryBuilder('activity')
+          .leftJoinAndSelect('activity.nftItem', 'nftItem')
+          .update(Activity)
+          .set({ isDeleted: true })
+          .where('nftItem.id = :id', { id })
+          .execute();
 
-      await this.offerRepository
-        .createQueryBuilder('offer')
-        .leftJoinAndSelect('offer.item', 'item')
-        .update(Offer)
-        .set({ isDeleted: true })
-        .where('item.id = :id', { id })
-        .execute();
-      }catch(err){
-        console.log('Error while updating backend services', err)
+        await this.offerRepository
+          .createQueryBuilder('offer')
+          .leftJoinAndSelect('offer.item', 'item')
+          .update(Offer)
+          .set({ isDeleted: true })
+          .where('item.id = :id', { id })
+          .execute();
+      } catch (err) {
+        console.log('Error while updating backend services', err);
       }
-
-      
 
       return ResponseMessage.ITEM_DELETED;
     } catch (error) {
