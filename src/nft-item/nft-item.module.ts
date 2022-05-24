@@ -15,6 +15,8 @@ import { Constants } from 'shared/Constants';
 import { AuthService } from 'src/auth/auth.service';
 import { UserRepository } from 'src/user/repositories/user.repository';
 import { Auction } from 'src/auctions/entities/auctions.entity';
+import { Offer } from 'src/offer/entities/offer.entity';
+import { Tokens } from 'src/token/entities/tokens.entity';
 
 @Module({
   imports: [
@@ -29,6 +31,8 @@ import { Auction } from 'src/auctions/entities/auctions.entity';
       Activity,
       User,
       Auction,
+      Offer,
+      Tokens,
     ]),
   ],
   controllers: [NftItemController],

@@ -157,7 +157,7 @@ export class ActivityService {
     try {
       const activities = await this.activityRepository.find({
         where: [{ toAccount: { id } }, { fromAccount: { id } }],
-        relations: ['toAccount', 'fromAccount'],
+        relations: ['toAccount', 'fromAccount', 'nftItem'],
         order: { createdDate: 'DESC' },
       });
 

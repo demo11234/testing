@@ -25,6 +25,9 @@ import { fetchTransactionReceipt } from 'shared/contract-instance';
 import { UpdateCashbackDto } from './dto/updatecashback.dto';
 import coingecko from 'coingecko-api';
 import { Auction } from 'src/auctions/entities/auctions.entity';
+import { Activity } from 'src/activity/entities/activity.entity';
+import { Offer } from 'src/offer/entities/offer.entity';
+import { Tokens } from 'src/token/entities/tokens.entity';
 
 @Injectable()
 export class NftItemService {
@@ -35,9 +38,15 @@ export class NftItemService {
     private readonly nftItemRepository: Repository<NftItem>,
     @InjectRepository(Chains)
     private chainsRepository: Repository<Chains>,
+    @InjectRepository(Tokens)
+    private tokensRepository: Repository<Tokens>,
     @InjectRepository(User)
     private userRepository: Repository<User>,
     @InjectRepository(Auction) private auctionRepository: Repository<Auction>,
+    @InjectRepository(Activity)
+    private activityRepository: Repository<Activity>,
+    @InjectRepository(Offer)
+    private offerRepository: Repository<Offer>,
     private readonly activityService: ActivityService,
   ) {}
 
@@ -109,6 +118,23 @@ export class NftItemService {
           collection.name = `${Constants.COLLECTION_NAME}#${collections}`;
           collection.owner = userCreated;
           collection.ownerWalletAddress = user.walletAddress;
+
+          const chains = await this.chainsRepository.findOne({
+            where: { id: nftItemDto.blockChainId },
+          });
+          collection.blockchain = chains;
+
+          const tokens = await this.tokensRepository.find({
+            where: {
+              chainId: nftItemDto.blockChainId,
+            },
+            select: ['id'],
+          });
+          const tokensId = [];
+          for (let i = 0; i < tokens.length; i++) {
+            tokensId.push(tokens[i].id);
+          }
+          collection.paymentToken = tokensId;
 
           collection = await this.collectionRepository.save(collection);
 
@@ -565,17 +591,48 @@ export class NftItemService {
    * @returns: status and message
    * @author: vipin
    */
-  async deleteItem(id: string, hash: string): Promise<any> {
+  async deleteItem(id: string): Promise<any> {
     try {
-      const receipt = await fetchTransactionReceipt(hash);
-      if (receipt.status === true) {
-        await this.nftItemRepository.softDelete({ id });
-        return ResponseMessage.ITEM_DELETED;
-      } else {
-        throw new BadRequestException(
-          ResponseMessage.ITEM_DELETE_BLOCKCHAIN_ERROR,
-        );
+      // const receipt = await fetchTransactionReceipt(hash);
+      // if (receipt.status === true) {
+      //   await this.nftItemRepository.softDelete({ id });
+      //   return ResponseMessage.ITEM_DELETED;
+      // } else {
+      //   throw new BadRequestException(
+      //     ResponseMessage.ITEM_DELETE_BLOCKCHAIN_ERROR,
+      //   );
+      // }
+      await this.nftItemRepository.softDelete({ id });
+
+      try {
+        await this.auctionRepository
+          .createQueryBuilder('auctions')
+          .leftJoinAndSelect('auctions.auction_item', 'auction_item')
+          .update(Auction)
+          .set({ isDeleted: true, isActive: null })
+          .where('auction_item.id = :id', { id })
+          .execute();
+
+        await this.activityRepository
+          .createQueryBuilder('activity')
+          .leftJoinAndSelect('activity.nftItem', 'nftItem')
+          .update(Activity)
+          .set({ isDeleted: true })
+          .where('nftItem.id = :id', { id })
+          .execute();
+
+        await this.offerRepository
+          .createQueryBuilder('offer')
+          .leftJoinAndSelect('offer.item', 'item')
+          .update(Offer)
+          .set({ isDeleted: true })
+          .where('item.id = :id', { id })
+          .execute();
+      } catch (err) {
+        console.log('Error while updating backend services', err);
       }
+
+      return ResponseMessage.ITEM_DELETED;
     } catch (error) {
       return error;
     }

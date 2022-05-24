@@ -195,7 +195,7 @@ export class Auction {
     | timedAuctionMethod.SELL_TO_HIGHEST_BIDDER
     | timedAuctionMethod.SELL_WITH_DECLINING_PRICE;
 
-  @Column({ default: true })
+  @Column({ nullable: true, default: true })
   @ApiProperty()
   isActive: boolean;
 
@@ -210,6 +210,10 @@ export class Auction {
   @Column({ default: false })
   @ApiProperty()
   isCompleted: boolean;
+
+  @Column({ default: false })
+  @ApiProperty()
+  isDeleted: boolean;
 
   @CreateDateColumn()
   @ApiProperty()

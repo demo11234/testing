@@ -56,6 +56,10 @@ export class Activity {
   @ApiProperty()
   isPrivate: boolean;
 
+  @Column({ default: false })
+  @ApiProperty()
+  isDeleted: boolean;
+
   @Column({ nullable: true, type: 'decimal' })
   @ApiProperty()
   totalPrice: number;
@@ -64,7 +68,7 @@ export class Activity {
   @ApiProperty()
   previousPrice: number;
 
-  @Column({ nullable: true, type:'decimal', default: 0 })
+  @Column({ nullable: true, type: 'decimal', default: 0 })
   @ApiProperty()
   quantity: number;
 
@@ -80,11 +84,11 @@ export class Activity {
   @ApiProperty()
   createdDate: Date;
 
-  @Column({nullable:true})
+  @Column({ nullable: true })
   @ApiProperty()
-  transactionHash:string;
+  transactionHash: string;
 
-  @Column({nullable:true})
+  @Column({ nullable: true })
   @ApiProperty()
   url: string;
 }
