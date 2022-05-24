@@ -147,18 +147,18 @@ export class CollectionsService {
           skip,
           relations: ['watchlist'],
         });
-      } else if (Object.keys(filter).length !== 0 && search) {
+      } else if (Object.keys(filter).length !== 0 && !search) {
         collections = await this.collectionRepository.findAndCount({
           take,
           skip,
-          where: [{ name: Like(`%${search}%`) }, filter],
+          where: filter,
           relations: ['watchlist'],
         });
       } else {
         collections = await this.collectionRepository.findAndCount({
           take,
           skip,
-          where: [{ name: Like(`%${search}%`) }],
+          where: [{ name: Like(`%${search}%`) }, filter],
           relations: ['watchlist'],
         });
       }

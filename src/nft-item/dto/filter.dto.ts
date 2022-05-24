@@ -82,6 +82,7 @@ export class FilterDto {
       priceH2L: 'priceH2L',
       priceL2H: 'priceL2H',
       recentlyReceived: 'recentlyReceived',
+      mostFavourited: 'mostFavourited',
     },
   })
   @IsOptional()

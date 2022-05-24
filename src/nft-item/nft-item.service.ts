@@ -285,10 +285,17 @@ export class NftItemService {
         default:
           item.orderBy('item.id', 'ASC');
       }
-      return item
+      const items = item
         .skip((skip - 1) * take)
         .take(take)
         .getMany();
+
+      if (order == 'mostFavourited') {
+        (await items).sort((a, b) =>
+          a.favourites.length < b.favourites.length ? 1 : -1,
+        );
+      }
+      return items;
     } catch (error) {
       throw new Error(error);
     }
