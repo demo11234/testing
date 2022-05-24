@@ -606,10 +606,15 @@ export class NftItemService {
         transferNftItem.supply = item.supply - transferDto.supply;
         transferNftItem.hash = transferDto.hash;
         transferNftItem.onAuction = false;
-        const itemDetails = await this.nftItemRepository.update(
-          { id },
-          transferNftItem,
-        );
+        await this.nftItemRepository.update({ id }, transferNftItem);
+
+        await this.auctionRepository
+          .createQueryBuilder('auctions')
+          .leftJoinAndSelect('auctions.auction_item', 'auction_item')
+          .update(Auction)
+          .set({ isActive: false })
+          .where('auction_item.id = :id', { id })
+          .execute();
 
         await this.activityService.createActivity({
           eventActions: eventActions.TRANSFER,
