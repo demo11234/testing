@@ -66,10 +66,10 @@ export class FilterDto {
   @IsOptional()
   onSale?: string;
 
-  // @ApiPropertyOptional({ enum: { date: 'date' } })
-  // @IsOptional()
-  // @IsString()
-  // sortBy?: string;
+  @ApiPropertyOptional({ description: 'search by name of item' })
+  @IsOptional()
+  @IsString()
+  search?: string;
 
   @ApiPropertyOptional({
     enum: {
