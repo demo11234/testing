@@ -83,10 +83,11 @@ export class ActivityService {
       let { take, skip } = activityFilterInterface;
 
       take = take ? take : 0;
-      skip = skip ? skip : 0;
+      skip = skip ? skip : 1;
 
       let activity = await this.activityRepository
         .createQueryBuilder('activity')
+        .where('activity.isDeleted = :isDeleted', { isDeleted: false })
         .leftJoinAndSelect('activity.fromAccount', 'fromAccount')
         .leftJoinAndSelect('activity.toAccount', 'toAccount')
         .leftJoinAndSelect('activity.nftItem', 'nft_item')
@@ -94,7 +95,7 @@ export class ActivityService {
 
       if (collectionId) {
         const collectionIdArray = collectionId.split(',').map((s) => s.trim());
-        activity = await activity.where(
+        activity = await activity.andWhere(
           'activity.collectionId IN (:...collectionIdArray)',
           { collectionIdArray },
         );
