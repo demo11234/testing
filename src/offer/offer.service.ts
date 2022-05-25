@@ -18,6 +18,7 @@ import { eventActions, eventType, StatusType } from 'shared/Constants';
 import { ActivityService } from 'src/activity/activity.service';
 import { off } from 'process';
 import { CreateSignatureInterface } from './interface/create-signature.interface';
+import { Auction } from 'src/auctions/entities/auctions.entity';
 
 @Injectable()
 export class OfferService {
@@ -30,6 +31,8 @@ export class OfferService {
     private readonly nftItemRepository: Repository<NftItem>,
     @InjectRepository(Tokens)
     private readonly tokensRepository: Repository<Tokens>,
+    @InjectRepository(Auction)
+    private readonly auctionRepository: Repository<Auction>,
     private readonly activityService: ActivityService,
   ) {}
 
@@ -52,6 +55,7 @@ export class OfferService {
     const token = await this.tokensRepository.findOne({
       address: createOfferDto.paymentToken,
     });
+
     const offer = new Offer();
     offer.Expires = createOfferDto.Expires;
     offer.price = createOfferDto.price;
@@ -59,6 +63,14 @@ export class OfferService {
     offer.owner = owner;
     offer.item = item;
     offer.paymentToken = token;
+
+    if (createOfferDto.auctionId) {
+      const auction = await this.auctionRepository.findOne({
+        id: createOfferDto.auctionId,
+      });
+      offer.auction = auction;
+    }
+
     await this.offerRepository.save(offer);
     return offer;
   }
@@ -188,7 +200,6 @@ export class OfferService {
       });
       if (!item) return null;
       if (item.owner === ownerWalletAddress) {
-        
         offer.transactionHash = acceptOfferDto.transactionHash;
         offer.status = StatusType.COMPLETED;
         await this.offerRepository.update({ id: offer.id }, offer);
