@@ -9,7 +9,6 @@ import { Collection } from './entities/collection.entity';
 import { Category } from 'src/admin/entities/categories.entity';
 import { UserRepository } from 'src/user/repositories/user.repository';
 import { NotificationService } from 'src/notification/notification.service';
-import { ServicesService } from 'src/services/services.service';
 import { FileUpload } from 'src/user/utils/s3.upload';
 import { Notification } from 'src/notification/entity/notification.entity';
 import { ConfigService } from '@nestjs/config';
@@ -33,7 +32,6 @@ import { Chains } from 'src/chains/entities/chains.entity';
     CollectionsService,
     UserService,
     NotificationService,
-    ServicesService,
     ConfigService,
     ResponseModel,
     FileUpload,

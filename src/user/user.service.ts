@@ -16,7 +16,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { SignedUrlDto } from './dto/signed-url.dto';
 import 'dotenv/config';
-import { ServicesService } from 'src/services/services.service';
 import { SignatureDto } from './dto/signature.dto';
 import web3 from 'shared/web3';
 import { FeesPaidDto } from './dto/fees-paid-dto';
@@ -32,7 +31,7 @@ export class UserService implements OnModuleInit {
     private readonly categoryRepository: Repository<Category>,
     private readonly userRepository: UserRepository,
     private readonly notificationService: NotificationService,
-    private readonly servicesService: ServicesService,
+
     //private readonly nftItemService : NftItemService ,
     private readonly fileUpload: FileUpload, //  @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
   ) {}

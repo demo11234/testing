@@ -9,7 +9,7 @@ import { NftItem } from 'src/nft-item/entities/nft-item.entities';
 import { Notification } from 'src/notification/entity/notification.entity';
 import { NotificationService } from 'src/notification/notification.service';
 import { ResponseModel } from 'src/responseModel';
-import { ServicesService } from 'src/services/services.service';
+
 import { Tokens } from 'src/token/entities/tokens.entity';
 import { User } from 'src/user/entities/user.entity';
 import { UserRepository } from 'src/user/repositories/user.repository';
@@ -39,7 +39,6 @@ import { OfferService } from './offer.service';
     ResponseModel,
     UserService,
     NotificationService,
-    ServicesService,
     FileUpload,
     ConfigService,
     ActivityService,
