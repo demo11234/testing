@@ -220,24 +220,27 @@ export class NftItemService {
         let min = parseInt(min1);
         let max = parseInt(max1);
 
-        // const price = await this.utilsService.getLivePrice('eth', 'usd');
-        if (priceType == 'usd') {
-          const coin = new coingecko();
-          const price = await coin.simple.price({
-            ids: 'ethereum',
-            vs_currencies: 'usd',
-          });
-          min = min * (1 / price.data.ethereum.usd);
-          max = max * (1 / price.data.ethereum.usd);
-        }
+        if (min == 0 && max == 0) {
+          item = item;
+        } else {
+          if (priceType == 'usd') {
+            const coin = new coingecko();
+            const price = await coin.simple.price({
+              ids: 'ethereum',
+              vs_currencies: 'usd',
+            });
+            min = min * (1 / price.data.ethereum.usd);
+            max = max * (1 / price.data.ethereum.usd);
+          }
 
-        item = await item.andWhere(
-          'auction_item.startingPrice BETWEEN :min AND :max',
-          {
-            min,
-            max,
-          },
-        );
+          item = await item.andWhere(
+            'auction_item.startingPrice BETWEEN :min AND :max',
+            {
+              min,
+              max,
+            },
+          );
+        }
       }
 
       if (categories) {
@@ -320,11 +323,6 @@ export class NftItemService {
         .take(take)
         .getMany();
 
-      // if (order == 'mostFavourited') {
-      //   (await items).sort((a, b) =>
-      //     a.favourites.length < b.favourites.length ? 1 : -1,
-      //   );
-      // }
       return items;
     } catch (error) {
       throw new Error(error);
@@ -778,27 +776,30 @@ export class NftItemService {
         const [min1, max1] = priceRange.split(',').map((s) => s.trim());
         let min = parseInt(min1);
         let max = parseInt(max1);
-        console.log(priceType);
 
-        if (priceType == 'usd') {
-          const coin = new coingecko();
+        if (min == 0 && max == 0) {
+          item = item;
+        } else {
+          if (priceType == 'usd') {
+            const coin = new coingecko();
 
-          const price = await coin.simple.price({
-            ids: 'ethereum',
-            vs_currencies: 'usd',
-          });
-          console.log(price);
+            const price = await coin.simple.price({
+              ids: 'ethereum',
+              vs_currencies: 'usd',
+            });
+            // console.log(price);
 
-          min = min * (1 / price.data.ethereum.usd);
-          max = max * (1 / price.data.ethereum.usd);
+            min = min * (1 / price.data.ethereum.usd);
+            max = max * (1 / price.data.ethereum.usd);
+          }
+          item = await item.andWhere(
+            'auction_item.startingPrice BETWEEN :min AND :max',
+            {
+              min,
+              max,
+            },
+          );
         }
-        item = await item.andWhere(
-          'auction_item.startingPrice BETWEEN :min AND :max',
-          {
-            min,
-            max,
-          },
-        );
       }
 
       if (categories) {
