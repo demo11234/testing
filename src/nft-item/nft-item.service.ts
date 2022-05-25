@@ -178,6 +178,7 @@ export class NftItemService {
         page,
         order,
         search,
+        dataType,
       } = filterDto;
 
       const take = limit ? limit : 0;
@@ -185,9 +186,9 @@ export class NftItemService {
 
       let item = await this.nftItemRepository.createQueryBuilder('item');
 
-      item = await item.where('item.walletAddress = :walletAddress', {
-        walletAddress,
-      });
+      // item = await item.where('item.walletAddress = :walletAddress', {
+      //   walletAddress,
+      // });
 
       item = await item.leftJoinAndSelect('item.auction_item', 'auction_item');
 
@@ -196,6 +197,19 @@ export class NftItemService {
       item = await item.leftJoinAndSelect('auction_item.tokens', 'tokens');
       item = await item.leftJoinAndSelect('item.favourites', 'favourites');
 
+      if (dataType) {
+        if (dataType == 'created') {
+          item = await item.where('item.originalOwner = :value', {
+            value: walletAddress,
+          });
+        } else {
+          item = await item
+            .where('item.owner = :value', {
+              value: walletAddress,
+            })
+            .andWhere('item.isHidden = false');
+        }
+      }
       if (search) {
         item = await item.andWhere('item.fileName ilike :name', {
           name: `%${search}%`,
