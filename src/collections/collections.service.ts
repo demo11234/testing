@@ -133,7 +133,7 @@ export class CollectionsService {
       const { search, isVerified, earningWalletAddress, slug } = filterDto;
       let { take, skip } = filterDto;
       take = take ? take : 0;
-      skip = skip ? skip : 0;
+      skip = skip ? skip : 1;
 
       let collections = await this.collectionRepository
         .createQueryBuilder('collection')

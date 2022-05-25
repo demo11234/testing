@@ -181,7 +181,7 @@ export class NftItemService {
       } = filterDto;
 
       const take = limit ? limit : 0;
-      const skip = page ? page : 0;
+      const skip = page ? page : 1;
 
       let item = await this.nftItemRepository.createQueryBuilder('item');
 
@@ -640,8 +640,6 @@ export class NftItemService {
       } catch (err) {
         console.log('Error while updating backend services', err);
       }
-
-
       return ResponseMessage.ITEM_DELETED;
     } catch (error) {
       return error;
@@ -735,7 +733,7 @@ export class NftItemService {
       let { take, skip } = filterDtoAllItems;
 
       take = take ? take : 0;
-      skip = skip ? skip : 0;
+      skip = skip ? skip : 1;
 
       let item = await this.nftItemRepository.createQueryBuilder('item');
 

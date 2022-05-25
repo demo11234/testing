@@ -91,11 +91,9 @@ export class FilterDto {
 
   @ApiPropertyOptional({ description: 'no. of records per page' })
   @IsOptional()
-  @IsNumber()
   limit?: number;
 
   @ApiPropertyOptional({ description: 'page no. to view' })
   @IsOptional()
-  @IsNumber()
   page?: number;
 }
