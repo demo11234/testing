@@ -385,7 +385,7 @@ export class NftItemService {
     try {
       const item = await this.nftItemRepository.findOne({
         where: { id },
-        relations: ['collection'],
+        relations: ['collection', 'auction_item'],
       });
       if (item) return item;
     } catch (error) {

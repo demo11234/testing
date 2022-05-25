@@ -195,12 +195,17 @@ export class CollectionsService {
       if (validator.isUUID(id)) {
         collection = await this.collectionRepository.findOne({
           where: { id: id },
+          relations: ['nftItem'],
         });
       } else {
         collection = await this.collectionRepository.findOne({
           where: { slug: id },
+          relations: ['nftItem'],
         });
       }
+      collection.nftItemCount = collection.__nftItem__.length;
+      collection.ownerCount = collection.__nftItem__.length;
+      // console.log(collection.nftItemCount);
       return collection;
     } catch (error) {
       return { msg: ResponseMessage.INTERNAL_SERVER_ERROR };
