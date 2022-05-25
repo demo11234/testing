@@ -308,6 +308,9 @@ export class NftItemService {
         case 'recentlyListed':
           item.orderBy('auction_item.createdAt', 'DESC');
           break;
+        case 'mostFavourited':
+          item.orderBy('item.favouriteCount', 'DESC');
+          break;
 
         default:
           item.orderBy('item.id', 'ASC');
@@ -317,11 +320,11 @@ export class NftItemService {
         .take(take)
         .getMany();
 
-      if (order == 'mostFavourited') {
-        (await items).sort((a, b) =>
-          a.favourites.length < b.favourites.length ? 1 : -1,
-        );
-      }
+      // if (order == 'mostFavourited') {
+      //   (await items).sort((a, b) =>
+      //     a.favourites.length < b.favourites.length ? 1 : -1,
+      //   );
+      // }
       return items;
     } catch (error) {
       throw new Error(error);
