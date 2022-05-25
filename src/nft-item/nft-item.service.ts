@@ -7,7 +7,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Chains } from 'src/chains/entities/chains.entity';
 import { Collection } from 'src/collections/entities/collection.entity';
-import { Not, Repository } from 'typeorm';
+import { IsNull, Not, Repository } from 'typeorm';
 import { FilterDto } from './dto/filter.dto';
 import { CreateNftItemDto } from './dto/nft-item.dto';
 import { UpdateNftItemDto } from './dto/update.nftItem.dto';
@@ -441,6 +441,7 @@ export class NftItemService {
       } else {
         item.favourites = [user];
       }
+      item.favouriteCount = item.favourites.length;
 
       await this.nftItemRepository.save(item);
 
@@ -475,6 +476,12 @@ export class NftItemService {
         .of(itemId)
         .remove(user.id);
 
+      await this.nftItemRepository
+        .createQueryBuilder('nft_item')
+        .update(NftItem)
+        .set({ favouriteCount: () => '"favouriteCount" - 1' })
+        .where('nft_item.id = :itemId', { itemId })
+        .execute();
       return true;
     } catch (error) {
       console.log(error);
@@ -610,6 +617,7 @@ export class NftItemService {
           .createQueryBuilder('auctions')
           .leftJoinAndSelect('auctions.auction_item', 'auction_item')
           .update(Auction)
+
           .set({ isDeleted: true, isActive: null })
           .where('auction_item.id = :id', { id })
           .execute();
@@ -632,6 +640,7 @@ export class NftItemService {
       } catch (err) {
         console.log('Error while updating backend services', err);
       }
+
 
       return ResponseMessage.ITEM_DELETED;
     } catch (error) {
@@ -759,8 +768,8 @@ export class NftItemService {
       }
 
       // if (isBundle) {
-      //   item = await item.andWhere('auction_item.bundle = :isBundle', {
-      //     isBundle: true,
+      //   item = await item.andWhere('auction_item.bundle = :bundle', {
+      //     bundle: IsNull(),
       //   });
       // }
 
@@ -868,6 +877,10 @@ export class NftItemService {
         // case 'recentlyReceived':
         //   item.orderBy();
         //   break;
+
+        case 'mostFavourited':
+          item.orderBy('item.favouriteCount', 'DESC');
+          break;
         case 'recentlyListed':
           item.orderBy('auction_item.createdAt', 'DESC');
           break;
@@ -881,6 +894,13 @@ export class NftItemService {
         .skip((skip - 1) * take)
         .take(take)
         .getMany();
+
+      // if (order == 'mostFavourited') {
+      //   (await items).sort((a, b) =>
+      //     a.favourites.length < b.favourites.length ? 1 : -1,
+      //   );
+      // }
+      // return items;
 
       // if (isBundle) {
       //   for (let i = 0; i < data.length; i++) {

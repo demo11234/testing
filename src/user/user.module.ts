@@ -14,7 +14,6 @@ import { NotificationService } from 'src/notification/notification.service';
 import { Notification } from 'src/notification/entity/notification.entity';
 
 import { Category } from 'src/admin/entities/categories.entity';
-import { ServicesService } from 'src/services/services.service';
 import { ConfigService } from 'aws-sdk';
 import { ConfigModule } from '@nestjs/config';
 import { User } from './entities/user.entity';
@@ -42,7 +41,6 @@ import { Collection } from 'src/collections/entities/collection.entity';
     AuthService,
     FileUpload,
     NotificationService,
-    ServicesService,
     ConfigService,
   ],
 })
