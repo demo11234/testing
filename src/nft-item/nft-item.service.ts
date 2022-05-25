@@ -383,7 +383,10 @@ export class NftItemService {
 
   async findOne(id: string): Promise<any> {
     try {
-      const item = await this.nftItemRepository.findOne({ id });
+      const item = await this.nftItemRepository.findOne({
+        where: { id },
+        relations: ['collection', 'auction_item'],
+      });
       if (item) return item;
     } catch (error) {
       throw new Error(error);

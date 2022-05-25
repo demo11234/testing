@@ -125,8 +125,6 @@ export class ServicesService {
         'isVerified',
         'isMintable',
         'isSafelisted',
-        'slug',
-        'status',
         'objectID',
       ],
       where: [
