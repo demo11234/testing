@@ -130,39 +130,55 @@ export class CollectionsService {
    */
   async findAll(filterDto: FilterDto): Promise<any> {
     try {
-      const { take, skip, search } = filterDto;
-      const filter = Object.assign({}, filterDto);
+      const { search, isVerified, earningWalletAddress, slug } = filterDto;
+      let { take, skip } = filterDto;
+      take = take ? take : 0;
+      skip = skip ? skip : 1;
 
-      Object.keys(filter).forEach((value) => {
-        if (!filter[value]) delete filter[value];
-      });
-      delete filter.take;
-      delete filter.skip;
-      delete filter.search;
+      let collections = await this.collectionRepository
+        .createQueryBuilder('collection')
+        .leftJoinAndSelect('collection.nftItem', 'nftItem')
+        .leftJoinAndSelect('collection.watchlist', 'watchlist');
 
-      let collections;
-      if (Object.keys(filter).length === 0 && !search) {
-        collections = await this.collectionRepository.findAndCount({
-          take,
-          skip,
-          relations: ['watchlist'],
-        });
-      } else if (Object.keys(filter).length !== 0 && search) {
-        collections = await this.collectionRepository.findAndCount({
-          take,
-          skip,
-          where: [{ name: Like(`%${search}%`) }, filter],
-          relations: ['watchlist'],
-        });
-      } else {
-        collections = await this.collectionRepository.findAndCount({
-          take,
-          skip,
-          where: [{ name: Like(`%${search}%`) }],
-          relations: ['watchlist'],
-        });
+      if (search) {
+        collections = await collections.andWhere(
+          'collection.name ilike :value',
+          {
+            value: `%${search}%`,
+          },
+        );
       }
-      return collections;
+      if (slug) {
+        collections = await collections.andWhere(
+          'collection.slug ilike :value',
+          {
+            value: `%${slug}%`,
+          },
+        );
+      }
+      if (isVerified) {
+        collections = await collections.andWhere(
+          'collection.isVerified = :value',
+          {
+            value: isVerified,
+          },
+        );
+      }
+      if (earningWalletAddress) {
+        collections = await collections.andWhere(
+          'collection.earningWalletAddress = :value',
+          {
+            value: earningWalletAddress,
+          },
+        );
+      }
+
+      const data = collections
+        .skip((skip - 1) * take)
+        .take(take)
+        .getMany();
+
+      return data;
     } catch (error) {
       return { msg: ResponseMessage.INTERNAL_SERVER_ERROR };
     }

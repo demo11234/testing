@@ -82,6 +82,7 @@ export class FilterDto {
       priceH2L: 'priceH2L',
       priceL2H: 'priceL2H',
       recentlyReceived: 'recentlyReceived',
+      mostFavourited: 'mostFavourited',
     },
   })
   @IsOptional()
@@ -90,11 +91,9 @@ export class FilterDto {
 
   @ApiPropertyOptional({ description: 'no. of records per page' })
   @IsOptional()
-  @IsNumber()
   limit?: number;
 
   @ApiPropertyOptional({ description: 'page no. to view' })
   @IsOptional()
-  @IsNumber()
   page?: number;
 }

@@ -127,6 +127,7 @@ export class NftItemService {
           const tokens = await this.tokensRepository.find({
             where: {
               chainId: nftItemDto.blockChainId,
+              defaultToken: true,
             },
             select: ['id'],
           });
@@ -180,7 +181,7 @@ export class NftItemService {
       } = filterDto;
 
       const take = limit ? limit : 0;
-      const skip = page ? page : 0;
+      const skip = page ? page : 1;
 
       let item = await this.nftItemRepository.createQueryBuilder('item');
 
@@ -307,14 +308,24 @@ export class NftItemService {
         case 'recentlyListed':
           item.orderBy('auction_item.createdAt', 'DESC');
           break;
+        case 'mostFavourited':
+          item.orderBy('item.favouriteCount', 'DESC');
+          break;
 
         default:
           item.orderBy('item.id', 'ASC');
       }
-      return item
+      const items = item
         .skip((skip - 1) * take)
         .take(take)
         .getMany();
+
+      // if (order == 'mostFavourited') {
+      //   (await items).sort((a, b) =>
+      //     a.favourites.length < b.favourites.length ? 1 : -1,
+      //   );
+      // }
+      return items;
     } catch (error) {
       throw new Error(error);
     }
@@ -632,8 +643,6 @@ export class NftItemService {
       } catch (err) {
         console.log('Error while updating backend services', err);
       }
-
-
       return ResponseMessage.ITEM_DELETED;
     } catch (error) {
       return error;
@@ -727,7 +736,7 @@ export class NftItemService {
       let { take, skip } = filterDtoAllItems;
 
       take = take ? take : 0;
-      skip = skip ? skip : 0;
+      skip = skip ? skip : 1;
 
       let item = await this.nftItemRepository.createQueryBuilder('item');
 

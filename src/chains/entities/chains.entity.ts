@@ -41,6 +41,9 @@ export class Chains {
   @Column()
   usdPrice: number;
 
+  @Column({ nullable: true })
+  isDefault: boolean;
+
   @Column({ default: true })
   active: boolean;
 

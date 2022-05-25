@@ -233,7 +233,7 @@ export class Collection {
   reported: number;
 
   @OneToMany(() => NftItem, (nftItem) => nftItem.collection, {
-    lazy: true,
+    eager: true,
     cascade: true,
   })
   nftItem: Promise<NftItem[]>;
