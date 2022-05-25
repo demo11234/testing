@@ -22,6 +22,7 @@ export class FilterDto {
     enum: { collected: 'collected', created: 'created' },
   })
   @IsString()
+  @IsOptional()
   dataType: string;
 
   @ApiPropertyOptional({
