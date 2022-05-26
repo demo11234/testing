@@ -17,6 +17,7 @@ import { UserRepository } from 'src/user/repositories/user.repository';
 import { Auction } from 'src/auctions/entities/auctions.entity';
 import { Offer } from 'src/offer/entities/offer.entity';
 import { Tokens } from 'src/token/entities/tokens.entity';
+import { ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { Tokens } from 'src/token/entities/tokens.entity';
     ActivityService,
     AuthService,
     UserRepository,
+    ConfigService,
   ],
 })
 export class NftItemModule {}

@@ -82,7 +82,16 @@ export class OfferController {
         createOfferDto,
         ownerWalletAddress,
       );
-      if (offer) {
+      if (offer.status === 409) {
+        return this.responseModel.response(
+          ResponseMessage.OFFER_ALREADY_EXISTS,
+          ResponseStatusCode.CONFLICT,
+          false,
+          response,
+        );
+      } else if (offer) {
+        const collection = await offer.item.collection;
+
         await this.activityService.createActivity({
           eventActions: eventActions.OFFER_ENTERED,
           nftItem: offer.item.id,
@@ -91,7 +100,7 @@ export class OfferController {
           toAccount: offer.item.owner,
           totalPrice: createOfferDto.price,
           isPrivate: false,
-          collectionId: offer.item.collection.id,
+          collectionId: collection.id,
           winnerAccount: null,
         });
         return this.responseModel.response(
@@ -109,6 +118,8 @@ export class OfferController {
         );
       }
     } catch (error) {
+      console.log(error);
+
       return this.responseModel.response(
         error,
         ResponseStatusCode.INTERNAL_SERVER_ERROR,
@@ -117,7 +128,6 @@ export class OfferController {
       );
     }
   }
-
   /**
    * @description: This api updates the collection and returns status
    * @param id
@@ -192,8 +202,7 @@ export class OfferController {
   @Get('/getOffers')
   @ApiTags('Offer Module')
   @ApiOperation({
-    summary:
-      'Api to fetch offers based on current filter.',
+    summary: 'Api to fetch offers based on current filter.',
   })
   @ApiResponse({
     status: ResponseStatusCode.CONFLICT,
@@ -252,8 +261,7 @@ export class OfferController {
   @UseGuards(JwtAuthGuard)
   @ApiTags('Offer Module')
   @ApiOperation({
-    summary:
-      'Api to delete an offer using id.',
+    summary: 'Api to delete an offer using id.',
   })
   @ApiResponse({
     status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
@@ -362,16 +370,16 @@ export class OfferController {
     }
   }
 
- /**
+  /**
    * @description: This api accept the offer
    * @returns: Null
    * @author: Susmita
    */
 
   @ApiTags('Offer Module')
-   @UseGuards(JwtAuthGuard)
-   @ApiBearerAuth()
-   @ApiResponse({
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiResponse({
     status: ResponseStatusCode.OK,
     description: ResponseMessage.TOKEN_DETAILS,
   })
@@ -382,13 +390,16 @@ export class OfferController {
   @Put('/acceptOffer')
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse({ description: 'ACCEPT OFFER ON AN ITEM' })
-  async AcceptOffer(@Body() acceptOfferDto: AcceptOfferDto , @Req() req) {
+  async AcceptOffer(@Body() acceptOfferDto: AcceptOfferDto, @Req() req) {
     try {
       const ownerWalletAddress = req.user.walletAddress;
-      return await this.offerService.AcceptOffer(acceptOfferDto,ownerWalletAddress);
+      return await this.offerService.AcceptOffer(
+        acceptOfferDto,
+        ownerWalletAddress,
+      );
     } catch (e) {
       throw new BadRequestException(e.message);
-     }
+    }
   }
 
   /**

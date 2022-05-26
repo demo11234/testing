@@ -16,14 +16,17 @@ import { ResponseMessage } from 'shared/ResponseMessage';
 import { AcceptOfferDto } from './dto/acceptOffer.dto';
 import { eventActions, eventType, StatusType } from 'shared/Constants';
 import { ActivityService } from 'src/activity/activity.service';
-import { off } from 'process';
 import { CreateSignatureInterface } from './interface/create-signature.interface';
+import { Collection } from 'src/collections/entities/collection.entity';
+import { ResponseStatusCode } from 'shared/ResponseStatusCode';
 
 @Injectable()
 export class OfferService {
   constructor(
     @InjectRepository(Offer)
     private readonly offerRepository: Repository<Offer>,
+    @InjectRepository(Collection)
+    private readonly collectionRepository: Repository<Collection>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     @InjectRepository(NftItem)
@@ -46,23 +49,37 @@ export class OfferService {
     const owner = await this.userRepository.findOne({
       walletAddress: ownerWalletAddress,
     });
+
     const item = await this.nftItemRepository.findOne({
       id: createOfferDto.item,
     });
+
     const token = await this.tokensRepository.findOne({
-      address: createOfferDto.paymentToken,
+      id: createOfferDto.paymentToken,
     });
+
+    const alreadyExists = await this.offerRepository.findOne({
+      where: { owner: owner, item: item, isDeleted: false },
+    });
+    if (alreadyExists) {
+      return {
+        msg: ResponseMessage.OFFER_ALREADY_EXISTS,
+        status: ResponseStatusCode.CONFLICT,
+      };
+    }
     const offer = new Offer();
-    offer.Expires = createOfferDto.Expires;
+    offer.Expires = Date.now() + createOfferDto.Expires;
     offer.price = createOfferDto.price;
     offer.isDeleted = false;
     offer.owner = owner;
     offer.item = item;
     offer.paymentToken = token;
+
+    offer.signature = JSON.stringify(createOfferDto.signature);
     await this.offerRepository.save(offer);
+
     return offer;
   }
-
   /**
    * @description soft deletes the offer
    * @param id
@@ -187,8 +204,8 @@ export class OfferService {
         id: offer.item.id,
       });
       if (!item) return null;
+
       if (item.owner === ownerWalletAddress) {
-        
         offer.transactionHash = acceptOfferDto.transactionHash;
         offer.status = StatusType.COMPLETED;
         await this.offerRepository.update({ id: offer.id }, offer);
@@ -224,6 +241,23 @@ export class OfferService {
           url: acceptOfferDto.url,
           quantity: offer.price,
         });
+
+        if (item.collection.stats.total_volume == null)
+          item.collection.stats.total_volume = 0;
+        if (item.collection.stats.num_owners == null)
+          item.collection.stats.num_owners = 1;
+
+        item.collection.stats.total_volume =
+          item.collection.stats.total_volume + offer.price;
+        item.collection.stats.num_owners = item.collection.stats.num_owners + 1;
+
+        const stats = item.collection.stats;
+
+        await this.collectionRepository.update(
+          { id: item.collection.id },
+          { stats },
+        );
+
         return item;
       } else {
         throw new BadRequestException(

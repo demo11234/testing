@@ -1,20 +1,22 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty } from 'class-validator';
 import { Column } from 'typeorm';
+import { Signature } from '../entities/offer.entity';
 
 export class CreateOfferDto {
-  @Column()
   @ApiProperty()
   price: number;
 
-  @Column()
   @ApiProperty()
   paymentToken: string;
 
-  @Column()
   @ApiProperty()
   item: string;
 
-  @Column()
+  @ApiProperty({ description: 'Unix timestamp value for expiration window' })
+  Expires: number;
+
   @ApiProperty()
-  Expires: string;
+  @IsNotEmpty()
+  signature: Signature;
 }

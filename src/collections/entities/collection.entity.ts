@@ -2,7 +2,6 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum } from 'class-validator';
 import { Chains } from 'src/chains/entities/chains.entity';
 import { NftItem } from 'src/nft-item/entities/nft-item.entities';
-import { Report } from 'src/report/entities/report.entities';
 import { User } from 'src/user/entities/user.entity';
 import {
   Column,
@@ -233,7 +232,7 @@ export class Collection {
   reported: number;
 
   @OneToMany(() => NftItem, (nftItem) => nftItem.collection, {
-    eager: true,
+    eager: false,
     cascade: true,
   })
   nftItem: Promise<NftItem[]>;
