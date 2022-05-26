@@ -192,8 +192,7 @@ export class OfferController {
   @Get('/getOffers')
   @ApiTags('Offer Module')
   @ApiOperation({
-    summary:
-      'Api to fetch offers based on current filter.',
+    summary: 'Api to fetch offers based on current filter.',
   })
   @ApiResponse({
     status: ResponseStatusCode.CONFLICT,
@@ -252,8 +251,7 @@ export class OfferController {
   @UseGuards(JwtAuthGuard)
   @ApiTags('Offer Module')
   @ApiOperation({
-    summary:
-      'Api to delete an offer using id.',
+    summary: 'Api to delete an offer using id.',
   })
   @ApiResponse({
     status: ResponseStatusCode.INTERNAL_SERVER_ERROR,
@@ -362,16 +360,16 @@ export class OfferController {
     }
   }
 
- /**
+  /**
    * @description: This api accept the offer
    * @returns: Null
    * @author: Susmita
    */
 
   @ApiTags('Offer Module')
-   @UseGuards(JwtAuthGuard)
-   @ApiBearerAuth()
-   @ApiResponse({
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiResponse({
     status: ResponseStatusCode.OK,
     description: ResponseMessage.TOKEN_DETAILS,
   })
@@ -382,13 +380,16 @@ export class OfferController {
   @Put('/acceptOffer')
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse({ description: 'ACCEPT OFFER ON AN ITEM' })
-  async AcceptOffer(@Body() acceptOfferDto: AcceptOfferDto , @Req() req) {
+  async AcceptOffer(@Body() acceptOfferDto: AcceptOfferDto, @Req() req) {
     try {
       const ownerWalletAddress = req.user.walletAddress;
-      return await this.offerService.AcceptOffer(acceptOfferDto,ownerWalletAddress);
+      return await this.offerService.AcceptOffer(
+        acceptOfferDto,
+        ownerWalletAddress,
+      );
     } catch (e) {
       throw new BadRequestException(e.message);
-     }
+    }
   }
 
   /**

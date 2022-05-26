@@ -1,4 +1,5 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsOptional } from 'class-validator';
 import { Column } from 'typeorm';
 
 export class CreateOfferDto {
@@ -13,6 +14,11 @@ export class CreateOfferDto {
   @Column()
   @ApiProperty()
   item: string;
+
+  @Column()
+  @ApiPropertyOptional()
+  @IsOptional()
+  auctionId: string;
 
   @Column()
   @ApiProperty()
