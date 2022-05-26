@@ -14,7 +14,8 @@ export class ActivityFilterDto {
   skip: number;
 
   @ApiPropertyOptional({
-    description: 'eventType must be comma seperated',
+    description:
+      'eventType must be comma seperated. Event Type: Listing, Sales, Bids, Transfers',
   })
   @IsOptional()
   @IsNotEmpty()
