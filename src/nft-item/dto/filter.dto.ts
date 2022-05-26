@@ -15,8 +15,15 @@ export class FilterDto {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  @IsOptional()
   walletAddress: string;
+
+  @ApiProperty({
+    description: 'fetch items in collected or created',
+    enum: { collected: 'collected', created: 'created' },
+  })
+  @IsString()
+  @IsOptional()
+  dataType: string;
 
   @ApiPropertyOptional({
     description:

@@ -211,9 +211,9 @@ export class Collection {
   @ApiProperty()
   slug: string;
 
-  @Column({ nullable: true })
-  @ApiProperty()
-  status: number;
+  // @Column({ nullable: true })
+  // @ApiProperty()
+  // status: number;
 
   @CreateDateColumn()
   @ApiProperty()

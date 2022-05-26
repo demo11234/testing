@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ActivityService } from 'src/activity/activity.service';
 import { Activity } from 'src/activity/entities/activity.entity';
 import { Category } from 'src/admin/entities/categories.entity';
+import { Auction } from 'src/auctions/entities/auctions.entity';
 import { Collection } from 'src/collections/entities/collection.entity';
 import { NftItem } from 'src/nft-item/entities/nft-item.entities';
 import { Notification } from 'src/notification/entity/notification.entity';
@@ -31,6 +32,7 @@ import { OfferService } from './offer.service';
       NftItem,
       Activity,
       Tokens,
+      Auction,
     ]),
   ],
   controllers: [OfferController],

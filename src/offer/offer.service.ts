@@ -19,6 +19,7 @@ import { ActivityService } from 'src/activity/activity.service';
 import { CreateSignatureInterface } from './interface/create-signature.interface';
 import { Collection } from 'src/collections/entities/collection.entity';
 import { ResponseStatusCode } from 'shared/ResponseStatusCode';
+import { Auction } from 'src/auctions/entities/auctions.entity';
 
 @Injectable()
 export class OfferService {
@@ -33,6 +34,8 @@ export class OfferService {
     private readonly nftItemRepository: Repository<NftItem>,
     @InjectRepository(Tokens)
     private readonly tokensRepository: Repository<Tokens>,
+    @InjectRepository(Auction)
+    private readonly auctionRepository: Repository<Auction>,
     private readonly activityService: ActivityService,
   ) {}
 
@@ -76,6 +79,13 @@ export class OfferService {
     offer.paymentToken = token;
 
     offer.signature = JSON.stringify(createOfferDto.signature);
+    if (createOfferDto.auctionId) {
+      const auction = await this.auctionRepository.findOne({
+        id: createOfferDto.auctionId,
+      });
+      offer.auction = auction;
+    }
+
     await this.offerRepository.save(offer);
 
     return offer;

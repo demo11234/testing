@@ -23,6 +23,7 @@ import {
   StatusType,
 } from 'shared/Constants';
 import { IsEnum } from 'class-validator';
+import { Auction } from 'src/auctions/entities/auctions.entity';
 
 export class Signature {
   @ApiProperty()
@@ -126,6 +127,10 @@ export class Offer {
   })
   @JoinColumn()
   item: NftItem;
+
+  @ManyToOne(() => Auction)
+  @JoinColumn()
+  auction: Auction;
 
   @ApiProperty()
   @Column({ type: 'float' })
