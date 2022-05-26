@@ -1,7 +1,11 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsEnum, IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
 import { auctionType, timedAuctionMethod } from 'shared/Constants';
-import { Bundle, ReservedAuction } from '../entities/auctions.entity';
+import {
+  Bundle,
+  ReservedAuction,
+  Signature,
+} from '../entities/auctions.entity';
 
 export class CreateAuctionDto {
   @ApiProperty()
@@ -63,4 +67,8 @@ export class CreateAuctionDto {
   timedAuctionMethod:
     | timedAuctionMethod.SELL_TO_HIGHEST_BIDDER
     | timedAuctionMethod.SELL_WITH_DECLINING_PRICE;
+
+  @ApiProperty()
+  @IsOptional()
+  signature: Signature;
 }
