@@ -11,6 +11,8 @@ import { ActivityService } from 'src/activity/activity.service';
 import { Activity } from 'src/activity/entities/activity.entity';
 import { Collection } from 'src/collections/entities/collection.entity';
 import { Offer } from 'src/offer/entities/offer.entity';
+import { NftItemService } from 'src/nft-item/nft-item.service';
+import { Chains } from 'src/chains/entities/chains.entity';
 
 @Module({
   imports: [
@@ -22,9 +24,10 @@ import { Offer } from 'src/offer/entities/offer.entity';
       Activity,
       Collection,
       Offer,
+      Chains,
     ]),
   ],
-  providers: [AuctionsService, ResponseModel, ActivityService],
+  providers: [AuctionsService, ResponseModel, ActivityService, NftItemService],
   controllers: [AuctionsController],
 })
 export class AuctionsModule {}

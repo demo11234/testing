@@ -5,8 +5,12 @@ import { Bundle, ReservedAuction } from '../entities/auctions.entity';
 
 export class CreateAuctionDto {
   @ApiProperty()
-  @IsNotEmpty()
+  @IsOptional()
   auction_items: string;
+
+  @ApiProperty()
+  @IsOptional()
+  auction_bundle: string[];
 
   @ApiProperty()
   @IsNotEmpty()
