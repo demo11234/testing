@@ -236,6 +236,14 @@ export class NftItem {
   @ApiProperty()
   reported: number;
 
+  @OneToMany(() => NftItem, (nft_item) => nft_item.id)
+  @JoinColumn()
+  bundle: NftItem[];
+
+  @Column({ default: false })
+  @ApiProperty()
+  isBundle: boolean;
+
   @DeleteDateColumn()
   deletedAt: Date;
 }

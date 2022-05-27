@@ -15,10 +15,11 @@ import { Offer } from 'src/offer/entities/offer.entity';
 import { Tokens } from 'src/token/entities/tokens.entity';
 import { User } from 'src/user/entities/user.entity';
 import { Repository } from 'typeorm';
-import { Auction } from './entities/auctions.entity';
+import { Auction, Bundle } from './entities/auctions.entity';
 import { CreateAuctionInterface } from './interface/create-auction.interface';
 import { UpdateAuctionInterface } from './interface/update-auction.interface';
 import { CreateSignatureInterface } from './interface/create-signature.interface';
+import { NftItemService } from 'src/nft-item/nft-item.service';
 
 @Injectable()
 export class AuctionsService {
@@ -31,6 +32,7 @@ export class AuctionsService {
     private readonly collectionRepository: Repository<Collection>,
     @InjectRepository(Offer) private offerRepository: Repository<Offer>,
     private readonly activityService: ActivityService,
+    private readonly nftItemService: NftItemService,
   ) {}
 
   /**
@@ -63,28 +65,40 @@ export class AuctionsService {
     });
     auction.tokens = token;
 
-    const item = await this.nftItemRepository.findOne({
-      id: createAuctionInterface.auction_items,
-    });
-    auction.auction_item = item;
-    auction.auctionName = item.fileName;
-
-    await this.nftItemRepository.update(
-      { id: createAuctionInterface.auction_items },
-      { onAuction: true },
-    );
-
     const collection = await this.collectionRepository.findOne({
       id: createAuctionInterface.auction_collection,
     });
     auction.auction_collection = collection;
 
+    if (createAuctionInterface.auction_item) {
+      const item = await this.nftItemRepository.findOne({
+        id: createAuctionInterface.auction_item,
+      });
+      auction.auction_item = item;
+      auction.auctionName = item.fileName;
+
+      await this.nftItemRepository.update(
+        { id: createAuctionInterface.auction_item },
+        { onAuction: true },
+      );
+    } else if (
+      createAuctionInterface.bundle &&
+      createAuctionInterface.bundle_items.length > 1
+    ) {
+      auction.bundle = createAuctionInterface.bundle;
+      auction.auctionName = createAuctionInterface.bundle.name;
+
+      const bundle = await this.createBundle(
+        createAuctionInterface.bundle_items,
+        walletAddress,
+        createAuctionInterface.bundle,
+      );
+
+      auction.auction_item = bundle;
+    }
+
     if (createAuctionInterface.auctionType == auctionType.FIXED_PRICE) {
       auction.startingPrice = createAuctionInterface.startingPrice;
-      if (createAuctionInterface.bundle) {
-        auction.bundle = createAuctionInterface.bundle;
-        auction.auctionName = createAuctionInterface.bundle.name;
-      }
       auction.reservedAuction = createAuctionInterface.reservedAuction;
     } else if (
       createAuctionInterface.auctionType == auctionType.TIMED_AUCTION
@@ -105,6 +119,46 @@ export class AuctionsService {
     }
 
     return this.auctionRepository.save(auction);
+  }
+
+  async createBundle(
+    itemIds: string[],
+    walletAddress: string,
+    bundleDetails: Bundle,
+  ): Promise<any> {
+    const items = await this.nftItemRepository
+      .createQueryBuilder('items')
+      .where('items.id IN (:...itemIds)', { itemIds })
+      .getMany();
+
+    const nftItem = new NftItem();
+
+    nftItem.walletAddress = walletAddress;
+    nftItem.originalOwner = walletAddress;
+    nftItem.owner = walletAddress;
+
+    nftItem.description = bundleDetails.description;
+
+    nftItem.fileUrl = items[0].fileUrl;
+    nftItem.fileName = bundleDetails.name;
+    nftItem.timeStamp = Date.now();
+    nftItem.onAuction = true;
+    nftItem.isBundle = true;
+    nftItem.bundle = items;
+
+    const itemId = items[0].id;
+
+    const itemDetails = await this.nftItemRepository
+      .createQueryBuilder('items')
+      .where('items.id = :itemId', { itemId })
+      .leftJoinAndSelect('items.collection', 'collection')
+      .leftJoinAndSelect('items.blockChain', 'blockChain')
+      .getOne();
+
+    nftItem.collection = itemDetails.collection;
+    nftItem.blockChain = itemDetails.blockChain;
+
+    return await this.nftItemRepository.save(nftItem);
   }
 
   /**

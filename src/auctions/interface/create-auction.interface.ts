@@ -3,7 +3,8 @@ import { Bundle, ReservedAuction } from '../entities/auctions.entity';
 import { Signature } from '../entities/auctions.entity';
 
 export class CreateAuctionInterface {
-  auction_items: string;
+  auction_item?: string;
+  bundle_items?: string[];
   auction_collection: string;
   startDate: number;
   endDate: number;

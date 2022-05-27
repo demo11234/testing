@@ -9,8 +9,12 @@ import {
 
 export class CreateAuctionDto {
   @ApiProperty()
-  @IsNotEmpty()
-  auction_items: string;
+  @IsOptional()
+  auction_item: string;
+
+  @ApiProperty()
+  @IsOptional()
+  bundle_items: string[];
 
   @ApiProperty()
   @IsNotEmpty()
