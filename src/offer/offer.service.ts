@@ -78,7 +78,9 @@ export class OfferService {
     offer.item = item;
     offer.paymentToken = token;
 
-    offer.signature = JSON.stringify(createOfferDto.signature);
+    if (createOfferDto.signature)
+      offer.signature = JSON.stringify(createOfferDto.signature);
+
     if (createOfferDto.auctionId) {
       const auction = await this.auctionRepository.findOne({
         id: createOfferDto.auctionId,
