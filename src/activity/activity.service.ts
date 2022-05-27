@@ -83,7 +83,12 @@ export class ActivityService {
       let { take, skip } = activityFilterInterface;
 
       take = take ? take : 0;
-      skip = skip ? skip : 1;
+
+      if (skip == 0 || !skip) {
+        skip = 1;
+      }
+
+      console.log(skip);
 
       let activity = await this.activityRepository
         .createQueryBuilder('activity')
