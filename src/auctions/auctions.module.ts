@@ -13,6 +13,7 @@ import { Collection } from 'src/collections/entities/collection.entity';
 import { Offer } from 'src/offer/entities/offer.entity';
 import { NftItemService } from 'src/nft-item/nft-item.service';
 import { Chains } from 'src/chains/entities/chains.entity';
+import { ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
@@ -27,7 +28,13 @@ import { Chains } from 'src/chains/entities/chains.entity';
       Chains,
     ]),
   ],
-  providers: [AuctionsService, ResponseModel, ActivityService, NftItemService],
+  providers: [
+    AuctionsService,
+    ResponseModel,
+    ActivityService,
+    NftItemService,
+    ConfigService,
+  ],
   controllers: [AuctionsController],
 })
 export class AuctionsModule {}
