@@ -24,10 +24,10 @@ export class ServicesService {
    */
   @Cron(CronExpression.EVERY_10_SECONDS)
   handleCron() {
-    console.log('calling algolia user upload function every 4 hours');
+    //console.log('calling algolia user upload function every 4 hours');
     this.algoliaUserUpload();
 
-    console.log('calling algolia Collection upload function every 4 hours');
+    // console.log('calling algolia Collection upload function every 4 hours');
     this.algoliaCollectionUpload();
   }
 
