@@ -842,6 +842,10 @@ export class NftItemService {
         });
       }
 
+      if (isBundle) {
+        item = item.andWhere('item.isBundle = true');
+      }
+
       if (status) {
         const statusArr = status.split(',').map((s) => s.trim());
 
