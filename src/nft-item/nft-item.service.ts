@@ -383,10 +383,18 @@ export class NftItemService {
 
   async findOne(id: string): Promise<any> {
     try {
-      const item = await this.nftItemRepository.findOne({
-        where: { id },
-        relations: ['collection', 'auction_item'],
-      });
+      const item = await this.nftItemRepository
+        .createQueryBuilder('item')
+        .where('item.id = :id', { id })
+        .leftJoinAndSelect('item.collection', 'collection')
+        .leftJoinAndSelect(
+          'item.auction_item',
+          'auction',
+          'auction.isActive = :isActive',
+          { isActive: true },
+        )
+        .getMany();
+
       if (item) return item;
     } catch (error) {
       throw new Error(error);
