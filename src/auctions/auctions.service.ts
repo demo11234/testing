@@ -67,26 +67,26 @@ export class AuctionsService {
     });
     auction.auction_collection = collection;
 
-    if (createAuctionInterface.auction_items) {
+    if (createAuctionInterface.auction_item) {
       const item = await this.nftItemRepository.findOne({
-        id: createAuctionInterface.auction_items,
+        id: createAuctionInterface.auction_item,
       });
       auction.auction_item = item;
       auction.auctionName = item.fileName;
 
       await this.nftItemRepository.update(
-        { id: createAuctionInterface.auction_items },
+        { id: createAuctionInterface.auction_item },
         { onAuction: true },
       );
     } else if (
       createAuctionInterface.bundle &&
-      createAuctionInterface.auction_bundle.length > 1
+      createAuctionInterface.bundle_items.length > 1
     ) {
       auction.bundle = createAuctionInterface.bundle;
       auction.auctionName = createAuctionInterface.bundle.name;
 
       const bundle = await this.createBundle(
-        createAuctionInterface.auction_bundle,
+        createAuctionInterface.bundle_items,
         walletAddress,
         createAuctionInterface.bundle,
       );
@@ -142,17 +142,6 @@ export class AuctionsService {
     nftItem.onAuction = true;
     nftItem.isBundle = true;
     nftItem.bundle = items;
-    // nftItem.contractAddress = items[0].contractAddress;
-
-    // const [index, indexCount] = await this.nftItemRepository.findAndCount({
-    //   walletAddress,
-    // });
-    // const supply = 1;
-    // nftItem.tokenId = await this.nftItemService.generateToken(
-    //   walletAddress,
-    //   indexCount + 1,
-    //   supply,
-    // );
 
     const itemId = items[0].id;
 
