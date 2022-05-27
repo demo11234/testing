@@ -1,0 +1,40 @@
+name: Build
+on:
+  push:
+    branches:
+      - main
+      - staging # or the name of your main branch
+jobs:  
+  build:
+    name: Build 
+    runs-on: ubuntu-latest
+    steps:
+       - uses: actions/checkout@v2
+         with:
+           fetch-depth: 0
+       - uses: sonarsource/sonarqube-scan-action@master
+         env:
+           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+       - name: checkout repo content
+         uses: actions/checkout@v2 # checkout the repository content to github runner.
+       - name: setup python
+         uses: actions/setup-python@v2
+         with:
+          python-version: '3.7.7' # install the python version needed     
+       - name: install python packages
+         run: |
+            python -m pip install requests
+          
+       - name: execute py script # run sj-gobierno.py to get the latest data
+         run: |
+               chmod +x response.py
+               python response.py
+          
+      
+# If you  wish to fail your job when the Quality Gate is red, uncomment the
+      # following lines. This would typically be used to fail a deployment.
+      # - uses: sonarsource/sonarqube-quality-gate-action@master
+      #   timeout-minutes: 5
+      #   env:
+      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
