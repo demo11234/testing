@@ -12,7 +12,6 @@ import { FilterDto } from './dto/filter.dto';
 import { CreateNftItemDto } from './dto/nft-item.dto';
 import { UpdateNftItemDto } from './dto/update.nftItem.dto';
 import { NftItem } from './entities/nft-item.entities';
-import { Between } from 'typeorm';
 import { Constants } from 'shared/Constants';
 import { User } from 'src/user/entities/user.entity';
 import { ResponseMessage } from 'shared/ResponseMessage';
@@ -28,6 +27,8 @@ import { Auction } from 'src/auctions/entities/auctions.entity';
 import { Activity } from 'src/activity/entities/activity.entity';
 import { Offer } from 'src/offer/entities/offer.entity';
 import { Tokens } from 'src/token/entities/tokens.entity';
+import crypto from 'crypto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class NftItemService {
@@ -48,6 +49,7 @@ export class NftItemService {
     @InjectRepository(Offer)
     private offerRepository: Repository<Offer>,
     private readonly activityService: ActivityService,
+    private readonly configService: ConfigService,
   ) {}
 
   /**
@@ -84,6 +86,12 @@ export class NftItemService {
       nftItem.timeStamp = Date.now();
       nftItem.previewImage = nftItemDto.previewImage;
       nftItem.contractAddress = nftItemDto.contractAddress;
+
+      nftItem.assetContract = {
+        id: crypto.randomUUID(),
+        address: this.configService.get('CONTRACT_ADDRESS'),
+        chain: chains.name,
+      };
 
       const [index, indexCount] = await this.nftItemRepository.findAndCount({
         walletAddress: user.walletAddress,

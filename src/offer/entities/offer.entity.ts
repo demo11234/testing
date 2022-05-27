@@ -133,8 +133,8 @@ export class Offer {
   auction: Auction;
 
   @ApiProperty()
-  @Column()
-  Expires: string;
+  @Column({ type: 'float' })
+  Expires: number;
 
   @Column({ default: false })
   @Exclude()

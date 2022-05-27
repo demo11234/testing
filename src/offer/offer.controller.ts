@@ -82,7 +82,16 @@ export class OfferController {
         createOfferDto,
         ownerWalletAddress,
       );
-      if (offer) {
+      if (offer.status === 409) {
+        return this.responseModel.response(
+          ResponseMessage.OFFER_ALREADY_EXISTS,
+          ResponseStatusCode.CONFLICT,
+          false,
+          response,
+        );
+      } else if (offer) {
+        const collection = await offer.item.collection;
+
         await this.activityService.createActivity({
           eventActions: eventActions.OFFER_ENTERED,
           nftItem: offer.item.id,
@@ -91,7 +100,7 @@ export class OfferController {
           toAccount: offer.item.owner,
           totalPrice: createOfferDto.price,
           isPrivate: false,
-          collectionId: offer.item.collection.id,
+          collectionId: collection.id,
           winnerAccount: null,
         });
         return this.responseModel.response(
@@ -109,6 +118,8 @@ export class OfferController {
         );
       }
     } catch (error) {
+      console.log(error);
+
       return this.responseModel.response(
         error,
         ResponseStatusCode.INTERNAL_SERVER_ERROR,
@@ -117,7 +128,6 @@ export class OfferController {
       );
     }
   }
-
   /**
    * @description: This api updates the collection and returns status
    * @param id

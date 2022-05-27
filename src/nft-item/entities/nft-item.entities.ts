@@ -38,6 +38,20 @@ export class Properties {
   name: string;
 }
 
+export class AssetContract {
+  @ApiProperty()
+  @IsString()
+  id: string;
+
+  @ApiProperty()
+  @IsString()
+  chain: string;
+
+  @ApiProperty()
+  @IsString()
+  address: string;
+}
+
 export class Levels {
   @ApiProperty()
   @IsString()
@@ -97,7 +111,7 @@ export class NftItem {
 
   @ManyToOne(() => Collection, (collection) => collection.nftItem, {
     onDelete: 'CASCADE',
-    // eager: true,
+    eager: true,
   })
   @JoinColumn()
   collection: Collection;
@@ -207,6 +221,10 @@ export class NftItem {
   @ApiProperty()
   @Column({ type: 'jsonb', nullable: true })
   isBiddingEnabled: BiddingEnabled;
+
+  @ApiProperty()
+  @Column({ type: 'jsonb' })
+  assetContract: AssetContract;
 
   @ApiProperty()
   @CreateDateColumn()

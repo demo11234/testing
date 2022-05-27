@@ -118,6 +118,8 @@ export class AuctionsService {
       }
     }
 
+    this.updateFloorPrice(collection.id, auction.startingPrice);
+
     return this.auctionRepository.save(auction);
   }
 
@@ -268,6 +270,40 @@ export class AuctionsService {
         winnerAccount: null,
       });
 
+      try {
+        const collectionId = auction.auction_collection.id;
+
+        // const collectionItems = await this.collectionRepository.find({
+        //   where: {
+        //     id: auction.auction_collection.id,
+        //   },
+        // });
+        const collectionItemsOnAuction = await this.auctionRepository
+          .createQueryBuilder('auction')
+          .innerJoinAndSelect('auction.auction_collection', 'collection')
+          .where(
+            'collection.id = :collectionId AND auction.isCancelled = :isCancelled',
+            {
+              collectionId,
+              isCancelled: false,
+            },
+          )
+          //    .orderBy('auction.startingPrice', 'ASC')
+          .select('MIN(auction.startingPrice)', 'min')
+          .getRawOne();
+
+        console.log(collectionItemsOnAuction);
+
+        if (collectionItemsOnAuction.min) {
+          const updated = await this.collectionRepository.update(
+            { id: collectionId },
+            { stats: { floor_price: collectionItemsOnAuction.min } },
+          );
+        }
+      } catch (error) {
+        console.log(error);
+      }
+
       return {
         message: ResponseMessage.AUCTION_CANCELLED,
         status: ResponseStatusCode.OK,
@@ -359,6 +395,11 @@ export class AuctionsService {
       ? updateAuctionInterface.price
       : auction.startingPrice;
 
+    await this.updateFloorPrice(
+      auction.auction_collection.id,
+      updateAuctionInterface.price,
+    );
+
     return this.auctionRepository.save(auctionUpdated);
   }
 
@@ -377,5 +418,29 @@ export class AuctionsService {
       { signature },
     );
     return true;
+  }
+  /**
+   * @description Updating floor price based on auction floor price
+   * @param collectionId
+   * @param floor_price
+   * @returns boolean
+   * @author Mohan
+   */
+  async updateFloorPrice(collectionId, floor_price: number): Promise<boolean> {
+    const collection = await this.collectionRepository.findOne({
+      where: {
+        id: collectionId,
+      },
+    });
+
+    if (collection.stats.floor_price > floor_price) {
+      const updated = await this.collectionRepository.update(
+        { id: collectionId },
+        { stats: { floor_price } },
+      );
+
+      if (updated.affected == 1) return true;
+      else return false;
+    }
   }
 }

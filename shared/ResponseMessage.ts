@@ -108,4 +108,5 @@ export const ResponseMessage = {
 
   REQUEST_REPORTED: 'request successfully reported',
   ALREADY_REPORTED: 'user have already reported this',
+  OFFER_ALREADY_EXISTS: 'offer already exists',
 };
