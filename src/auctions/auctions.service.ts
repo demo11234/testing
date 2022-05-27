@@ -52,6 +52,9 @@ export class AuctionsService {
       ? createAuctionInterface.quantity
       : 0;
 
+    if(createAuctionInterface.signature)
+      auction.signature = JSON.stringify(createAuctionInterface.signature);
+
     const user = await this.userRepository.findOne({ walletAddress });
     auction.creator = user;
 
