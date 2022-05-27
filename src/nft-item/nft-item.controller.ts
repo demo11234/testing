@@ -742,7 +742,7 @@ export class NftItemController {
   }
 
   /**
-   * @description gey all items with filters. Open  Api
+   * @description get all items with filters. Open  Api
    * @param filterDtoAllItems
    * @returns array of items based on filters
    * @author Mohan
