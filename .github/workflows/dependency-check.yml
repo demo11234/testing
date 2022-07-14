@@ -4,7 +4,7 @@ on:
     types: [created, edited, deleted]
 jobs:
   depchecktest:
-    if: contains(github.event.comment.html_url, '/pull/')  
+    if: contains(github.event.comment.body, '$qa-test')  
     runs-on: ubuntu-latest
 
     name: depecheck_test
