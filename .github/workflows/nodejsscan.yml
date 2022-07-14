@@ -1,7 +1,7 @@
 name: njsscan
-#on:
- # push:
- #   branches: [ staging ]
+on:
+  push:
+    branches: [ staging ]
   #pull_request:
    # branches: [ staging ]
 jobs:
@@ -9,6 +9,10 @@ jobs:
     runs-on: ubuntu-latest
     name: njsscan check
     steps:
+    - name: print body
+      env:
+        BODY: ${{ github.event.comment.body }}
+      run: echo "$BODY"
     - name: Checkout the code
       uses: actions/checkout@v2
     - name: nodejsscan scan
