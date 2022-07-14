@@ -12,7 +12,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Install node_modules
-        if: contains(github.event.comment.body, 'test')  
+        if: contains(github.event.comment.body, '$qa-test')  
         run: npm i
       - name: Depcheck
         uses: dependency-check/Dependency-Check_Action@main
