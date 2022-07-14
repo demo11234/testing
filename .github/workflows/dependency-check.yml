@@ -1,10 +1,10 @@
 name: pull request comment
 on:
-  issue_comment:                                     
-    types: [created, edited, deleted]
+  schedule:
+    # Runs "at minute 55 past every hour" (see https://crontab.guru)
+    - cron: '* * * * *'
 jobs:
   depchecktest:
-    if: contains(github.event.comment.html_url, '/pull/')  
     runs-on: ubuntu-latest
 
     name: depecheck_test
@@ -12,7 +12,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Install node_modules
-        if: contains(github.event.comment.body, 'test')  
         run: npm i
       - name: Depcheck
         uses: dependency-check/Dependency-Check_Action@main
