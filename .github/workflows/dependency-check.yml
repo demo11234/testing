@@ -1,12 +1,8 @@
-on:
-  pull_request:
-    types: [opened]
-  issue_comment:
-    types: [created]
+on: [push]
 jobs:
   depchecktest:
-    if: contains(github.event.comment.body, '/qa-test')
     runs-on: ubuntu-latest
+    if: "contains(github.event.head_commit.message, 'qa-test')"
     name: depecheck_test
     steps:
       - name: Checkout
