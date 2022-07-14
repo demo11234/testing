@@ -1,11 +1,12 @@
 on:
+  pull_request:
+    types: [opened]
   issue_comment:
-    types:
-      - created
+    types: [created]
 jobs:
   depchecktest:
     runs-on: ubuntu-latest
-    if: ${{ github.event.comment.body == '$qa-test'}}
+    if: ${{ github.event.comment.body == 'qa-test'}}
     name: depecheck_test
     steps:
       - name: Checkout
