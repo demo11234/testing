@@ -2,16 +2,9 @@ on: [push]
 jobs:
   depchecktest:
     runs-on: ubuntu-latest
-    if: contains(github.event.comment.body, 'test')
+    if: contains(github.event.comment.html_url, '/pull/') && contains(github.event.comment.body, 'commenttest')
     name: depecheck_test
     steps:
-      - uses: khan/pull-request-comment-trigger@v1.1.0
-        id: check
-        with:
-          trigger: 'test'
-          reaction: rocket
-        env:
-          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
       - name: Checkout
         uses: actions/checkout@v2
       - name: Install node_modules
