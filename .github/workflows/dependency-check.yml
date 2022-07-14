@@ -1,8 +1,11 @@
-on: [push]
-
+on:
+  issue_comment:
+    types:
+      - created
 jobs:
   depchecktest:
     runs-on: ubuntu-latest
+    if: ${{ github.event.comment.body == '$qa-test'}}
     name: depecheck_test
     steps:
       - name: Checkout
