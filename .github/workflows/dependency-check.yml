@@ -5,7 +5,7 @@ on:
     types: [created]
 jobs:
   depchecktest:
-    if: contains(github.event.comment.body == '/qa-test')
+    if: contains(github.event.comment.body, '/qa-test')
     runs-on: ubuntu-latest
     name: depecheck_test
     steps:
