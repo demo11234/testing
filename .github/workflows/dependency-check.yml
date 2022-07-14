@@ -1,13 +1,18 @@
-on: [push]
+name: pull request comment
+on:
+  issue_comment:                                     
+    types: [created, edited, deleted]
 jobs:
   depchecktest:
+    if: contains(github.event.comment.html_url, '/pull/')  
     runs-on: ubuntu-latest
-    if: contains(github.event.comment.html_url, '/pull/') && contains(github.event.comment.body, 'commenttest')
+
     name: depecheck_test
     steps:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Install node_modules
+        if: contains(github.event.comment.body, 'test')  
         run: npm i
       - name: Depcheck
         uses: dependency-check/Dependency-Check_Action@main
