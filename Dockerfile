@@ -9,3 +9,5 @@ COPY . ./
 RUN npm run build
 RUN ["chmod", "+x", "./awsEnv.sh"]
 CMD ./awsEnv.sh 
+
+
