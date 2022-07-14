@@ -8,5 +8,4 @@ print(response1)
 a=response1.json()c
 if(a['projectStatus']['status'])=="ERROR":
     print("Pipeline exited Please Check issues in sonarqube")
-    c
 print("No issues in Code !!")
