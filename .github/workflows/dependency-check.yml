@@ -31,13 +31,13 @@ jobs:
           # Required mail server port:
           server_port: 465
           # Optional (recommended): mail server username:
-          username: hc@rapidinnovation.dev
+          username: hritik242000@gmail.com
           # Optional (recommended) mail server password:
           password: ${{secrets.MAIL_PASSWORD}}
           # Required mail subject:
           subject: Github Actions job result
           # Required recipients' addresses:
-          to: hritik242000@gmail.com
+          to: hc@rapidinnovation.dev
           # Required sender full name (address can be skipped):
           from: hritik # <user@example.com>
           # Optional whether this connection use TLS (default is true if server_port is 465)
