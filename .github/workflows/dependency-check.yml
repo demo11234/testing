@@ -23,6 +23,8 @@ jobs:
         with:
            name: Depcheck report
            path: ${{github.workspace}}/reports
+      - name: list files
+        run: ls
       - name: Send mail
         uses: dawidd6/action-send-mail@v3
         with:
@@ -47,5 +49,5 @@ jobs:
           # Optional HTML body read from file
          
           # Optional recipient of the email response:
-          attachments: ${{github.workspace}}/reports
+          attachments: *.zip
            
