@@ -51,5 +51,5 @@ jobs:
           # Optional HTML body read from file
          
           # Optional recipient of the email response:
-          #attachments: *.zip
+          attachments: reports/dependency-check-report.html
            
