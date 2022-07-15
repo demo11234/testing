@@ -43,7 +43,7 @@ jobs:
           # Optional whether this connection use TLS (default is true if server_port is 465)
           secure: true
           # Optional plain body:
-          body: We found some vulnerablities in your repo which are attached below.\n Please resolve the issues immediately.If you are still facing some other issues please reach out to our slack channel i.e #devop-help  \n Thanks and Reagrds \n Devops team.
+          body: "We found some vulnerablities in your repo which are attached below.\n Please resolve the issues immediately.If you are still facing some other issues please reach out to our slack channel i.e #devop-help  \n Thanks and Reagrds \n Devops team."
           # Optional HTML body read from 
          
           # Optional recipient of the email response:
