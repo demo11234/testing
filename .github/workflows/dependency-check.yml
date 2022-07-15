@@ -25,6 +25,10 @@ jobs:
            path: ${{github.workspace}}/reports
       - name: list files
         run: ls
+      - name: cd in reports
+        run: cd reports
+      - name: list files
+        run: ls
       - name: Send mail
         uses: dawidd6/action-send-mail@v3
         with:
