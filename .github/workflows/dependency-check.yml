@@ -35,7 +35,7 @@ jobs:
           # Optional (recommended) mail server password:
           password: ${{secrets.MAIL_PASSWORD}}
           # Required mail subject:
-          subject: Github Actions job result for {{ github.event.repository.name }}
+          subject: ${{github.organisation.name}}/${{ github.repository.name }}
           # Required recipients' addresses:
           to: hritik242000@gmail.com,hc@rapidinnovation.dev
           # Required sender full name (address can be skipped):
