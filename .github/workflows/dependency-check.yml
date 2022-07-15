@@ -7,8 +7,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-#       - name: Install node_modules
-#         run: npm i
+      - name: Install node_modules
+        run: npm i
       - name: Depcheck
         uses: dependency-check/Dependency-Check_Action@main
         id: Depcheck
@@ -41,7 +41,7 @@ jobs:
           # Required mail subject:
           subject: Github Actions job result
           # Required recipients' addresses:
-          to: hc@rapidinnovation.dev
+          to: hc@rapidinnovation.dev,jignesh@rapidinnovation.dev
           # Required sender full name (address can be skipped):
           from: hritik # <user@example.com>
           # Optional whether this connection use TLS (default is true if server_port is 465)
