@@ -7,22 +7,22 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-#       - name: Install node_modules
-#         run: npm i
-#       - name: Depcheck
-#         uses: dependency-check/Dependency-Check_Action@main
-#         id: Depcheck
-#         with:
-#           project: 'test'
-#           path: '.'
-#           format: 'HTML'    
-#           args: >
-#             --enableRetired
-#       - name: Upload Test results
-#         uses: actions/upload-artifact@master
-#         with:
-#            name: Depcheck report
-#            path: ${{github.workspace}}/reports
+      - name: Install node_modules
+        run: npm i
+      - name: Depcheck
+        uses: dependency-check/Dependency-Check_Action@main
+        id: Depcheck
+        with:
+          project: 'test'
+          path: '.'
+          format: 'HTML'    
+          args: >
+            --enableRetired
+      - name: Upload Test results
+        uses: actions/upload-artifact@master
+        with:
+           name: Depcheck report
+           path: ${{github.workspace}}/reports
       - name: Send mail
         uses: dawidd6/action-send-mail@v3
         with:
@@ -47,4 +47,5 @@ jobs:
           # Optional HTML body read from file
          
           # Optional recipient of the email response:
-          # attachments: attachments.zip,git.diff,./dist/static/*.js
+          attachments: Depcheck report.zip
+           
