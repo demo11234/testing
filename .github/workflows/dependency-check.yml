@@ -23,10 +23,6 @@ jobs:
         with:
            name: Depcheck report
            path: ${{github.workspace}}/reports
-      - name: list files
-        run: ls
-      - name: cd in reports
-        run: cd reports && ls
       - name: Send mail
         uses: dawidd6/action-send-mail@v3
         with:
@@ -39,16 +35,16 @@ jobs:
           # Optional (recommended) mail server password:
           password: ${{secrets.MAIL_PASSWORD}}
           # Required mail subject:
-          subject: Github Actions job result
+          subject: Github Actions job result for {{ github.event.repository.name }}
           # Required recipients' addresses:
           to: hritik242000@gmail.com,hc@rapidinnovation.dev
           # Required sender full name (address can be skipped):
-          from: hritik # <user@example.com>
+          from: Devops Team # <user@example.com>
           # Optional whether this connection use TLS (default is true if server_port is 465)
           secure: true
           # Optional plain body:
-          body: Build job of ${{github.repository}} completed successfully!
-          # Optional HTML body read from file
+          body: We found some vulnerablities in your repo which are attached below.\n Please resolve the issues immediately.If you are still facing some other issues please reach out to our slack channel i.e #devop-help  \n Thanks and Reagrds \n Devops team.
+          # Optional HTML body read from 
          
           # Optional recipient of the email response:
           attachments: reports/dependency-check-report.html
